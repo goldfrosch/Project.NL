@@ -2,12 +2,15 @@
 
 
 #include "PlayerCharacter.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MovieSceneTracksComponentTypes.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -33,15 +36,20 @@ APlayerCharacter::APlayerCharacter()
 	CameraSpring->SetupAttachment(RootComponent);
 	CameraSpring->TargetArmLength = 400.0f;
 	CameraSpring->bUsePawnControlRotation = true;
-
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraSpring, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
+	
+	FirstCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstCamera"));
+	FirstCamera->SetupAttachment(GetMesh(), "head");
+	FirstCamera->bUsePawnControlRotation = true;
+	
+	ThirdFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdFollowCamera"));
+	ThirdFollowCamera->SetupAttachment(CameraSpring, USpringArmComponent::SocketName);
+	ThirdFollowCamera->bUsePawnControlRotation = false;
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SetThirdPersonView();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -140,7 +148,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	{
 		const double NewPitch = LookAxisVector.Y * UGameplayStatics::GetWorldDeltaSeconds(this) * 100;
 		const double NewYaw = LookAxisVector.X * UGameplayStatics::GetWorldDeltaSeconds(this) * 100;
-		
+            
 		AddControllerYawInput(NewYaw);
 		AddControllerPitchInput(NewPitch);
 	}
@@ -148,14 +156,16 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::SetFirstPersonView()
 {
-	CameraSpring->TargetOffset.Z = 69;
-	CameraSpring->TargetOffset.X = 5;
+	FirstCamera->SetActive(true);
+	ThirdFollowCamera->SetActive(false);
+	bUseControllerRotationYaw = true;
 }
 
 void APlayerCharacter::SetThirdPersonView()
 {
-	CameraSpring->TargetOffset.Z = 0;
-	CameraSpring->TargetOffset.X = 0;
+	FirstCamera->SetActive(false);
+	ThirdFollowCamera->SetActive(true);
+	bUseControllerRotationYaw = false;
 }
 
 bool APlayerCharacter::GetIsFirstPersonView() const

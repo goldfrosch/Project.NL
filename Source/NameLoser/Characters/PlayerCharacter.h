@@ -23,7 +23,7 @@ class NAMELOSER_API APlayerCharacter : public ACharacter, public IAbilitySystemI
 public:
 	APlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -48,7 +48,7 @@ protected:
 private:
 	const uint8 PercentCameraMovement = 5;
 	const uint8 MaxCameraScroll = 150;
-	const uint8 MaxCountForChangeThirdPerson = 5;
+	const uint8 MaxCountForChangeThirdPerson = 10;
 
 	// 카메라의 인칭을 커스텀하게 잡아주는 float value
 	// N번만큼 스크롤할 때 3인칭으로 전환하게 해주는 value다.
@@ -56,9 +56,13 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraSpring;
+
+	// TODO: https://www.youtube.com/watch?v=21cLT6-3uDw
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* FirstCamera;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
+	UCameraComponent* ThirdFollowCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
