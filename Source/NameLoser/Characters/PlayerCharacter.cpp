@@ -9,8 +9,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "MovieSceneTracksComponentTypes.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -85,8 +83,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::ScrollClose(const FInputActionValue& Value)
 {
-	float ScrollAxis = Value.Get<float>();
-	UE_LOG(LogTemp, Display, TEXT("%f"), ScrollAxis);
+	const float ScrollAxis = Value.Get<float>();
 
 	if (GetIsFirstPersonView())
 	{
@@ -135,19 +132,19 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+		AddMovementInput(ForwardDirection, static_cast<float>(MovementVector.Y));
+		AddMovementInput(RightDirection, static_cast<float>(MovementVector.X));
 	}
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		const double NewPitch = LookAxisVector.Y * UGameplayStatics::GetWorldDeltaSeconds(this) * 100;
-		const double NewYaw = LookAxisVector.X * UGameplayStatics::GetWorldDeltaSeconds(this) * 100;
+		const float NewPitch = LookAxisVector.Y * UGameplayStatics::GetWorldDeltaSeconds(this) * 100.f;
+		const float NewYaw = LookAxisVector.X * UGameplayStatics::GetWorldDeltaSeconds(this) * 100.f;
             
 		AddControllerYawInput(NewYaw);
 		AddControllerPitchInput(NewPitch);
@@ -170,7 +167,7 @@ void APlayerCharacter::SetThirdPersonView()
 
 bool APlayerCharacter::GetIsFirstPersonView() const
 {
-	return CameraSpring->TargetArmLength <= MaxCameraScroll;
+	return CameraSpring->TargetArmLength <= static_cast<float>(MaxCameraScroll);
 }
 
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
