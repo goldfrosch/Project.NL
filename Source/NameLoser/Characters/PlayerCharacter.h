@@ -71,6 +71,7 @@ private:
 	// N번만큼 스크롤할 때 3인칭으로 전환하게 해주는 value다.
 	uint8 CountForChangeThirdPerson = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
 	bool IsCombatMode = false;
 
 	EPlayerAnimationStatus AnimStatus = Default;

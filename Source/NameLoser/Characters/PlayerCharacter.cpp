@@ -144,7 +144,6 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
 		/**
 		 * Move를 하나로 통일시켜도 정상 동작 하는 이유는 Input Mapping에서 전달하는 X,Y,Z값을
 		 * 상하좌우에 따라 X,Y,Z 정렬 순서를 바꾸기 때문에 동일 동작이 가능하다
@@ -152,7 +151,6 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		 * ex. 좌의 경우 X,Z,Y 순서대로 매핑되어서 EAxis:X = X가 매핑된다
 		 */
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
 		AddMovementInput(ForwardDirection, static_cast<float>(MovementVector.Y));
@@ -200,10 +198,14 @@ void APlayerCharacter::StartDrawWeapon()
 	{
 		AnimStatus = Sheathing;
 		IsCombatMode = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		bUseControllerRotationYaw = GetIsFirstPersonView();
 	} else
 	{
 		AnimStatus = Drawing;
 		IsCombatMode = true;
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
 
 		if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 		{
