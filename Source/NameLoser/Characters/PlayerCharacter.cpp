@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "NameLoser/Weapon/WeaponBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -48,6 +49,27 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SetThirdPersonView();
+
+	// TODO: 추후 웨폰 등록시의 UI에 대한 반응으로 함수 따로 빼서 사용할 예정
+	if (IsValid(RightWeapon))
+	{
+		RightWeaponData = GetWorld()->SpawnActor<AWeaponBase>(RightWeapon);
+		if (IsValid(RightWeaponData))
+		{
+			RightWeaponData->GetWeaponMesh()->AttachToComponent(
+					GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+					"weapon_inv_right"
+				);
+		}
+	}
+
+	// TODO: 추후 함수화해도 무방할듯
+	UAnimInstance* PAnimInst = GetMesh()->GetAnimInstance();
+
+	if (IsValid(PAnimInst))
+	{
+		PAnimInst->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerCharacter::StartDrawWeaponMontageNotifyBegin);
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -78,6 +100,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(ScrollCloseAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollClose);
+		EnhancedInputComponent->BindAction(DrawWeaponAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartDrawWeapon);
 	}
 }
 
@@ -169,6 +192,39 @@ bool APlayerCharacter::GetIsFirstPersonView() const
 {
 	return CameraSpring->TargetArmLength <= static_cast<float>(MaxCameraScroll);
 }
+
+void APlayerCharacter::StartDrawWeapon()
+{
+	
+	if (IsCombatMode)
+	{
+		AnimStatus = Sheathing;
+		IsCombatMode = false;
+	} else
+	{
+		AnimStatus = Drawing;
+		IsCombatMode = true;
+
+		if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+		{
+			AnimInst->Montage_Play(DrawAnimationMontage);
+		}
+	}
+	AnimStatus = Default;
+}
+
+void APlayerCharacter::StartDrawWeaponMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
+{
+	RightWeaponData->GetWeaponMesh()->AttachToComponent(
+        	GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+        	"weapon_r"
+        );
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		AnimInst->Montage_Play(DrawAnimationMontage);
+	}
+}
+
 
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
