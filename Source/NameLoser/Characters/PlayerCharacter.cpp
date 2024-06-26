@@ -100,7 +100,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(ScrollCloseAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollClose);
-		EnhancedInputComponent->BindAction(DrawWeaponAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartDrawWeapon);
+		EnhancedInputComponent->BindAction(DrawWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::StartDrawWeapon);
 	}
 }
 
@@ -219,10 +219,6 @@ void APlayerCharacter::StartDrawWeaponMontageNotifyBegin(FName NotifyName, const
         	GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
         	"weapon_r"
         );
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		AnimInst->Montage_Play(DrawAnimationMontage);
-	}
 }
 
 
