@@ -10,6 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "NameLoser/Ability/DrawWeapon/AnimNotify/DrawAnimNotify.h"
+#include "NameLoser/Ability/DrawWeapon/AnimNotify/DrawEndAnimNotify.h"
+#include "NameLoser/Ability/SheathingWeapon//AnimNotify/SheathingEndAnimNotify.h"
+#include "NameLoser/SharedManager/MovementManager.h"
 #include "NameLoser/Weapon/WeaponBase.h"
 
 // Sets default values
@@ -26,7 +30,7 @@ APlayerCharacter::APlayerCharacter()
 
 	GetCharacterMovement()->JumpZVelocity = 550.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 350.f;
+	GetCharacterMovement()->MaxWalkSpeed = 450.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -43,32 +47,25 @@ APlayerCharacter::APlayerCharacter()
 	ThirdFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdFollowCamera"));
 	ThirdFollowCamera->SetupAttachment(CameraSpring, USpringArmComponent::SocketName);
 	ThirdFollowCamera->bUsePawnControlRotation = false;
+
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SetThirdPersonView();
-
 	// TODO: 추후 웨폰 등록시의 UI에 대한 반응으로 함수 따로 빼서 사용할 예정
 	if (IsValid(RightWeapon))
 	{
 		RightWeaponData = GetWorld()->SpawnActor<AWeaponBase>(RightWeapon);
 		if (IsValid(RightWeaponData))
 		{
-			RightWeaponData->GetWeaponMesh()->AttachToComponent(
+			RightWeaponData->AttachToComponent(
 					GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 					"weapon_inv_right"
 				);
+			RightWeaponData->InitializeAnimation(this);
 		}
-	}
-
-	// TODO: 추후 함수화해도 무방할듯
-	UAnimInstance* PAnimInst = GetMesh()->GetAnimInstance();
-
-	if (IsValid(PAnimInst))
-	{
-		PAnimInst->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerCharacter::StartDrawWeaponMontageNotifyBegin);
 	}
 }
 
@@ -100,7 +97,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(ScrollCloseAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollClose);
-		EnhancedInputComponent->BindAction(DrawWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::StartDrawWeapon);
+		EnhancedInputComponent->BindAction(DrawWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCombatMode);
 	}
 }
 
@@ -127,35 +124,19 @@ void APlayerCharacter::ScrollClose(const FInputActionValue& Value)
 	} else
 	{
 		CameraSpring->TargetArmLength -= ScrollAxis * PercentCameraMovement;
-		
 	}
 }
 
 void APlayerCharacter::Run(const FInputActionValue& Value)
 {
 	const bool IsRunning = Value.Get<bool>();
-	GetCharacterMovement()->MaxWalkSpeed = IsRunning ? 700.f : 350.f;
+	GetCharacterMovement()->MaxWalkSpeed = IsRunning ? 800.f : 450.f;
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
-	if (Controller != nullptr)
-	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		/**
-		 * Move를 하나로 통일시켜도 정상 동작 하는 이유는 Input Mapping에서 전달하는 X,Y,Z값을
-		 * 상하좌우에 따라 X,Y,Z 정렬 순서를 바꾸기 때문에 동일 동작이 가능하다
-		 * ex. 상의 경우 Y,X,Z 순서대로 제공함으로써 EAxis::X = Y가 매핑되는 방식이다
-		 * ex. 좌의 경우 X,Z,Y 순서대로 매핑되어서 EAxis:X = X가 매핑된다
-		 */
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		AddMovementInput(ForwardDirection, static_cast<float>(MovementVector.Y));
-		AddMovementInput(RightDirection, static_cast<float>(MovementVector.X));
-	}
+	UMovementManager::Move(this, MovementVector);
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -191,40 +172,76 @@ bool APlayerCharacter::GetIsFirstPersonView() const
 	return CameraSpring->TargetArmLength <= static_cast<float>(MaxCameraScroll);
 }
 
-void APlayerCharacter::StartDrawWeapon()
+void APlayerCharacter::ToggleCombatMode()
 {
-	
-	if (IsCombatMode)
+	if (RightWeaponData != nullptr && AnimStatus == Default)
 	{
-		AnimStatus = Sheathing;
-		IsCombatMode = false;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		bUseControllerRotationYaw = GetIsFirstPersonView();
-	} else
-	{
-		AnimStatus = Drawing;
-		IsCombatMode = true;
-		bUseControllerRotationYaw = true;
-		GetCharacterMovement()->bOrientRotationToMovement = false;
-
-		if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-		{
-			AnimInst->Montage_Play(DrawAnimationMontage);
-		}
+		if (IsCombatMode)
+    	{
+			AnimStatus = Sheathing;
+			IsCombatMode = false;
+			GetCharacterMovement()->bOrientRotationToMovement = true;
+			bUseControllerRotationYaw = GetIsFirstPersonView();
+        	PlayAnimMontage(RightWeaponData->SheathingAnimationMontage);
+    	} else
+    	{
+    		AnimStatus = Drawing;
+        	IsCombatMode = true;
+        	bUseControllerRotationYaw = true;
+        	GetCharacterMovement()->bOrientRotationToMovement = false;
+        	PlayAnimMontage(RightWeaponData->DrawAnimationMontage);
+    	}
 	}
-	AnimStatus = Default;
 }
 
-void APlayerCharacter::StartDrawWeaponMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
+void APlayerCharacter::InitWeaponDrawRightBind(UDrawAnimNotify* DrawNotify)
 {
-	RightWeaponData->GetWeaponMesh()->AttachToComponent(
+	if (DrawNotify != nullptr)
+	{
+		DrawNotify->OnNotified.AddDynamic(this, &APlayerCharacter::DrawWeaponMontageNotifyBegin);
+	}
+}
+
+void APlayerCharacter::InitWeaponDrawEndRightBind(UDrawEndAnimNotify* DrawEndNotify)
+{
+	if (DrawEndNotify != nullptr)
+	{
+		DrawEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::ToggleCombatWeaponMontageNotifyEnd);
+	}
+}
+
+void APlayerCharacter::InitWeaponSheathingEndRightBind(USheathingEndAnimNotify* SheathingEndNotify)
+{
+	if (SheathingEndNotify != nullptr)
+	{
+		SheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndWeaponMontageNotify);
+	}
+}
+
+// TODO: 추후 OneHandSword 쪽으로 이전
+void APlayerCharacter::DrawWeaponMontageNotifyBegin()
+{
+	RightWeaponData->AttachToComponent(
         	GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
         	"weapon_r"
         );
 }
 
+void APlayerCharacter::SheathingEndWeaponMontageNotify()
+{
+	RightWeaponData->AttachToComponent(
+			GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+			"weapon_inv_right"
+		);
+}
+
+void APlayerCharacter::ToggleCombatWeaponMontageNotifyEnd()
+{
+	AnimStatus = Default;
+}
 
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
+

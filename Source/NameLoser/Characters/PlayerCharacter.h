@@ -33,11 +33,26 @@ public:
 	APlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation)
-	UAnimMontage* DrawAnimationMontage;
+	UFUNCTION()
+	void ToggleCombatMode();
 	
-	void StartDrawWeapon();
+	UFUNCTION()
+	void DrawWeaponMontageNotifyBegin();
+
+	UFUNCTION()
+	void ToggleCombatWeaponMontageNotifyEnd();
+
+	UFUNCTION()
+	void SheathingEndWeaponMontageNotify();
+
+	UFUNCTION()
+	void InitWeaponDrawRightBind(class UDrawAnimNotify* DrawNotify);
 	
+	UFUNCTION()
+	void InitWeaponDrawEndRightBind(class UDrawEndAnimNotify* DrawEndNotify);
+	
+	UFUNCTION()
+	void InitWeaponSheathingEndRightBind(class USheathingEndAnimNotify* SheathingEndNotify);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -59,8 +74,6 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	UAbilitySystemComponent* AbilitySystemComponent;
 	
-	UFUNCTION()
-	void StartDrawWeaponMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload);
 
 private:
 	const uint8 PercentCameraMovement = 5;
