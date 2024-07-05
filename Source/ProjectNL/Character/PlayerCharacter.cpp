@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProjectNL/Manager/MovementManager.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -25,7 +26,7 @@ APlayerCharacter::APlayerCharacter()
 
 	GetCharacterMovement()->JumpZVelocity = 550.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 480.f;
+	GetCharacterMovement()->MaxWalkSpeed = 250.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -92,7 +93,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(ScrollCloseAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollClose);
-		EnhancedInputComponent->BindAction(DrawWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCombatMode);
+		EnhancedInputComponent->BindAction(ToggleCombatAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCombatMode);
 	}
 }
 
@@ -125,13 +126,13 @@ void APlayerCharacter::ScrollClose(const FInputActionValue& Value)
 void APlayerCharacter::Run(const FInputActionValue& Value)
 {
 	const bool IsRunning = Value.Get<bool>();
-	GetCharacterMovement()->MaxWalkSpeed = IsRunning ? 840.f : 480.f;
+	GetCharacterMovement()->MaxWalkSpeed = IsRunning ? 450.f : 250.f;
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
-	// UMovementManager::Move(this, MovementVector);
+	UMovementManager::Move(this, MovementVector);
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)

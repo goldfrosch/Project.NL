@@ -110,7 +110,7 @@ private:
 	UInputAction* ScrollCloseAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* DrawWeaponAction;
+	UInputAction* ToggleCombatAction;
 
 	// UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	// AWeaponBase* RightWeaponData;
