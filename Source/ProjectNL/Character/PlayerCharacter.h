@@ -38,6 +38,9 @@ public:
 
 	UFUNCTION()
 	void UnSheathPlayer();
+	
+	UFUNCTION()
+	void SheathPlayer();
 
 	UFUNCTION()
 	void SheathingEndPlayer();

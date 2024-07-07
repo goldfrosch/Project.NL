@@ -15,9 +15,9 @@
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
+#include "ProjectNL/Manager/WeaponManager.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 
-// Sets default values
 APlayerCharacter::APlayerCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -56,6 +56,8 @@ void APlayerCharacter::BeginPlay()
 	SetThirdPersonView();
 
 	MainWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
+	SubWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
+	SheathPlayer();
 
 	if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
 		if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
@@ -65,6 +67,19 @@ void APlayerCharacter::BeginPlay()
     	}
 		if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
 			UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(UnSheathingAnim))
+		{
+			UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
+		}
+	}
+
+	if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
+		if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
+			UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(SheathingAnim))
+		{
+			GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
+		}
+		if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
+			UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(SheathingAnim))
 		{
 			UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
 		}
@@ -183,6 +198,12 @@ void APlayerCharacter::ToggleCombatMode()
 	{
 		AnimStatus = Sheathing;
 		IsCombatMode = false;
+		if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
+		{
+			UWeaponManager::StartSheathCharacterWeapon(MainWeapon);
+			UWeaponManager::StartSheathCharacterWeapon(SubWeapon);
+			PlayAnimMontage(SheathingAnim);
+		}
 	} else
 	{
 		AnimStatus = UnSheathing;
@@ -196,8 +217,14 @@ void APlayerCharacter::ToggleCombatMode()
 
 void APlayerCharacter::UnSheathPlayer()
 {
-	UCombatManager::UnSheathCharacterWeapon(this, MainWeapon, true);
-	UCombatManager::UnSheathCharacterWeapon(this, SubWeapon, false);
+	UWeaponManager::UnSheathCharacterWeapon(Cast<ACharacter>(this), MainWeapon, true);
+	UWeaponManager::UnSheathCharacterWeapon(Cast<ACharacter>(this), SubWeapon, false);
+}
+
+void APlayerCharacter::SheathPlayer()
+{
+	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this), MainWeapon, true);
+	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this), SubWeapon, false);
 }
 
 void APlayerCharacter::SheathingEndPlayer()
