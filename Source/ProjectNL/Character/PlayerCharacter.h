@@ -11,15 +11,17 @@ class UInputAction;
 class UCameraComponent;
 class USpringArmComponent;
 class UInputMappingContext;
+class AWeaponBase;
 
+struct FCombatAnimationData;
 struct FInputActionValue;
 
 UENUM()
 enum EPlayerAnimationStatus
 {
 	Default,
-	Drawing,
 	Sheathing,
+	UnSheathing,
 	Attacking
 };
 
@@ -33,24 +35,12 @@ public:
 
 	UFUNCTION()
 	void ToggleCombatMode();
-	
-	// UFUNCTION()
-	// void DrawWeaponMontageNotifyBegin();
 
 	UFUNCTION()
-	void ToggleCombatWeaponMontageNotifyEnd();
+	void UnSheathPlayer();
 
-	// UFUNCTION()
-	// void SheathingEndWeaponMontageNotify();
-
-	// UFUNCTION()
-	// void InitWeaponDrawRightBind(class UDrawAnimNotify* DrawNotify);
-	//
-	// UFUNCTION()
-	// void InitWeaponDrawEndRightBind(class UDrawEndAnimNotify* DrawEndNotify);
-	//
-	// UFUNCTION()
-	// void InitWeaponSheathingEndRightBind(class USheathingEndAnimNotify* SheathingEndNotify);
+	UFUNCTION()
+	void SheathingEndPlayer();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -66,7 +56,6 @@ protected:
 	void SetFirstPersonView();
 	// 1인칭인지 아닌지 검증하는 로직
 	bool GetIsFirstPersonView() const;
-	
 
 private:
 	const uint8 PercentCameraMovement = 5;
@@ -111,11 +100,16 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ToggleCombatAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	AWeaponBase* MainWeapon;
 
-	// UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// AWeaponBase* RightWeaponData;
-	//
-	// // 임시 객체로 자연스러운 데이터 로드 or 아이템 줍기 기능 추가 시 제거될 property
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-	// TSubclassOf<AWeaponBase> RightWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	AWeaponBase* SubWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeaponBase> TestWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	FDataTableRowHandle CombatAnimData;
 };

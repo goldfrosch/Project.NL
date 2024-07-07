@@ -10,7 +10,12 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProjectNL/Animation/Characters/UnSheathing/GrabWeaponNotify.h"
+#include "ProjectNL/Animation/Characters/UnSheathing/UnSheathingEndNotify.h"
+#include "ProjectNL/Manager/AnimNotifyManager.h"
+#include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
+#include "ProjectNL/Weapon/WeaponBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -45,24 +50,25 @@ APlayerCharacter::APlayerCharacter()
 	ThirdFollowCamera->bUsePawnControlRotation = false;
 }
 
-// Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SetThirdPersonView();
-	// TODO: 추후 웨폰 등록시의 UI에 대한 반응으로 함수 따로 빼서 사용할 예정
-	// if (IsValid(RightWeapon))
-	// {
-	// 	RightWeaponData = GetWorld()->SpawnActor<AWeaponBase>(RightWeapon);
-	// 	if (IsValid(RightWeaponData))
-	// 	{
-	// 		RightWeaponData->AttachToComponent(
-	// 				GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
-	// 				"weapon_inv_right"
-	// 			);
-	// 		RightWeaponData->InitializeAnimation(this);
-	// 	}
-	// }
+
+	MainWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
+
+	if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
+		if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
+    		UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(UnSheathingAnim))
+    	{
+    		GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::UnSheathPlayer);
+    	}
+		if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
+			UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(UnSheathingAnim))
+		{
+			UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
+		}
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -131,8 +137,11 @@ void APlayerCharacter::Run(const FInputActionValue& Value)
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	const FVector2D MovementVector = Value.Get<FVector2D>();
-	UMovementManager::Move(this, MovementVector);
+	if (AnimStatus == Default)
+	{
+		const FVector2D MovementVector = Value.Get<FVector2D>();
+		UMovementManager::Move(this, MovementVector);
+	}
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -170,69 +179,28 @@ bool APlayerCharacter::GetIsFirstPersonView() const
 
 void APlayerCharacter::ToggleCombatMode()
 {
-	// if (RightWeaponData != nullptr && AnimStatus == Default)
-	// {
-	// 	if (IsCombatMode)
- //    	{
-	// 		AnimStatus = Sheathing;
-	// 		IsCombatMode = false;
-	// 		GetCharacterMovement()->bOrientRotationToMovement = true;
-	// 		bUseControllerRotationYaw = GetIsFirstPersonView();
- //        	// PlayAnimMontage(RightWeaponData->SheathingAnimationMontage);
- //    	} else
- //    	{
- //    		AnimStatus = Drawing;
- //        	IsCombatMode = true;
- //        	bUseControllerRotationYaw = true;
- //        	GetCharacterMovement()->bOrientRotationToMovement = false;
- //        	// PlayAnimMontage(RightWeaponData->DrawAnimationMontage);
- //    	}
-	// }
+	if (IsCombatMode)
+	{
+		AnimStatus = Sheathing;
+		IsCombatMode = false;
+	} else
+	{
+		AnimStatus = UnSheathing;
+		IsCombatMode = true;
+		if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
+		{
+			PlayAnimMontage(UnSheathingAnim);
+		}
+	}
 }
 
-// void APlayerCharacter::InitWeaponDrawRightBind(UDrawAnimNotify* DrawNotify)
-// {
-// 	if (DrawNotify != nullptr)
-// 	{
-// 		DrawNotify->OnNotified.AddDynamic(this, &APlayerCharacter::DrawWeaponMontageNotifyBegin);
-// 	}
-// }
-//
-// void APlayerCharacter::InitWeaponDrawEndRightBind(UDrawEndAnimNotify* DrawEndNotify)
-// {
-// 	if (DrawEndNotify != nullptr)
-// 	{
-// 		DrawEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::ToggleCombatWeaponMontageNotifyEnd);
-// 	}
-// }
-//
-// void APlayerCharacter::InitWeaponSheathingEndRightBind(USheathingEndAnimNotify* SheathingEndNotify)
-// {
-// 	if (SheathingEndNotify != nullptr)
-// 	{
-// 		SheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndWeaponMontageNotify);
-// 	}
-// }
-//
-// // TODO: 추후 OneHandSword 쪽으로 이전
-// void APlayerCharacter::DrawWeaponMontageNotifyBegin()
-// {
-// 	RightWeaponData->AttachToComponent(
-//         	GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
-//         	"weapon_r"
-//         );
-// }
-//
-// void APlayerCharacter::SheathingEndWeaponMontageNotify()
-// {
-// 	RightWeaponData->AttachToComponent(
-// 			GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
-// 			"weapon_inv_right"
-// 		);
-// }
+void APlayerCharacter::UnSheathPlayer()
+{
+	UCombatManager::UnSheathCharacterWeapon(this, MainWeapon, true);
+	UCombatManager::UnSheathCharacterWeapon(this, SubWeapon, false);
+}
 
-void APlayerCharacter::ToggleCombatWeaponMontageNotifyEnd()
+void APlayerCharacter::SheathingEndPlayer()
 {
 	AnimStatus = Default;
 }
-
