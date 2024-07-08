@@ -18,7 +18,7 @@
 #include "ProjectNL/Manager/WeaponManager.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 
-APlayerCharacter::APlayerCharacter()
+APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
