@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
 // class AWeaponBase;
@@ -26,11 +26,11 @@ enum EPlayerAnimationStatus
 };
 
 UCLASS()
-class PROJECTNL_API APlayerCharacter : public ACharacter
+class PROJECTNL_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 public:
-	APlayerCharacter();
+	APlayerCharacter(const class FObjectInitializer& ObjectInitializer);
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
@@ -45,7 +45,6 @@ public:
 	UFUNCTION()
 	void SheathingEndPlayer();
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -103,12 +102,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ToggleCombatAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-	AWeaponBase* MainWeapon;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-	AWeaponBase* SubWeapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeaponBase> TestWeapon;
