@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectNL/Helper/EnumHelper.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
@@ -15,15 +16,6 @@ class AWeaponBase;
 
 struct FCombatAnimationData;
 struct FInputActionValue;
-
-UENUM()
-enum EPlayerAnimationStatus
-{
-	Default,
-	Sheathing,
-	UnSheathing,
-	Attacking
-};
 
 UCLASS()
 class PROJECTNL_API APlayerCharacter : public ABaseCharacter
@@ -49,11 +41,17 @@ protected:
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void ScrollClose(const FInputActionValue& Value);
 
+	void HandleMainWeapon();
+	// void SubWeaponAction();
+	
 	void SetThirdPersonView();
 	void SetFirstPersonView();
 	// 1인칭인지 아닌지 검증하는 로직
@@ -71,7 +69,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
 	bool IsCombatMode = false;
 
-	EPlayerAnimationStatus AnimStatus = Default;
+	EPlayerAnimationStatus AnimStatus = EPlayerAnimationStatus::Default;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraSpring;
@@ -102,6 +100,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ToggleCombatAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MainWeaponAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SubWeaponAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeaponBase> TestWeapon;

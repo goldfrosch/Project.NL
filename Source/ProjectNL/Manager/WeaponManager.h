@@ -3,19 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectNL/Weapon/WeaponBase.h"
 #include "UObject/Object.h"
 #include "WeaponManager.generated.h"
 
+enum class EUWeaponType : uint8;
 class AWeaponBase;
-
-UENUM()
-enum EHandEquipStatus
-{
-	Empty,
-	OnlyMain,
-	OnlySub,
-	Dual,
-};
 
 UCLASS()
 class PROJECTNL_API UWeaponManager : public UObject
@@ -32,4 +25,6 @@ public:
 	static void StartSheathCharacterWeapon(AWeaponBase* Weapon);
 
 	static EHandEquipStatus GetCharacterEquipStatus(const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon);
+
+	static EUWeaponType GetWeaponType(const AWeaponBase* Weapon);
 };

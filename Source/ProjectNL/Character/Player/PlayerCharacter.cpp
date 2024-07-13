@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 
+#include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -16,6 +17,7 @@
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Manager/WeaponManager.h"
+#include "ProjectNL/Player/DefaultPlayerState.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -56,7 +58,7 @@ void APlayerCharacter::BeginPlay()
 	SetThirdPersonView();
 
 	MainWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
-	SubWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
+	// SubWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
 	SheathPlayer();
 
 	if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
@@ -115,6 +117,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(ScrollCloseAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollClose);
 		EnhancedInputComponent->BindAction(ToggleCombatAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCombatMode);
+
+		EnhancedInputComponent->BindAction(MainWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::HandleMainWeapon);
 	}
 }
 
@@ -152,7 +156,7 @@ void APlayerCharacter::Run(const FInputActionValue& Value)
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	if (AnimStatus == Default)
+	if (AnimStatus == EPlayerAnimationStatus::Default)
 	{
 		const FVector2D MovementVector = Value.Get<FVector2D>();
 		UMovementManager::Move(this, MovementVector);
@@ -196,7 +200,7 @@ void APlayerCharacter::ToggleCombatMode()
 {
 	if (IsCombatMode)
 	{
-		AnimStatus = Sheathing;
+		AnimStatus = EPlayerAnimationStatus::Sheathing;
 		IsCombatMode = false;
 		if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
 		{
@@ -206,7 +210,7 @@ void APlayerCharacter::ToggleCombatMode()
 		}
 	} else
 	{
-		AnimStatus = UnSheathing;
+		AnimStatus = EPlayerAnimationStatus::UnSheathing;
 		IsCombatMode = true;
 		if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
 		{
@@ -229,5 +233,34 @@ void APlayerCharacter::SheathPlayer()
 
 void APlayerCharacter::SheathingEndPlayer()
 {
-	AnimStatus = Default;
+	AnimStatus = EPlayerAnimationStatus::Default;
+}
+
+void APlayerCharacter::HandleMainWeapon()
+{
+	UCombatManager::GetAttackAnimation(CombatAnimData, MainWeapon, SubWeapon);
+}
+
+
+void APlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	{
+		AbilitySystemComponent = Cast<UAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	}
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	{
+		AbilitySystemComponent = Cast<UAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	}
 }

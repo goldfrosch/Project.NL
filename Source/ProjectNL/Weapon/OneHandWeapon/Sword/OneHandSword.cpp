@@ -9,8 +9,8 @@ AOneHandSword::AOneHandSword()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	WeaponType = EUWeaponType::ET_Sword;
-	EquippedHandType = EUEquippedHandType::ET_OneHand;
+	WeaponType = EUWeaponType::Sword;
+	EquippedHandType = EUEquippedHandType::OneHand;
 }
 
 // Called when the game starts or when spawned

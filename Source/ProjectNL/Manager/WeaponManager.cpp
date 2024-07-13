@@ -37,21 +37,21 @@ void UWeaponManager::StartSheathCharacterWeapon(AWeaponBase* Weapon)
 
 EHandEquipStatus UWeaponManager::GetCharacterEquipStatus(const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon)
 {
-	if (!IsValid(MainWeapon) && !IsValid(SubWeapon)) return Empty;
-	if (!IsValid(MainWeapon)) return OnlySub;
-	if (!IsValid(SubWeapon)) return OnlyMain;
+	if (!IsValid(MainWeapon) && !IsValid(SubWeapon)) return EHandEquipStatus::Empty;
+	if (!IsValid(MainWeapon)) return EHandEquipStatus::OnlySub;
+	if (!IsValid(SubWeapon)) return EHandEquipStatus::OnlyMain;
 	
-	if (MainWeapon->WeaponType != EUWeaponType::ET_None)
+	if (MainWeapon->WeaponType != EUWeaponType::None)
 	{
-		if (SubWeapon->WeaponType != EUWeaponType::ET_None && SubWeapon->WeaponType != EUWeaponType::ET_Shield)
+		if (SubWeapon->WeaponType != EUWeaponType::None && SubWeapon->WeaponType != EUWeaponType::Shield)
 		{
-			return Dual;
+			return EHandEquipStatus::Dual;
 		}
-		return OnlyMain;
+		return EHandEquipStatus::OnlyMain;
 	}
-	if (SubWeapon->WeaponType != EUWeaponType::ET_None && SubWeapon->WeaponType != EUWeaponType::ET_Shield)
+	if (SubWeapon->WeaponType != EUWeaponType::None && SubWeapon->WeaponType != EUWeaponType::Shield)
 	{
-		return OnlySub;
+		return EHandEquipStatus::OnlySub;
 	}
-	return Empty;
+	return EHandEquipStatus::Empty;
 }

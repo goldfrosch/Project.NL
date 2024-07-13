@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/CapsuleComponent.h"
+#include "ProjectNL/Helper/EnumHelper.h"
 #include "GameFramework/Actor.h"
-
-#include "WeaponType.h"
 
 #include "WeaponBase.generated.h"
 
@@ -31,9 +30,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Assets, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* WeaponSkeleton;
-
 	
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Assets, meta = (AllowPrivateAccess = "true"))
 	UCapsuleComponent* WeaponCollisionComp;
 };
