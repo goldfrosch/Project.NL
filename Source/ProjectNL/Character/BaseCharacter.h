@@ -18,13 +18,21 @@ class PROJECTNL_API ABaseCharacter : public ACharacter, public IAbilitySystemInt
 
 public:
 	ABaseCharacter(const class FObjectInitializer& ObjectInitializer);
-	virtual void Tick(float DeltaTime) override;
-
-protected:
-	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	UAbilitySystemComponent* AbilitySystemComponent;
+	
+	virtual void Tick(float DeltaTime) override;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
+	{
+		return AbilitySystemComponent;
+	}
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void PossessedBy(AController* NewController) override;
+	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
     AWeaponBase* MainWeapon;
@@ -35,8 +43,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes", meta = (AllowPrivateAccess = "true"))
 	const UBasicAttributeSet* AttributeSet;
 	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
-	{
-		return AbilitySystemComponent;
-	}
 };
