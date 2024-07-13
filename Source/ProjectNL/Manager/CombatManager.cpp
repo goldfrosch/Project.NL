@@ -5,6 +5,7 @@
 
 #include "WeaponManager.h"
 #include "ProjectNL/DataTable/CombatAnimationData.h"
+#include "ProjectNL/Helper/AnimHelper.h"
 
 UAnimMontage* UCombatManager::GetUnSheathingAnimation(
 	FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
@@ -15,16 +16,16 @@ UAnimMontage* UCombatManager::GetUnSheathingAnimation(
 
 	switch (CurrentEquipStatus)
 	{
-		case Empty:
+		case EHandEquipStatus::Empty:
 			UnSheathAnimRowName = "Empty";
 			break;
-		case OnlyMain:
+		case EHandEquipStatus::OnlyMain:
 			UnSheathAnimRowName = "OnlyMainUnSheathAnim";
 			break;
-		case OnlySub:
+		case EHandEquipStatus::OnlySub:
 			UnSheathAnimRowName = "OnlySubUnSheathAnim";
 			break;
-		case Dual:
+		case EHandEquipStatus::Dual:
 			UnSheathAnimRowName = "DualUnSheathAnim";
 			break;
 	}
@@ -46,16 +47,16 @@ UAnimMontage* UCombatManager::GetSheathingAnimation(
 
 	switch (CurrentEquipStatus)
 	{
-	case Empty:
+	case EHandEquipStatus::Empty:
 		UnSheathAnimRowName = "Empty";
 		break;
-	case OnlyMain:
+	case EHandEquipStatus::OnlyMain:
 		UnSheathAnimRowName = "OnlyMainSheathAnim";
 		break;
-	case OnlySub:
+	case EHandEquipStatus::OnlySub:
 		UnSheathAnimRowName = "OnlySubSheathAnim";
 		break;
-	case Dual:
+	case EHandEquipStatus::Dual:
 		UnSheathAnimRowName = "DualSheathAnim";
 		break;
 	}
@@ -66,4 +67,19 @@ UAnimMontage* UCombatManager::GetSheathingAnimation(
 	}
 	return nullptr;
 }
+
+UAnimMontage* UCombatManager::GetAttackAnimation(FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
+{
+	const FString AnimName = FAnimHelper::GetCombatAttackAnimation(CombatDT, MainWeapon, SubWeapon);
+
+	if (const FCombatAnimationData* Animation = CombatDT.DataTable->FindRow<FCombatAnimationData>(*AnimName, ""))
+	{
+		return Animation->AnimGroup.Top();
+	}
+	
+	UE_LOG(LogTemp, Display, TEXT("TEST: %s"), *AnimName);
+	
+	return nullptr;
+}
+
 

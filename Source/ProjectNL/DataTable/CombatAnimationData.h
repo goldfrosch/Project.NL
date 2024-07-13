@@ -3,18 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProjectNL/Weapon/WeaponType.h"
+#include "ProjectNL/Helper/EnumHelper.h"
 #include "CombatAnimationData.generated.h"
-
-UENUM()
-enum class EAnimationType : uint8
-{
-	ET_Undefined		UMETA(DisplayName = "Undefined"),
-	ET_Idle				UMETA(DisplayName = "Idle"),
-	ET_DrawWeapon		UMETA(DisplayName = "DrawWeapon"),
-	ET_SheathWeapon	UMETA(DisplayName = "SheathWeapon"),
-	ET_ComboAttack  UMETA(DisplayNAme = "ComboAttack")
-};
 
 USTRUCT(BlueprintType)
 struct  PROJECTNL_API FCombatAnimationData : public FTableRowBase
