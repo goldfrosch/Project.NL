@@ -16,5 +16,8 @@ public:
 	FOnUnSheathingEndNotifiedSignature OnNotified;
 	virtual void Notify(
 		USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-		const FAnimNotifyEventReference& EventReference) override;
+		const FAnimNotifyEventReference& EventReference) override {
+		OnNotified.Broadcast();
+		Super::Notify(MeshComp, Animation, EventReference);
+	}
 };
