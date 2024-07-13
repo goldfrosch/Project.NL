@@ -12,25 +12,9 @@ UAnimMontage* UCombatManager::GetUnSheathingAnimation(
 {
 	const EHandEquipStatus CurrentEquipStatus = UWeaponManager::GetCharacterEquipStatus(MainWeapon, SubWeapon);
 
-	FName UnSheathAnimRowName;
-
-	switch (CurrentEquipStatus)
-	{
-		case EHandEquipStatus::Empty:
-			UnSheathAnimRowName = "Empty";
-			break;
-		case EHandEquipStatus::OnlyMain:
-			UnSheathAnimRowName = "OnlyMainUnSheathAnim";
-			break;
-		case EHandEquipStatus::OnlySub:
-			UnSheathAnimRowName = "OnlySubUnSheathAnim";
-			break;
-		case EHandEquipStatus::Dual:
-			UnSheathAnimRowName = "DualUnSheathAnim";
-			break;
-	}
+	const FString UnSheathAnimRowName = FEnumHelper::GetClassEnumKeyAsString(CurrentEquipStatus) + "UnSheathAnim";
 	
-	if (const FCombatAnimationData* UnSheathingAnim = CombatDT.DataTable->FindRow<FCombatAnimationData>(UnSheathAnimRowName, ""))
+	if (const FCombatAnimationData* UnSheathingAnim = CombatDT.DataTable->FindRow<FCombatAnimationData>(*UnSheathAnimRowName, ""))
 	{
 		return UnSheathingAnim->AnimGroup.Top();
 	}
@@ -43,25 +27,9 @@ UAnimMontage* UCombatManager::GetSheathingAnimation(
 {
 	const EHandEquipStatus CurrentEquipStatus = UWeaponManager::GetCharacterEquipStatus(MainWeapon, SubWeapon);
 
-	FName UnSheathAnimRowName;
-
-	switch (CurrentEquipStatus)
-	{
-	case EHandEquipStatus::Empty:
-		UnSheathAnimRowName = "Empty";
-		break;
-	case EHandEquipStatus::OnlyMain:
-		UnSheathAnimRowName = "OnlyMainSheathAnim";
-		break;
-	case EHandEquipStatus::OnlySub:
-		UnSheathAnimRowName = "OnlySubSheathAnim";
-		break;
-	case EHandEquipStatus::Dual:
-		UnSheathAnimRowName = "DualSheathAnim";
-		break;
-	}
+	const FString UnSheathAnimRowName = FEnumHelper::GetClassEnumKeyAsString(CurrentEquipStatus) + "SheathAnim";
 	
-	if (const FCombatAnimationData* UnSheathingAnim = CombatDT.DataTable->FindRow<FCombatAnimationData>(UnSheathAnimRowName, ""))
+	if (const FCombatAnimationData* UnSheathingAnim = CombatDT.DataTable->FindRow<FCombatAnimationData>(*UnSheathAnimRowName, ""))
 	{
 		return UnSheathingAnim->AnimGroup.Top();
 	}
@@ -76,8 +44,6 @@ UAnimMontage* UCombatManager::GetAttackAnimation(FDataTableRowHandle CombatDT, A
 	{
 		return Animation->AnimGroup.Top();
 	}
-	
-	UE_LOG(LogTemp, Display, TEXT("TEST: %s"), *AnimName);
 	
 	return nullptr;
 }
