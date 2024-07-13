@@ -11,8 +11,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
-#include "ProjectNL/Animation/Characters/UnSheathing/GrabWeaponNotify.h"
-#include "ProjectNL/Animation/Characters/UnSheathing/UnSheathingEndNotify.h"
+#include "ProjectNL/Animation/Characters/Sheathing/GrabWeaponNotify.h"
+#include "ProjectNL/Animation/Characters/Sheathing/PutWeaponNotify.h"
+#include "ProjectNL/Animation/Characters/Sheathing/UnSheathingEndNotify.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
@@ -75,10 +76,10 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
-		if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
-			UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(SheathingAnim))
+		if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
+			UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(SheathingAnim))
 		{
-			GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
+			PutWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
 		}
 		if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
 			UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(SheathingAnim))

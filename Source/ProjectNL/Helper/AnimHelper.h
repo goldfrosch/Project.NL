@@ -26,6 +26,6 @@ public:
 		
 		const FString SubHandType =  FEnumHelper::GetClassEnumKeyAsString(SubWeaponType);
 		
-		return EquipStatus + "_" + MainHandType + "_" + SubHandType;
+		return EquipStatus + "-" + MainHandType + "-" + SubHandType;
 	}
 };
