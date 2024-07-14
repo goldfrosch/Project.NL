@@ -23,13 +23,15 @@ public:
 	{
 		return AbilitySystemComponent;
 	}
+
+	TObjectPtr<UBasicAttributeSet> GetAttributeSet() const { return AttributeSet; }
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
-	UAbilitySystemComponent* AbilitySystemComponent;
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	UBasicAttributeSet* AttributeSet;
+	TObjectPtr<UBasicAttributeSet> AttributeSet;
 
 	FDelegateHandle HealthChangedDelegateHandle;
 	
