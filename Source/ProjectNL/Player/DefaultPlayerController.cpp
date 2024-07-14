@@ -18,3 +18,11 @@ void ADefaultPlayerController::AcknowledgePossession(APawn* P)
 		->InitAbilityActorInfo(BaseCharacter, BaseCharacter);
 	}
 }
+
+void ADefaultPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	// 커맨드 입력으로 GAS의 디버그 화면 노출
+	ConsoleCommand(TEXT("showdebug abilitysystem"));
+}
+

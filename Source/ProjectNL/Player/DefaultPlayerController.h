@@ -16,4 +16,6 @@ class PROJECTNL_API ADefaultPlayerController : public APlayerController
 
 public:
 	virtual void AcknowledgePossession(APawn* P) override;
+
+	virtual void BeginPlay() override;
 };
