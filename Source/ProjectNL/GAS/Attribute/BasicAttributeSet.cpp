@@ -4,7 +4,6 @@
 #include "BasicAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
-
 void UBasicAttributeSet::OnRepHealth(const FGameplayAttributeData& OldHealth) {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBasicAttributeSet, Health, OldHealth);
 }
@@ -39,4 +38,28 @@ void UBasicAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
+}
+
+void UBasicAttributeSet::InitBaseAttribute()
+{
+	InitEndurance(10);
+	InitMuscularPower(10);
+	InitWisdom(10);
+	InitConcentration(10);
+	InitSharpness(10);
+	InitGuts(10);
+	
+	InitMaxHealth(200 + GetEndurance() * 20);
+	InitHealth(GetMaxHealth());
+	InitMaxMana(100);
+	InitMana(GetMaxMana());
+	InitMaxStamina(100);
+	InitStamina(GetStamina());
+	
+	InitPhysicalDamage(10 + GetMuscularPower() * 5);
+	InitMagicalDamage(10 + GetWisdom() * 5);
+	InitMovementSpeed(360 + GetEndurance() * 0.06);
+	InitDefense(10);
+	InitCriticalPercent(10 + GetConcentration() * 0.01);
+	InitCriticalPower(10 + GetSharpness() * 0.005);
 }

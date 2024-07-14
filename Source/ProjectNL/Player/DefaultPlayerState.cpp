@@ -3,20 +3,26 @@
 
 #include "DefaultPlayerState.h"
 #include "AbilitySystemComponent.h"
-#include "ProjectNL/Attribute/BasicAttributeSet.h"
+#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 
 ADefaultPlayerState::ADefaultPlayerState()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	AttributeSet = CreateDefaultSubobject<UBasicAttributeSet>(TEXT("Attributeset"));
 }
 
 void ADefaultPlayerState::BeginPlay()
 {
 	if (AbilitySystemComponent)
 	{
-		HealthChangedDelegateHandle =
-			AbilitySystemComponent->
+		if (AttributeSet)
+		{
+			AttributeSet->InitBaseAttribute();
+		}
+		AbilitySystemComponent->
 			GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute())
 			.AddUObject(this, &ADefaultPlayerState::HealthChanged);
 	}

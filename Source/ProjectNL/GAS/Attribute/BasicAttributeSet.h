@@ -44,10 +44,61 @@ public:
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MaxStamina)
 
-	// 임시 속성으로 주기적인 업데이트가 필요한 속성은 아니라 OnRep를 할당하지 않음
+	// 실제 반영 스텟 Meta Attribute
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
-	FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Damage)
+	FGameplayAttributeData PhysicalDamage;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, PhysicalDamage)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData MagicalDamage;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MagicalDamage)
+	
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData Defense;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Defense)
+	
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData MovementSpeed;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MovementSpeed)
+	
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData CriticalPercent;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, CriticalPercent)
+	
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData CriticalPower;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, CriticalPower)
+
+	// 수치 조절 스텟 Meta Attribute
+	// 지구력
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData Endurance;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Endurance)
+
+	// 근력
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData MuscularPower;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MuscularPower)
+
+	// 지혜
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData Wisdom;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Wisdom)
+
+	// 집중
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData Concentration;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Concentration)
+
+	// 예리
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData Sharpness;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Sharpness)
+
+	// 근성
+	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+	FGameplayAttributeData Guts;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Guts)
 
 	UFUNCTION()
 	virtual void OnRepHealth(const FGameplayAttributeData& OldHealth);
@@ -64,4 +115,6 @@ public:
 
 	// TODO: 복제에 도움이 되는 함수지만 정확한 기능은 추후
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void InitBaseAttribute();
 };
