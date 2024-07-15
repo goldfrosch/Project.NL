@@ -18,8 +18,13 @@ UCLASS()
 class PROJECTNL_API UBasicAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
-
+	
 public:
+	// TODO: 복제에 도움이 되는 함수지만 정확한 기능은 추후
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void InitBaseAttribute();
+
 	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepHealth)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Health)
@@ -99,6 +104,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
 	FGameplayAttributeData Guts;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Guts)
+	
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepLevel)
+	FGameplayAttributeData Level;
+	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Level)
 
 	UFUNCTION()
 	virtual void OnRepHealth(const FGameplayAttributeData& OldHealth);
@@ -112,9 +121,6 @@ public:
 	virtual void OnRepStamina(const FGameplayAttributeData& OldStamina);
 	UFUNCTION()
 	virtual void OnRepMaxStamina(const FGameplayAttributeData& OldMaxStamina);
-
-	// TODO: 복제에 도움이 되는 함수지만 정확한 기능은 추후
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	void InitBaseAttribute();
+	UFUNCTION()
+	virtual void OnRepLevel(const FGameplayAttributeData& OldLevel);
 };

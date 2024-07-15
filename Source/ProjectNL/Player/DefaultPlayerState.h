@@ -7,7 +7,7 @@
 #include "GameFramework/PlayerState.h"
 #include "DefaultPlayerState.generated.h"
 
-class UBasicAttributeSet;
+class UPlayerAttributeSet;
 class UAbilitySystemComponent;
 struct FOnAttributeChangeData;
 
@@ -24,14 +24,14 @@ public:
 		return AbilitySystemComponent;
 	}
 
-	TObjectPtr<UBasicAttributeSet> GetAttributeSet() const { return AttributeSet; }
+	TObjectPtr<UPlayerAttributeSet> GetAttributeSet() const { return AttributeSet; }
 	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UBasicAttributeSet> AttributeSet;
+	TObjectPtr<UPlayerAttributeSet> AttributeSet;
 
 	FDelegateHandle HealthChangedDelegateHandle;
 	

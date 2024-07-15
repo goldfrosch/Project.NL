@@ -3,7 +3,7 @@
 
 #include "DefaultPlayerState.h"
 #include "AbilitySystemComponent.h"
-#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
+#include "ProjectNL/GAS/Attribute/PlayerAttributeSet.h"
 
 ADefaultPlayerState::ADefaultPlayerState()
 {
@@ -11,7 +11,7 @@ ADefaultPlayerState::ADefaultPlayerState()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	AttributeSet = CreateDefaultSubobject<UBasicAttributeSet>(TEXT("Attributeset"));
+	AttributeSet = CreateDefaultSubobject<UPlayerAttributeSet>(TEXT("Attributeset"));
 }
 
 void ADefaultPlayerState::BeginPlay()
