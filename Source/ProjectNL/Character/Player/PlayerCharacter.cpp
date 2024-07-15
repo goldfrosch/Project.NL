@@ -14,7 +14,6 @@
 #include "ProjectNL/Animation/Characters/Sheathing/GrabWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/PutWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/UnSheathingEndNotify.h"
-#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
