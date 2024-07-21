@@ -14,6 +14,17 @@ void UCombatComponent::SetAttackMontages(TArray<UAnimMontage*> Montages)
 	AttackMontages.SetNum(0);
 	AttackMontages.Append(Montages);
 	MaxCombo = AttackMontages.Num();
+	for (UAnimMontage* AttackAnim : AttackMontages)
+	{
+		if (const TObjectPtr<UComboAttackNotifyState> ComboAttackNotifyState =
+    				UAnimNotifyManager::FindNotifyStateByClass<UComboAttackNotifyState>(AttackAnim)
+    		)
+    	{
+    		ComboAttackNotifyState->OnNotifiedBegin.AddDynamic(this, &UCombatComponent::OnComboBegin);
+    		ComboAttackNotifyState->OnNotifiedTick.AddDynamic(this, &UCombatComponent::SetComboDisable);
+    		ComboAttackNotifyState->OnNotifiedEnd.AddDynamic(this, &UCombatComponent::OnComboEnd);
+    	}	
+	}
 }
 
 
@@ -39,15 +50,7 @@ void UCombatComponent::ComboAttack()
 {
 	if (!AttackMontages.IsEmpty())
 	{
-		if (const TObjectPtr<UComboAttackNotifyState> ComboAttackNotifyState =
-			UAnimNotifyManager::FindNotifyStateByClass<UComboAttackNotifyState>(AttackMontages[ComboIndex])
-		)
-		{
-			ComboAttackNotifyState->OnNotifiedBegin.AddDynamic(this, &UCombatComponent::OnComboBegin);
-			ComboAttackNotifyState->OnNotifiedTick.AddDynamic(this, &UCombatComponent::SetComboDisable);
-			ComboAttackNotifyState->OnNotifiedEnd.AddDynamic(this, &UCombatComponent::OnComboEnd);
-
-			OnNotifiedComboAttackInit.Broadcast(AttackMontages[ComboIndex]);
-		}
+		UE_LOG(LogTemp, Display, TEXT("%d"), ComboIndex);
+		OnNotifiedComboAttackInit.Broadcast(AttackMontages[ComboIndex]);
 	}	
 }
