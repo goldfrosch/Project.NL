@@ -18,5 +18,5 @@ public:
 	static UAnimMontage* GetSheathingAnimation(FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon);
 
 	UFUNCTION()
-	static UAnimMontage* GetAttackAnimation(FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon);
+	static TArray<UAnimMontage*> GetAttackAnimation(FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon);
 };

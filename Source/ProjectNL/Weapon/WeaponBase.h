@@ -25,6 +25,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Assets, meta = (AllowPrivateAccess = "true"))
 	EUWeaponType WeaponType;
+
+	UFUNCTION()
+	void SetWeaponDamageable();
+	
+	UFUNCTION()
+	void UnsetWeaponDamageable();
 protected:
 	virtual void BeginPlay() override;
 	

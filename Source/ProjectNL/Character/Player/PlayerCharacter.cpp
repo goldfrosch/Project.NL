@@ -11,9 +11,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProjectNL/Animation/Characters/ComboAttack/ComboAttackStartNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/GrabWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/PutWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/UnSheathingEndNotify.h"
+#include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
@@ -39,6 +41,8 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+
 	CameraSpring = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpring"));
 	CameraSpring->SetupAttachment(RootComponent);
 	CameraSpring->TargetArmLength = 400.0f;
@@ -61,32 +65,7 @@ void APlayerCharacter::BeginPlay()
 	MainWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
 	// SubWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
 	SheathPlayer();
-
-	if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
-		if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
-    		UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(UnSheathingAnim))
-    	{
-    		GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::UnSheathPlayer);
-    	}
-		if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
-			UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(UnSheathingAnim))
-		{
-			UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
-		}
-	}
-
-	if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon)) {
-		if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
-			UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(SheathingAnim))
-		{
-			PutWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
-		}
-		if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
-			UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(SheathingAnim))
-		{
-			UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
-		}
-	}
+	UpdateWeaponData();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -170,8 +149,8 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		const float NewPitch = LookAxisVector.Y * UGameplayStatics::GetWorldDeltaSeconds(this) * 100.f;
-		const float NewYaw = LookAxisVector.X * UGameplayStatics::GetWorldDeltaSeconds(this) * 100.f;
+		const float NewPitch = LookAxisVector.Y * UGameplayStatics::GetWorldDeltaSeconds(this) * 60.f;
+		const float NewYaw = LookAxisVector.X * UGameplayStatics::GetWorldDeltaSeconds(this) * 60.f;
             
 		AddControllerYawInput(NewYaw);
 		AddControllerPitchInput(NewPitch);
@@ -205,6 +184,18 @@ void APlayerCharacter::ToggleCombatMode()
 		IsCombatMode = false;
 		if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
 		{
+			if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
+			UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(SheathingAnim))
+			{
+				PutWeaponNotify->OnNotified.Clear();
+				PutWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
+			}
+			if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
+				UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(SheathingAnim))
+			{
+				UnSheathingEndNotify->OnNotified.Clear();
+				UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
+			}
 			UWeaponManager::StartSheathCharacterWeapon(MainWeapon);
 			UWeaponManager::StartSheathCharacterWeapon(SubWeapon);
 			PlayAnimMontage(SheathingAnim);
@@ -215,10 +206,30 @@ void APlayerCharacter::ToggleCombatMode()
 		IsCombatMode = true;
 		if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
 		{
+			if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
+			UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(UnSheathingAnim))
+			{
+				GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::UnSheathPlayer);
+			}
+			if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
+				UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(UnSheathingAnim))
+			{
+				UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
+			}
 			PlayAnimMontage(UnSheathingAnim);
 		}
 	}
 }
+
+void APlayerCharacter::UpdateWeaponData()
+{
+	const TArray<UAnimMontage*> AttackMontage = UCombatManager::GetAttackAnimation(CombatAnimData, MainWeapon, SubWeapon);
+	CombatComponent->SetAttackMontages(AttackMontage);
+	
+	CombatComponent->OnNotifiedComboAttackInit
+	.AddDynamic(this, &APlayerCharacter::InitAttack);
+}
+
 
 void APlayerCharacter::UnSheathPlayer()
 {
@@ -237,9 +248,30 @@ void APlayerCharacter::SheathingEndPlayer()
 	AnimStatus = EPlayerAnimationStatus::Default;
 }
 
+void APlayerCharacter::ClearAnimMode()
+{
+	AnimStatus = EPlayerAnimationStatus::Default;
+}
+
+
+void APlayerCharacter::InitAttack(UAnimMontage* CurrentAnim)
+{
+	if (const TObjectPtr<UComboAttackStartNotify> AttackStartNotify =
+		UAnimNotifyManager::FindNotifyByClass<UComboAttackStartNotify>(CurrentAnim))
+	{
+		AttackStartNotify->OnNotified.AddDynamic(this, &APlayerCharacter::ClearAnimMode);
+	}
+	
+	PlayAnimMontage(CurrentAnim);
+}
+
 void APlayerCharacter::HandleMainWeapon()
 {
-	UCombatManager::GetAttackAnimation(CombatAnimData, MainWeapon, SubWeapon);
+	if (IsCombatMode && AnimStatus != EPlayerAnimationStatus::Attacking)
+	{
+		AnimStatus = EPlayerAnimationStatus::Attacking;
+		CombatComponent->ComboAttack();
+	}
 }
 
 
@@ -265,3 +297,4 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	}
 }
+

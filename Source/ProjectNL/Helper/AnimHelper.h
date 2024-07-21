@@ -16,6 +16,11 @@ public:
 			UWeaponManager::GetCharacterEquipStatus(MainWeapon, SubWeapon);
 		
 		const FString EquipStatus = FEnumHelper::GetClassEnumKeyAsString(CurrentEquipStatus);
+
+		
+		const EUEquippedHandType MainWeaponHandType = MainWeapon ? MainWeapon->EquippedHandType : EUEquippedHandType::Empty;
+		
+		const FString MainHandStatus =  FEnumHelper::GetClassEnumKeyAsString(MainWeaponHandType);
 		
 		const EUWeaponType MainWeaponType = MainWeapon ? MainWeapon->WeaponType : EUWeaponType::None;
 		
@@ -26,6 +31,6 @@ public:
 		
 		const FString SubHandType =  FEnumHelper::GetClassEnumKeyAsString(SubWeaponType);
 		
-		return EquipStatus + "-" + MainHandType + "-" + SubHandType;
+		return EquipStatus + MainHandStatus + MainHandType + SubHandType + "AttackAnim";
 	}
 };

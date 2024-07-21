@@ -7,6 +7,7 @@
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class UCombatComponent;
 // class AWeaponBase;
 class UInputAction;
 class UCameraComponent;
@@ -36,6 +37,18 @@ public:
 
 	UFUNCTION()
 	void SheathingEndPlayer();
+
+	UFUNCTION()
+	void UpdateWeaponData();
+
+	UFUNCTION()
+	void InitAttack(UAnimMontage* CurrentAnim);
+
+	UFUNCTION()
+	void ClearAnimMode();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCombatComponent* CombatComponent;
 protected:
 	virtual void BeginPlay() override;
 	
@@ -70,6 +83,7 @@ private:
 	bool IsCombatMode = false;
 
 	EPlayerAnimationStatus AnimStatus = EPlayerAnimationStatus::Default;
+
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraSpring;
