@@ -29,4 +29,23 @@ public:
 
 		return nullptr;
 	}
+
+	template<typename AnimNotifyState>
+	UFUNCTION() static TObjectPtr<AnimNotifyState> FindNotifyStateByClass(const TObjectPtr<UAnimMontage> Animation)
+	{
+		if (!Animation)
+		{
+			return nullptr;
+		}
+
+		for (FAnimNotifyEvent NotifyEvent : Animation->Notifies)
+		{
+			if (const auto AnimationNotify = Cast<AnimNotifyState>(NotifyEvent.NotifyStateClass))
+			{
+				return AnimationNotify;
+			}
+		}
+
+		return nullptr;
+	}
 };

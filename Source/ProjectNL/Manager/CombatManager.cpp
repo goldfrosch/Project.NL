@@ -36,16 +36,16 @@ UAnimMontage* UCombatManager::GetSheathingAnimation(
 	return nullptr;
 }
 
-UAnimMontage* UCombatManager::GetAttackAnimation(FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
+ TArray<UAnimMontage*> UCombatManager::GetAttackAnimation(FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
 {
 	const FString AnimName = FAnimHelper::GetCombatAttackAnimation(CombatDT, MainWeapon, SubWeapon);
-
+	
 	if (const FCombatAnimationData* Animation = CombatDT.DataTable->FindRow<FCombatAnimationData>(*AnimName, ""))
 	{
-		return Animation->AnimGroup.Top();
+		return Animation->AnimGroup;
 	}
 	
-	return nullptr;
+	return TArray<UAnimMontage*>();
 }
 
 
