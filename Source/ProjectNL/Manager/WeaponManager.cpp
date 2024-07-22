@@ -22,6 +22,7 @@ void UWeaponManager::SheathCharacterWeapon(const ACharacter* Character, AWeaponB
 		Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 			IsMain ? "weapon_hip_r" : "weapon_hip_l"
 		);
+	Weapon->InitEquipWeapon();
 }
 
 void UWeaponManager::StartSheathCharacterWeapon(AWeaponBase* Weapon)
