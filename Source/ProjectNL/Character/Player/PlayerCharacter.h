@@ -49,6 +49,7 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
+	EPlayerAnimationStatus GetAnimStatus() const { return AnimStatus; }
 protected:
 	virtual void BeginPlay() override;
 	

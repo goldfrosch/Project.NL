@@ -50,7 +50,6 @@ void UCombatComponent::ComboAttack()
 {
 	if (!AttackMontages.IsEmpty())
 	{
-		UE_LOG(LogTemp, Display, TEXT("%d"), ComboIndex);
 		OnNotifiedComboAttackInit.Broadcast(AttackMontages[ComboIndex]);
 	}	
 }
