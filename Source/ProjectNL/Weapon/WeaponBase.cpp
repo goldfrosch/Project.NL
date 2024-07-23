@@ -12,11 +12,19 @@ AWeaponBase::AWeaponBase()
 
 	WeaponCollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Weapon Capsule"));
 	WeaponCollisionComp->SetupAttachment(WeaponSkeleton);
+
+	WeaponCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponCollisionComp->SetCollisionObjectType(ECC_WorldDynamic);
+	WeaponCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	// TODO: ECC_Pawn -> Custom ECC로 전환
+	WeaponCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }	
 
 void AWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	WeaponCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AWeaponBase::GiveDamage);
 }
 
 void AWeaponBase::InitEquipWeapon()
@@ -25,8 +33,6 @@ void AWeaponBase::InitEquipWeapon()
 	{
 		Player->CombatComponent->OnNotifiedComboAttackStart.AddDynamic(this, &AWeaponBase::SetWeaponDamageable);
 		Player->CombatComponent->OnNotifiedComboAttackEnd.AddDynamic(this, &AWeaponBase::UnsetWeaponDamageable);
-
-		WeaponCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AWeaponBase::GiveDamage);
 	}
 }
 
@@ -51,7 +57,8 @@ void AWeaponBase::GiveDamage(
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Display, TEXT("Result: %s, %s"), *OverlappedComponent->GetName(), *OtherActor->GetName());
+	// TODO: 내 자신도 Overlap 되는 이슈 확인 후 수정
+	UE_LOG(LogTemp, Display, TEXT("Result: %s, %s"), *OverlappedComponent->GetName(), *SweepResult.GetActor()->GetName());
 }
 
 
