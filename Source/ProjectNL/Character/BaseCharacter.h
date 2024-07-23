@@ -8,6 +8,7 @@
 #include "BaseCharacter.generated.h"
 
 class AWeaponBase;
+class UCombatComponent;
 class UBasicAttributeSet;
 class UAbilitySystemComponent;
 
@@ -22,6 +23,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	UAbilitySystemComponent* AbilitySystemComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UCombatComponent* CombatComponent;
+	
 	virtual void Tick(float DeltaTime) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
@@ -32,15 +36,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
-	
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    AWeaponBase* MainWeapon;
-  
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    AWeaponBase* SubWeapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes", meta = (AllowPrivateAccess = "true"))
 	const UBasicAttributeSet* AttributeSet;
-	
 };

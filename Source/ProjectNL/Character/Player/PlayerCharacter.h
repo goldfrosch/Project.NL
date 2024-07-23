@@ -7,8 +7,6 @@
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
-class UCombatComponent;
-// class AWeaponBase;
 class UInputAction;
 class UCameraComponent;
 class USpringArmComponent;
@@ -47,8 +45,6 @@ public:
 	UFUNCTION()
 	void ClearAnimMode();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCombatComponent* CombatComponent;
 	EPlayerAnimationStatus GetAnimStatus() const { return AnimStatus; }
 protected:
 	virtual void BeginPlay() override;
@@ -61,30 +57,29 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void ScrollClose(const FInputActionValue& Value);
+	void ToggleCamera(const FInputActionValue& Value);
 
-	void HandleMainWeapon();
-	// void SubWeaponAction();
+	void Attack();
+
+	UFUNCTION()
+	void OnAttackStart();
+	
+	UFUNCTION()
+	void OnAttackEnd();
 	
 	void SetThirdPersonView();
 	void SetFirstPersonView();
-	// 1인칭인지 아닌지 검증하는 로직
-	bool GetIsFirstPersonView() const;
 
 private:
-	const uint8 PercentCameraMovement = 5;
-	const uint8 MaxCameraScroll = 150;
-	const uint8 MaxCountForChangeThirdPerson = 10;
-
-	// 카메라의 인칭을 커스텀하게 잡아주는 float value
-	// N번만큼 스크롤할 때 3인칭으로 전환하게 해주는 value다.
-	uint8 CountForChangeThirdPerson = 0;
-
+	bool IsThirdCamera = true;
+	
+	EPlayerAnimationStatus AnimStatus = EPlayerAnimationStatus::Default;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
+	float CameraZoom = 300.f;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
 	bool IsCombatMode = false;
-
-	EPlayerAnimationStatus AnimStatus = EPlayerAnimationStatus::Default;
-
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraSpring;
@@ -111,7 +106,7 @@ private:
 	UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* ScrollCloseAction;
+	UInputAction* ToggleCameraAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ToggleCombatAction;
@@ -122,9 +117,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SubWeaponAction;
 
+	// TODO: 추후 제거
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeaponBase> TestWeapon;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	FDataTableRowHandle CombatAnimData;
 };

@@ -1,7 +1,8 @@
 ﻿#include "CombatComponent.h"
 
-#include "ProjectNL/Animation/Characters/ComboAttack/ComboAttackNotifyState.h"
+#include "ProjectNL/Animation/Characters/Attack/ComboAttackNotifyState.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
+#include "ProjectNL/Manager/CombatManager.h"
 
 
 UCombatComponent::UCombatComponent()
@@ -52,4 +53,14 @@ void UCombatComponent::ComboAttack()
 	{
 		OnNotifiedComboAttackInit.Broadcast(AttackMontages[ComboIndex]);
 	}	
+}
+
+void UCombatComponent::UpdateWeaponData()
+{
+	SheathingAnimMontage = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon);
+	UnSheathingAnimMontage = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon);
+	
+	const TArray<UAnimMontage*> AttackMontage = UCombatManager::GetAttackAnimation(
+		CombatAnimData, MainWeapon, SubWeapon);
+	SetAttackMontages(AttackMontage);
 }

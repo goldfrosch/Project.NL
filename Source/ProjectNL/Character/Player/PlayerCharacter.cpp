@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "PlayerCharacter.h"
+﻿#include "PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -11,7 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
-#include "ProjectNL/Animation/Characters/ComboAttack/ComboAttackStartNotify.h"
+#include "ProjectNL/Animation/Characters/Attack/ComboAttackStartNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/GrabWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/PutWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/UnSheathingEndNotify.h"
@@ -41,11 +38,9 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
-
 	CameraSpring = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpring"));
 	CameraSpring->SetupAttachment(RootComponent);
-	CameraSpring->TargetArmLength = 400.0f;
+	CameraSpring->TargetArmLength = CameraZoom;
 	CameraSpring->bUsePawnControlRotation = true;
 	
 	FirstCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstCamera"));
@@ -62,8 +57,12 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	SetThirdPersonView();
 
-	MainWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
-	// SubWeapon = GetWorld()->SpawnActor<AWeaponBase>(TestWeapon);
+	CombatComponent->SetMainWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
+	CombatComponent->SetSubWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
+
+	CombatComponent->OnNotifiedComboAttackStart.AddDynamic(this, &APlayerCharacter::OnAttackStart);
+	CombatComponent->OnNotifiedComboAttackEnd.AddDynamic(this, &APlayerCharacter::OnAttackEnd);
+	
 	SheathPlayer();
 	UpdateWeaponData();
 }
@@ -95,37 +94,25 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Run);
 		
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		EnhancedInputComponent->BindAction(ScrollCloseAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollClose);
 		EnhancedInputComponent->BindAction(ToggleCombatAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCombatMode);
+		EnhancedInputComponent->BindAction(ToggleCameraAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCamera);
 
-		EnhancedInputComponent->BindAction(MainWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::HandleMainWeapon);
+		EnhancedInputComponent->BindAction(MainWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::Attack);
 	}
 }
 
-void APlayerCharacter::ScrollClose(const FInputActionValue& Value)
+void APlayerCharacter::ToggleCamera(const FInputActionValue& Value)
 {
-	const float ScrollAxis = Value.Get<float>();
-
-	if (GetIsFirstPersonView())
+	if (IsThirdCamera)
 	{
-		if (ScrollAxis == 1)
-		{
-			CountForChangeThirdPerson = 0;
-			CameraSpring->TargetArmLength = 0;
-			SetFirstPersonView();
-		} else if (ScrollAxis == -1)
-		{
-			CountForChangeThirdPerson++;
-			if (CountForChangeThirdPerson == MaxCountForChangeThirdPerson)
-			{
-				CameraSpring->TargetArmLength = 160;
-				SetThirdPersonView();
-			}
-		}
-	} else
-	{
-		CameraSpring->TargetArmLength -= ScrollAxis * PercentCameraMovement;
+		CameraSpring->TargetArmLength = 0;
+		SetFirstPersonView();
+		IsThirdCamera = !IsThirdCamera;
+		return;
 	}
+	IsThirdCamera = !IsThirdCamera;
+	CameraSpring->TargetArmLength = CameraZoom;
+	SetThirdPersonView();
 }
 
 void APlayerCharacter::Run(const FInputActionValue& Value)
@@ -171,76 +158,58 @@ void APlayerCharacter::SetThirdPersonView()
 	bUseControllerRotationYaw = false;
 }
 
-bool APlayerCharacter::GetIsFirstPersonView() const
-{
-	return CameraSpring->TargetArmLength <= static_cast<float>(MaxCameraScroll);
-}
-
 void APlayerCharacter::ToggleCombatMode()
 {
 	if (IsCombatMode)
 	{
 		AnimStatus = EPlayerAnimationStatus::Sheathing;
 		IsCombatMode = false;
-		if (const TObjectPtr<UAnimMontage> SheathingAnim = UCombatManager::GetSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
-		{
-			if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
-			UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(SheathingAnim))
-			{
-				PutWeaponNotify->OnNotified.Clear();
-				PutWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
-			}
-			if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
-				UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(SheathingAnim))
-			{
-				UnSheathingEndNotify->OnNotified.Clear();
-				UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
-			}
-			UWeaponManager::StartSheathCharacterWeapon(MainWeapon);
-			UWeaponManager::StartSheathCharacterWeapon(SubWeapon);
-			PlayAnimMontage(SheathingAnim);
-		}
-	} else
-	{
-		AnimStatus = EPlayerAnimationStatus::UnSheathing;
-		IsCombatMode = true;
-		if (const TObjectPtr<UAnimMontage> UnSheathingAnim = UCombatManager::GetUnSheathingAnimation(CombatAnimData, MainWeapon, SubWeapon))
-		{
-			if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
-			UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(UnSheathingAnim))
-			{
-				GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::UnSheathPlayer);
-			}
-			if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
-				UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(UnSheathingAnim))
-			{
-				UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
-			}
-			PlayAnimMontage(UnSheathingAnim);
-		}
+		PlayAnimMontage(CombatComponent->GetSheathAnimMontage());
+		return;
 	}
+	AnimStatus = EPlayerAnimationStatus::UnSheathing;
+	IsCombatMode = true;
+	PlayAnimMontage(CombatComponent->GetUnSheathAnimMontage());
 }
 
 void APlayerCharacter::UpdateWeaponData()
 {
-	const TArray<UAnimMontage*> AttackMontage = UCombatManager::GetAttackAnimation(CombatAnimData, MainWeapon, SubWeapon);
-	CombatComponent->SetAttackMontages(AttackMontage);
-	
+	CombatComponent->UpdateWeaponData();
 	CombatComponent->OnNotifiedComboAttackInit
 	.AddDynamic(this, &APlayerCharacter::InitAttack);
-}
 
+	if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
+			UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(CombatComponent->GetSheathAnimMontage()))
+	{
+		PutWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathPlayer);
+	}
+	if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
+		UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(CombatComponent->GetSheathAnimMontage()))
+	{
+		UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
+	}
+	if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
+		UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(CombatComponent->GetUnSheathAnimMontage()))
+	{
+		GrabWeaponNotify->OnNotified.AddDynamic(this, &APlayerCharacter::UnSheathPlayer);
+	}
+	if (const TObjectPtr<UUnSheathingEndNotify> UnSheathingEndNotify =
+		UAnimNotifyManager::FindNotifyByClass<UUnSheathingEndNotify>(CombatComponent->GetUnSheathAnimMontage()))
+	{
+		UnSheathingEndNotify->OnNotified.AddDynamic(this, &APlayerCharacter::SheathingEndPlayer);
+	}
+}
 
 void APlayerCharacter::UnSheathPlayer()
 {
-	UWeaponManager::UnSheathCharacterWeapon(Cast<ACharacter>(this), MainWeapon, true);
-	UWeaponManager::UnSheathCharacterWeapon(Cast<ACharacter>(this), SubWeapon, false);
+	UWeaponManager::UnSheathCharacterWeapon(Cast<ACharacter>(this), CombatComponent->GetMainWeapon(), true);
+	UWeaponManager::UnSheathCharacterWeapon(Cast<ACharacter>(this), CombatComponent->GetSubWeapon(), false);
 }
 
 void APlayerCharacter::SheathPlayer()
 {
-	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this), MainWeapon, true);
-	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this), SubWeapon, false);
+	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this), CombatComponent->GetMainWeapon(), true);
+	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this), CombatComponent->GetSubWeapon(), false);
 }
 
 void APlayerCharacter::SheathingEndPlayer()
@@ -253,7 +222,6 @@ void APlayerCharacter::ClearAnimMode()
 	AnimStatus = EPlayerAnimationStatus::Default;
 }
 
-
 void APlayerCharacter::InitAttack(UAnimMontage* CurrentAnim)
 {
 	if (const TObjectPtr<UComboAttackStartNotify> AttackStartNotify =
@@ -265,7 +233,7 @@ void APlayerCharacter::InitAttack(UAnimMontage* CurrentAnim)
 	PlayAnimMontage(CurrentAnim);
 }
 
-void APlayerCharacter::HandleMainWeapon()
+void APlayerCharacter::Attack()
 {
 	if (IsCombatMode && AnimStatus != EPlayerAnimationStatus::Attacking)
 	{
@@ -274,6 +242,59 @@ void APlayerCharacter::HandleMainWeapon()
 	}
 }
 
+void APlayerCharacter::OnAttackStart()
+{
+	switch (
+		UWeaponManager::GetCharacterEquipStatus(CombatComponent->GetMainWeapon(), CombatComponent->GetSubWeapon()))
+	{
+		case EHandEquipStatus::Dual:
+		case EHandEquipStatus::Empty:
+		{
+			if (CombatComponent->GetComboIndex() % 2 == 0)
+			{
+				CombatComponent->GetMainWeapon()->SetWeaponDamageable();
+			} else
+			{
+				CombatComponent->GetSubWeapon()->SetWeaponDamageable();
+			}
+		}
+		case EHandEquipStatus::OnlyMain:
+		{
+			CombatComponent->GetMainWeapon()->SetWeaponDamageable();
+		}
+		case EHandEquipStatus::OnlySub:
+		{
+			CombatComponent->GetSubWeapon()->SetWeaponDamageable();
+		}
+	}
+}
+
+void APlayerCharacter::OnAttackEnd()
+{
+	switch (
+		UWeaponManager::GetCharacterEquipStatus(CombatComponent->GetMainWeapon(), CombatComponent->GetSubWeapon()))
+	{
+	case EHandEquipStatus::Dual:
+	case EHandEquipStatus::Empty:
+		{
+			if (CombatComponent->GetComboIndex() % 2 == 0)
+			{
+				CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
+			} else
+			{
+				CombatComponent->GetSubWeapon()->UnsetWeaponDamageable();
+			}
+		}
+	case EHandEquipStatus::OnlyMain:
+		{
+			CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
+		}
+	case EHandEquipStatus::OnlySub:
+		{
+			CombatComponent->GetSubWeapon()->UnsetWeaponDamageable();
+		}
+	}
+}
 
 void APlayerCharacter::OnRep_PlayerState()
 {
