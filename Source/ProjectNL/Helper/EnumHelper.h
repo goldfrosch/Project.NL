@@ -63,3 +63,11 @@ enum class EPlayerAnimationStatus : uint8
 	UnSheathing,
 	Attacking
 };
+
+UENUM(BlueprintType)
+enum class EPlayerCameraStatus: uint8
+{
+	Third,
+	First,
+	BowAiming,
+};
