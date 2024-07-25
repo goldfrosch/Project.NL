@@ -7,6 +7,7 @@
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerCameraComponent;
 class UInputAction;
 class UCameraComponent;
 class USpringArmComponent;
@@ -57,7 +58,6 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void ToggleCamera(const FInputActionValue& Value);
 
 	void Attack();
 
@@ -66,29 +66,19 @@ protected:
 	
 	UFUNCTION()
 	void OnAttackEnd();
-	
-	void SetThirdPersonView();
-	void SetFirstPersonView();
 
+	UFUNCTION()
+	void OnToggleCamera(EPlayerCameraStatus CameraStatus);
 private:
 	bool IsThirdCamera = true;
 	
 	EPlayerAnimationStatus AnimStatus = EPlayerAnimationStatus::Default;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
-	float CameraZoom = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
+	UPlayerCameraComponent* PlayerCameraComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
 	bool IsCombatMode = false;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraSpring;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FirstCamera;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* ThirdFollowCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;

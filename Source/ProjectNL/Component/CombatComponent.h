@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatComponentComboAttackInitNot
 
 class AWeaponBase;
 
-UCLASS(ClassGroup=(Combat), meta=(BlueprintSpawnableComponent))
+UCLASS()
 class PROJECTNL_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()

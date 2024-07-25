@@ -13,6 +13,7 @@
 #include "ProjectNL/Animation/Characters/Sheathing/PutWeaponNotify.h"
 #include "ProjectNL/Animation/Characters/Sheathing/UnSheathingEndNotify.h"
 #include "ProjectNL/Component/CombatComponent.h"
+#include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
@@ -37,25 +38,19 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
-
-	CameraSpring = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpring"));
-	CameraSpring->SetupAttachment(RootComponent);
-	CameraSpring->TargetArmLength = CameraZoom;
-	CameraSpring->bUsePawnControlRotation = true;
 	
-	FirstCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstCamera"));
-	FirstCamera->SetupAttachment(GetMesh(), "head");
-	FirstCamera->bUsePawnControlRotation = true;
-	
-	ThirdFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdFollowCamera"));
-	ThirdFollowCamera->SetupAttachment(CameraSpring, USpringArmComponent::SocketName);
-	ThirdFollowCamera->bUsePawnControlRotation = false;
+	PlayerCameraComponent = CreateDefaultSubobject<UPlayerCameraComponent>(TEXT("Camera Component"));
+	PlayerCameraComponent->CameraSpring->SetupAttachment(RootComponent);
+	PlayerCameraComponent->FirstCamera->SetupAttachment(GetMesh(), "head");
+	PlayerCameraComponent->ThirdFollowCamera->SetupAttachment(
+		PlayerCameraComponent->CameraSpring, USpringArmComponent::SocketName);
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	SetThirdPersonView();
+	PlayerCameraComponent->SetThirdPersonView();
+	PlayerCameraComponent->OnPlayerCameraModeChanged.AddDynamic(this, &APlayerCharacter::OnToggleCamera);
 
 	CombatComponent->SetMainWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
 	CombatComponent->SetSubWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
@@ -95,24 +90,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(ToggleCombatAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCombatMode);
-		EnhancedInputComponent->BindAction(ToggleCameraAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleCamera);
+		EnhancedInputComponent->BindAction(ToggleCameraAction, ETriggerEvent::Started,
+			PlayerCameraComponent, &UPlayerCameraComponent::ToggleCamera);
 
 		EnhancedInputComponent->BindAction(MainWeaponAction, ETriggerEvent::Started, this, &APlayerCharacter::Attack);
 	}
-}
-
-void APlayerCharacter::ToggleCamera(const FInputActionValue& Value)
-{
-	if (IsThirdCamera)
-	{
-		CameraSpring->TargetArmLength = 0;
-		SetFirstPersonView();
-		IsThirdCamera = !IsThirdCamera;
-		return;
-	}
-	IsThirdCamera = !IsThirdCamera;
-	CameraSpring->TargetArmLength = CameraZoom;
-	SetThirdPersonView();
 }
 
 void APlayerCharacter::Run(const FInputActionValue& Value)
@@ -144,32 +126,21 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::SetFirstPersonView()
-{
-	FirstCamera->SetActive(true);
-	ThirdFollowCamera->SetActive(false);
-	bUseControllerRotationYaw = true;
-}
-
-void APlayerCharacter::SetThirdPersonView()
-{
-	FirstCamera->SetActive(false);
-	ThirdFollowCamera->SetActive(true);
-	bUseControllerRotationYaw = false;
-}
-
 void APlayerCharacter::ToggleCombatMode()
 {
-	if (IsCombatMode)
+	if (AnimStatus == EPlayerAnimationStatus::Default)
 	{
-		AnimStatus = EPlayerAnimationStatus::Sheathing;
-		IsCombatMode = false;
-		PlayAnimMontage(CombatComponent->GetSheathAnimMontage());
-		return;
+		if (IsCombatMode)
+		{
+			AnimStatus = EPlayerAnimationStatus::Sheathing;
+			IsCombatMode = false;
+			PlayAnimMontage(CombatComponent->GetSheathAnimMontage());
+			return;
+		}
+		AnimStatus = EPlayerAnimationStatus::UnSheathing;
+		IsCombatMode = true;
+		PlayAnimMontage(CombatComponent->GetUnSheathAnimMontage());
 	}
-	AnimStatus = EPlayerAnimationStatus::UnSheathing;
-	IsCombatMode = true;
-	PlayAnimMontage(CombatComponent->GetUnSheathAnimMontage());
 }
 
 void APlayerCharacter::UpdateWeaponData()
@@ -295,6 +266,26 @@ void APlayerCharacter::OnAttackEnd()
 		}
 	}
 }
+
+void APlayerCharacter::OnToggleCamera(EPlayerCameraStatus CameraStatus)
+{
+	switch (CameraStatus)
+	{
+		case EPlayerCameraStatus::First:
+		{
+			bUseControllerRotationYaw = true;
+		}
+		case EPlayerCameraStatus::Third:
+		{
+			bUseControllerRotationYaw = false;
+		}
+		default:
+		{
+			
+		}
+	}
+}
+
 
 void APlayerCharacter::OnRep_PlayerState()
 {
