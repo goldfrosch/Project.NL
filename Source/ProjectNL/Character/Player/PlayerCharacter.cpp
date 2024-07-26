@@ -15,7 +15,6 @@
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
-#include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Manager/WeaponManager.h"
 #include "ProjectNL/Player/DefaultPlayerState.h"
@@ -200,7 +199,6 @@ void APlayerCharacter::InitAttack(UAnimMontage* CurrentAnim)
 	{
 		AttackStartNotify->OnNotified.AddDynamic(this, &APlayerCharacter::ClearAnimMode);
 	}
-	
 	PlayAnimMontage(CurrentAnim);
 }
 
