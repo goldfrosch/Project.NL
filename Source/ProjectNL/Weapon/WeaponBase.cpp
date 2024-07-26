@@ -29,10 +29,13 @@ void AWeaponBase::BeginPlay()
 
 void AWeaponBase::InitEquipWeapon()
 {
-	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetRootComponent()->GetAttachParent()->GetAttachmentRootActor()))
+	if (USceneComponent* Parent = GetRootComponent()->GetAttachParent())
 	{
-		Player->CombatComponent->OnNotifiedComboAttackStart.AddDynamic(this, &AWeaponBase::SetWeaponDamageable);
-		Player->CombatComponent->OnNotifiedComboAttackEnd.AddDynamic(this, &AWeaponBase::UnsetWeaponDamageable);
+		if (APlayerCharacter* Player = Cast<APlayerCharacter>(Parent->GetAttachmentRootActor()))
+		{
+			Player->CombatComponent->OnNotifiedComboAttackStart.AddDynamic(this, &AWeaponBase::SetWeaponDamageable);
+			Player->CombatComponent->OnNotifiedComboAttackEnd.AddDynamic(this, &AWeaponBase::UnsetWeaponDamageable);
+		}
 	}
 }
 
@@ -57,8 +60,16 @@ void AWeaponBase::GiveDamage(
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	// TODO: 내 자신도 Overlap 되는 이슈 확인 후 수정
-	UE_LOG(LogTemp, Display, TEXT("Result: %s, %s"), *OverlappedComponent->GetName(), *SweepResult.GetActor()->GetName());
+	if (const USceneComponent* Parent = GetRootComponent()->GetAttachParent())
+	{
+		// 나랑 동일한 캐릭터 or Pawn인지 확인 한 후 동일하면 진행하지 않음
+		if (const APawn* Owner = Cast<APawn>(Parent->GetAttachmentRootActor()))
+		{
+			if (OtherActor == Owner) return;
+		}
+	}
+	
+	UE_LOG(LogTemp, Display, TEXT("Result: %s, %s"), *OverlappedComponent->GetName(), *OtherActor->GetName());
 }
 
 
