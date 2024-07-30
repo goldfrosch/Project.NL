@@ -7,8 +7,11 @@
 #include "CombatComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCombatComponentComboAttackStartNotified);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCombatComponentComboAttackEndNotified);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCombatComponentComboAttackTickNotified);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatComponentComboAttackInitNotified, UAnimMontage*, CurrentAnim);
 
 class AWeaponBase;
@@ -33,7 +36,7 @@ public:
 
 	UFUNCTION()
 	void OnComboBegin();
-	
+
 	UFUNCTION()
 	void OnComboEnd();
 
@@ -43,36 +46,36 @@ public:
 	UFUNCTION()
 	void UpdateWeaponData();
 
-	TObjectPtr<UAnimMontage> GetUnSheathAnimMontage() const { return UnSheathingAnimMontage; }
-	TObjectPtr<UAnimMontage> GetSheathAnimMontage() const { return SheathingAnimMontage; }
+	FORCEINLINE TObjectPtr<UAnimMontage> GetUnSheathAnimMontage() const { return UnSheathingAnimMontage; }
+	FORCEINLINE TObjectPtr<UAnimMontage> GetSheathAnimMontage() const { return SheathingAnimMontage; }
 
-	AWeaponBase* GetMainWeapon() const { return MainWeapon; }
-	AWeaponBase* GetSubWeapon() const { return SubWeapon; }
-	void SetMainWeapon(AWeaponBase* NewWeapon) { MainWeapon = NewWeapon; }
-	void SetSubWeapon(AWeaponBase* NewWeapon) { SubWeapon = NewWeapon; }
-	
-	uint8 GetComboIndex() const { return ComboIndex; }
-	uint8 GetMaxCombo() const { return MaxCombo; }
-	
+	FORCEINLINE AWeaponBase* GetMainWeapon() const { return MainWeapon; }
+	FORCEINLINE AWeaponBase* GetSubWeapon() const { return SubWeapon; }
+	FORCEINLINE void SetMainWeapon(AWeaponBase* NewWeapon) { MainWeapon = NewWeapon; }
+	FORCEINLINE void SetSubWeapon(AWeaponBase* NewWeapon) { SubWeapon = NewWeapon; }
+
+	FORCEINLINE uint8 GetComboIndex() const { return ComboIndex; }
+	FORCEINLINE uint8 GetMaxCombo() const { return MaxCombo; }
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	FDataTableRowHandle CombatAnimData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	AWeaponBase* MainWeapon;
-  
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	AWeaponBase* SubWeapon;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY()
 	TArray<TObjectPtr<UAnimMontage>> AttackMontages;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY()
 	TObjectPtr<UAnimMontage> SheathingAnimMontage;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY()
 	TObjectPtr<UAnimMontage> UnSheathingAnimMontage;
-	
+
 	bool IsNextCombo = false;
 	uint8 ComboIndex = 0;
 	uint8 MaxCombo = 0;
