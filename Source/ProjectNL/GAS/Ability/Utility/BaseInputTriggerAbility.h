@@ -15,8 +15,15 @@ class PROJECTNL_API UBaseInputTriggerAbility : public UGameplayAbility
 
 public:
 	UBaseInputTriggerAbility(const FObjectInitializer& ObjectInitializer);
-	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo
-														, const FGameplayAbilityActivationInfo ActivationInfo) override;
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle
+														, const FGameplayAbilityActorInfo* ActorInfo
+														, const FGameplayAbilityActivationInfo
+														ActivationInfo) override;
+
+	FORCEINLINE void SetCancelAbilityOnInputReleased(const bool IsReleased)
+	{
+		bCancelAbilityOnInputReleased = IsReleased;
+	}
 
 protected:
 	UPROPERTY()
@@ -24,15 +31,21 @@ protected:
 
 	TArray<uint32> TriggeredEventHandles;
 
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo
-															, const FGameplayAbilityActivationInfo ActivationInfo
-															, const FGameplayEventData* TriggerEventData) override;
-	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo
-													, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle
+															, const FGameplayAbilityActorInfo* ActorInfo
+															, const FGameplayAbilityActivationInfo
+															ActivationInfo
+															, const FGameplayEventData*
+															TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle
+													, const FGameplayAbilityActorInfo* ActorInfo
+													, const FGameplayAbilityActivationInfo ActivationInfo
+													, bool bReplicateEndAbility
 													, bool bWasCancelled) override;
 	virtual void OnTriggeredInputAction(const FInputActionValue& Value);
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability"
+		, meta = (AllowPrivateAccess = true))
 	bool bCancelAbilityOnInputReleased;
 };

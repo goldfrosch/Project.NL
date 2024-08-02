@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
+#include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Manager/WeaponManager.h"
 #include "ProjectNL/Player/DefaultPlayerState.h"
@@ -56,7 +57,12 @@ void APlayerCharacter::BeginPlay()
 		SetSubWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
 
 	InitAbilitySystem();
-	SheathPlayer();
+	EquipPlayer();
+	CombatComponent->UpdateCombatStatus();
+
+	// TODO: 추후 패시브 Ability로 추가
+	GetAbilitySystemComponent()->AddLooseGameplayTag(
+		NlGameplayTags::State_Player_Idle);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -118,7 +124,7 @@ void APlayerCharacter::SetupPlayerInputComponent(
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	if (AnimStatus == EPlayerAnimationStatus::Default)
+	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))
 	{
 		const FVector2D MovementVector = Value.Get<FVector2D>();
 		UMovementManager::Move(this, MovementVector);
@@ -141,14 +147,12 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::SheathPlayer()
+void APlayerCharacter::EquipPlayer()
 {
-	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this)
-																				, CombatComponent->GetMainWeapon()
-																				, true);
-	UWeaponManager::SheathCharacterWeapon(Cast<ACharacter>(this)
-																				, CombatComponent->GetSubWeapon()
-																				, false);
+	UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
+																			, CombatComponent->GetMainWeapon(), true);
+	UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
+																			, CombatComponent->GetSubWeapon(), false);
 }
 
 // void APlayerCharacter::OnAttackStart()

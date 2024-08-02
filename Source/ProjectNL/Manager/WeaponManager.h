@@ -14,17 +14,19 @@ UCLASS()
 class PROJECTNL_API UWeaponManager : public UObject
 {
 	GENERATED_BODY()
+
 public:
 	UFUNCTION()
-	static void UnSheathCharacterWeapon(const ACharacter* Character, AWeaponBase* Weapon, const bool IsMain);
-	
-	UFUNCTION()
-	static void SheathCharacterWeapon(const ACharacter* Character, AWeaponBase* Weapon, const bool IsMain);
-	
-	UFUNCTION()
-	static void StartSheathCharacterWeapon(AWeaponBase* Weapon);
+	static void UnEquipCharacterWeapon(const ACharacter* Character
+																		, AWeaponBase* Weapon, const bool IsMain);
 
-	static EHandEquipStatus GetCharacterEquipStatus(const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon);
+	UFUNCTION()
+	static void EquipCharacterWeapon(const ACharacter* Character
+																	, AWeaponBase* Weapon, const bool IsMain);
 
-	static EUWeaponType GetWeaponType(const AWeaponBase* Weapon);
+	UFUNCTION()
+	static void StartEquipCharacterWeapon(AWeaponBase* Weapon);
+
+	static EHandEquipStatus GetCharacterEquipStatus(
+		const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon);
 };

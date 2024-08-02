@@ -13,30 +13,35 @@ class UBasicAttributeSet;
 class UAbilitySystemComponent;
 
 UCLASS()
-class PROJECTNL_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
+class PROJECTNL_API ABaseCharacter
+	: public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	ABaseCharacter(const class FObjectInitializer& ObjectInitializer);
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS"
+		, meta = (AllowPrivateAccess = "true"))
 	UAbilitySystemComponent* AbilitySystemComponent;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat
+		, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
-	
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
 	{
 		return AbilitySystemComponent;
 	}
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes"
+		, meta = (AllowPrivateAccess = "true"))
 	const UBasicAttributeSet* AttributeSet;
 };

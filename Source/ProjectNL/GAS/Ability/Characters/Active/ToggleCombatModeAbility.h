@@ -22,16 +22,25 @@ protected:
 															, const FGameplayEventData*
 															TriggerEventData) override;
 
-	virtual void FinishDestroy() override;
-
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Anim"
 		, meta = (AllowPrivateAccess = "true"))
 	FDataTableRowHandle CombatAnimData;
 
 	UFUNCTION()
-	void Sheath();
+	void HandleToggleCombat();
 
 	UFUNCTION()
-	void UnSheath();
+	void HandleToggleCombatEnd(FGameplayTag EventTag
+														, FGameplayEventData EventData);
+
+	UFUNCTION()
+	void HandleEquip();
+
+	UFUNCTION()
+	void HandleUnEquip();
+
+	UFUNCTION()
+	void HandleCancelAbilityTask(FGameplayTag EventTag
+															, FGameplayEventData EventData);
 };

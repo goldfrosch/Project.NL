@@ -4,39 +4,47 @@
 #include "ProjectNL/Character/Player/PlayerCharacter.h"
 #include "ProjectNL/Player/PlayerGAInputDataAsset.h"
 
-UBaseInputTriggerAbility::UBaseInputTriggerAbility(const FObjectInitializer& ObjectInitializer)
+UBaseInputTriggerAbility::UBaseInputTriggerAbility(
+	const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, bCancelAbilityOnInputReleased(true)
+	, bCancelAbilityOnInputReleased(false)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
 }
 
-void UBaseInputTriggerAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
-																							, const FGameplayAbilityActorInfo* ActorInfo
-																							, const FGameplayAbilityActivationInfo ActivationInfo
-																							, const FGameplayEventData* TriggerEventData)
+void UBaseInputTriggerAbility::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayAbilityActivationInfo ActivationInfo
+	, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	bool bSuccess = false;
 
-	if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo()))
+	if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(
+		GetAvatarActorFromActorInfo()))
 	{
-		EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerCharacter->InputComponent);
+		EnhancedInputComponent = Cast<UEnhancedInputComponent>(
+			PlayerCharacter->InputComponent);
 		if (EnhancedInputComponent)
 		{
-			if (const UPlayerGAInputDataAsset* PlayerGameplayAbilitiesDataAsset = PlayerCharacter->
-				GetPlayerGameplayAbilitiesDataAsset())
+			if (const UPlayerGAInputDataAsset* PlayerGameplayAbilitiesDataAsset =
+				PlayerCharacter->GetPlayerGameplayAbilitiesDataAsset())
 			{
-				const TSet<FGameplayInputAbilityInfo>& InputAbilities = PlayerGameplayAbilitiesDataAsset->GetInputAbilities();
+				const TSet<FGameplayInputAbilityInfo>& InputAbilities =
+					PlayerGameplayAbilitiesDataAsset->GetInputAbilities();
 				for (const auto& It : InputAbilities)
 				{
 					if (It.IsValid() && It.GameplayAbilityClass == GetClass())
 					{
-						const FEnhancedInputActionEventBinding& TriggeredEventBinding = EnhancedInputComponent->BindAction(
-							It.InputAction, ETriggerEvent::Triggered, this, &UBaseInputTriggerAbility::OnTriggeredInputAction);
-						const uint32 TriggeredEventHandle = TriggeredEventBinding.GetHandle();
+						const FEnhancedInputActionEventBinding& TriggeredEventBinding =
+							EnhancedInputComponent->BindAction(
+								It.InputAction, ETriggerEvent::Triggered, this
+								, &UBaseInputTriggerAbility::OnTriggeredInputAction);
+						const uint32 TriggeredEventHandle = TriggeredEventBinding.
+							GetHandle();
 
 						TriggeredEventHandles.AddUnique(TriggeredEventHandle);
 
@@ -64,12 +72,14 @@ void UBaseInputTriggerAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 	}
 }
 
-void UBaseInputTriggerAbility::EndAbility(const FGameplayAbilitySpecHandle Handle
-																					, const FGameplayAbilityActorInfo* ActorInfo
-																					, const FGameplayAbilityActivationInfo ActivationInfo
-																					, bool bReplicateEndAbility, bool bWasCancelled)
+void UBaseInputTriggerAbility::EndAbility(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayAbilityActivationInfo ActivationInfo
+	, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility
+										, bWasCancelled);
 
 	if (EnhancedInputComponent)
 	{
@@ -84,9 +94,10 @@ void UBaseInputTriggerAbility::EndAbility(const FGameplayAbilitySpecHandle Handl
 	TriggeredEventHandles.Reset();
 }
 
-void UBaseInputTriggerAbility::InputReleased(const FGameplayAbilitySpecHandle Handle
-																						, const FGameplayAbilityActorInfo* ActorInfo
-																						, const FGameplayAbilityActivationInfo ActivationInfo)
+void UBaseInputTriggerAbility::InputReleased(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 
@@ -96,6 +107,7 @@ void UBaseInputTriggerAbility::InputReleased(const FGameplayAbilitySpecHandle Ha
 	}
 }
 
-void UBaseInputTriggerAbility::OnTriggeredInputAction(const FInputActionValue& Value)
+void UBaseInputTriggerAbility::OnTriggeredInputAction(
+	const FInputActionValue& Value)
 {
 }

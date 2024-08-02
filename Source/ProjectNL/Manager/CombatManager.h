@@ -4,6 +4,7 @@
 #include "CombatManager.generated.h"
 
 class AWeaponBase;
+enum class EPlayerCombatWeaponState : uint8;
 
 UCLASS()
 class PROJECTNL_API UCombatManager : public UObject
@@ -13,17 +14,17 @@ class PROJECTNL_API UCombatManager : public UObject
 public:
 	// TODO: GetUnSheathingAnimation의 1~3인자는 추후 기본 캐릭터에 대한 base class가 완성되면 parameter 줄이기 마이그레이션을 진행한다.
 	UFUNCTION()
-	static UAnimMontage* GetUnSheathingAnimation(
-		const FDataTableRowHandle CombatDT, const AWeaponBase* MainWeapon
-		, const AWeaponBase* SubWeapon);
+	static UAnimMontage* GetUnEquipAnimation(const FDataTableRowHandle CombatDT
+																					, const EPlayerCombatWeaponState
+																					CurrentEquipStatus);
 
 	UFUNCTION()
-	static UAnimMontage* GetSheathingAnimation(const FDataTableRowHandle CombatDT
-																						, const AWeaponBase* MainWeapon
-																						, const AWeaponBase* SubWeapon);
+	static UAnimMontage* GetEquipAnimation(const FDataTableRowHandle CombatDT
+																				, const EPlayerCombatWeaponState
+																				CurrentEquipStatus);
 
 	UFUNCTION()
 	static TArray<UAnimMontage*> GetAttackAnimation(
-		FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon
-		, AWeaponBase* SubWeapon);
+		const FDataTableRowHandle CombatDT
+		, const EPlayerCombatWeaponState CurrentEquipStatus);
 };
