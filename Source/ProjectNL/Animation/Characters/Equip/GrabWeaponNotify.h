@@ -12,12 +12,15 @@ UCLASS()
 class PROJECTNL_API UGrabWeaponNotify : public UAnimNotify
 {
 	GENERATED_BODY()
-	
+
 public:
 	FOnGrabWeaponNotifiedSignature OnNotified;
-	virtual void Notify(
-		USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-		const FAnimNotifyEventReference& EventReference) override {
+
+	virtual void Notify(USkeletalMeshComponent* MeshComp
+											, UAnimSequenceBase* Animation
+											, const FAnimNotifyEventReference&
+											EventReference) override
+	{
 		OnNotified.Broadcast();
 		Super::Notify(MeshComp, Animation, EventReference);
 	}

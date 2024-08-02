@@ -28,12 +28,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void SheathPlayer();
-
-	FORCEINLINE EPlayerAnimationStatus GetAnimStatus() const
-	{
-		return AnimStatus;
-	}
+	void EquipPlayer();
 
 	FORCEINLINE UPlayerGAInputDataAsset*
 	GetPlayerGameplayAbilitiesDataAsset() const { return PlayerGAInputDataAsset; }
@@ -52,8 +47,6 @@ protected:
 
 private:
 	bool IsThirdCamera = true;
-
-	EPlayerAnimationStatus AnimStatus = EPlayerAnimationStatus::Default;
 
 	void InitAbilitySystem();
 	void OnAbilityInputPressed(const int32 InputID);

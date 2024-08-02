@@ -1,22 +1,15 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ProjectNL/Helper/UtilHelper.h"
 #include "CombatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCombatComponentComboAttackStartNotified);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCombatComponentComboAttackEndNotified);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCombatComponentComboAttackTickNotified);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatComponentComboAttackInitNotified, UAnimMontage*, CurrentAnim);
-
+enum class EPlayerCombatWeaponState : uint8;
 class AWeaponBase;
 
-UCLASS()
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTNL_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -24,59 +17,46 @@ class PROJECTNL_API UCombatComponent : public UActorComponent
 public:
 	UCombatComponent();
 
-	FOnCombatComponentComboAttackStartNotified OnNotifiedComboAttackStart;
-	FOnCombatComponentComboAttackEndNotified OnNotifiedComboAttackEnd;
-	FOnCombatComponentComboAttackTickNotified OnNotifiedComboAttackTick;
-	FOnCombatComponentComboAttackInitNotified OnNotifiedComboAttackInit;
-
-	void SetAttackMontages(TArray<UAnimMontage*> Montages);
-
 	UFUNCTION()
-	void SetComboDisable();
+	void UpdateCombatStatus();
 
-	UFUNCTION()
-	void OnComboBegin();
-
-	UFUNCTION()
-	void OnComboEnd();
-
-	UFUNCTION()
-	void ComboAttack();
-
-	UFUNCTION()
-	void UpdateWeaponData();
-
-	FORCEINLINE TObjectPtr<UAnimMontage> GetUnSheathAnimMontage() const { return UnSheathingAnimMontage; }
-	FORCEINLINE TObjectPtr<UAnimMontage> GetSheathAnimMontage() const { return SheathingAnimMontage; }
-
-	FORCEINLINE AWeaponBase* GetMainWeapon() const { return MainWeapon; }
-	FORCEINLINE AWeaponBase* GetSubWeapon() const { return SubWeapon; }
-	FORCEINLINE void SetMainWeapon(AWeaponBase* NewWeapon) { MainWeapon = NewWeapon; }
-	FORCEINLINE void SetSubWeapon(AWeaponBase* NewWeapon) { SubWeapon = NewWeapon; }
-
-	FORCEINLINE uint8 GetComboIndex() const { return ComboIndex; }
-	FORCEINLINE uint8 GetMaxCombo() const { return MaxCombo; }
+protected:
+	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	EPlayerCombatWeaponState PlayerCombatWeaponState;
+	GETTER_SETTER(EPlayerCombatWeaponState, PlayerCombatWeaponState)
+
+	UPROPERTY(EditAnywhere, Category = Input
+		, meta = (AllowPrivateAccess = "true"))
+	FDataTableRowHandle MoveAnimData;
+
+	UPROPERTY(EditAnywhere, Category = Input
+		, meta = (AllowPrivateAccess = "true"))
 	FDataTableRowHandle CombatAnimData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-	AWeaponBase* MainWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon
+		, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AWeaponBase> MainWeapon;
+	GETTER_SETTER(TObjectPtr<AWeaponBase>, MainWeapon)
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-	AWeaponBase* SubWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon
+		, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AWeaponBase> SubWeapon;
+	GETTER_SETTER(TObjectPtr<AWeaponBase>, SubWeapon)
 
-	UPROPERTY()
-	TArray<TObjectPtr<UAnimMontage>> AttackMontages;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UAnimMontage> EquipAnim;
+	GETTER(TObjectPtr<UAnimMontage>, EquipAnim)
 
-	UPROPERTY()
-	TObjectPtr<UAnimMontage> SheathingAnimMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UAnimMontage> UnEquipAnim;
+	GETTER(TObjectPtr<UAnimMontage>, UnEquipAnim)
 
-	UPROPERTY()
-	TObjectPtr<UAnimMontage> UnSheathingAnimMontage;
-
-	bool IsNextCombo = false;
-	uint8 ComboIndex = 0;
-	uint8 MaxCombo = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation
+		, meta = (AllowPrivateAccess = true))
+	TArray<TObjectPtr<UAnimMontage>> ComboAttackAnim;
+	GETTER(TArray<TObjectPtr<UAnimMontage>>, ComboAttackAnim)
 };

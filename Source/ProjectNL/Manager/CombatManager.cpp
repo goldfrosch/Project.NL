@@ -1,53 +1,44 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "CombatManager.h"
+﻿#include "CombatManager.h"
 
 #include "WeaponManager.h"
 #include "ProjectNL/DataTable/CombatAnimationData.h"
-#include "ProjectNL/Helper/AnimHelper.h"
 
-UAnimMontage* UCombatManager::GetUnSheathingAnimation(
-	const FDataTableRowHandle CombatDT, const AWeaponBase* MainWeapon
-	, const AWeaponBase* SubWeapon)
+UAnimMontage* UCombatManager::GetUnEquipAnimation(
+	const FDataTableRowHandle CombatDT
+	, const EPlayerCombatWeaponState CurrentEquipStatus)
 {
-	const EHandEquipStatus CurrentEquipStatus =
-		UWeaponManager::GetCharacterEquipStatus(MainWeapon, SubWeapon);
+	const FString UnEquipAnimRowName =
+		FEnumHelper::GetClassEnumKeyAsString(CurrentEquipStatus) + "UnEquipAnim";
 
-	const FString UnSheathAnimRowName =
-		FEnumHelper::GetClassEnumKeyAsString(CurrentEquipStatus) + "UnSheathAnim";
-
-	if (const FCombatAnimationData* UnSheathingAnim = CombatDT.DataTable->FindRow<
-		FCombatAnimationData>(*UnSheathAnimRowName, ""))
+	if (const FCombatAnimationData* UnEquipAnim = CombatDT.DataTable->FindRow<
+		FCombatAnimationData>(*UnEquipAnimRowName, ""))
 	{
-		return UnSheathingAnim->AnimGroup.Top();
+		return UnEquipAnim->AnimGroup.Top();
 	}
 	return nullptr;
 }
 
-// TODO: 추후 위의 GetUnSheathingAnimation과 합치기
-UAnimMontage* UCombatManager::GetSheathingAnimation(
-	const FDataTableRowHandle CombatDT, const AWeaponBase* MainWeapon
-	, const AWeaponBase* SubWeapon)
+// TODO: 추후 위의 GetUnEquipAnimation과 합치기
+UAnimMontage* UCombatManager::GetEquipAnimation(
+	const FDataTableRowHandle CombatDT
+	, const EPlayerCombatWeaponState CurrentEquipStatus)
 {
-	const EHandEquipStatus CurrentEquipStatus =
-		UWeaponManager::GetCharacterEquipStatus(MainWeapon, SubWeapon);
-
-	const FString UnSheathAnimRowName =
-		FEnumHelper::GetClassEnumKeyAsString(CurrentEquipStatus) + "SheathAnim";
-	if (const FCombatAnimationData* UnSheathingAnim = CombatDT.DataTable->FindRow<
-		FCombatAnimationData>(*UnSheathAnimRowName, ""))
+	const FString UnEquipAnimRowName = FEnumHelper::GetClassEnumKeyAsString(
+		CurrentEquipStatus) + "EquipAnim";
+	if (const FCombatAnimationData* UnEquipAnim = CombatDT.DataTable->FindRow<
+		FCombatAnimationData>(*UnEquipAnimRowName, ""))
 	{
-		return UnSheathingAnim->AnimGroup.Top();
+		return UnEquipAnim->AnimGroup.Top();
 	}
 	return nullptr;
 }
 
 TArray<UAnimMontage*> UCombatManager::GetAttackAnimation(
-	FDataTableRowHandle CombatDT, AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
+	const FDataTableRowHandle CombatDT
+	, const EPlayerCombatWeaponState CurrentEquipStatus)
 {
-	const FString AnimName = FAnimHelper::GetCombatAttackAnimation(
-		CombatDT, MainWeapon, SubWeapon);
+	const FString AnimName = FEnumHelper::GetClassEnumKeyAsString(
+		CurrentEquipStatus) + "AttackAnim";
 
 	if (const FCombatAnimationData* Animation = CombatDT.DataTable->FindRow<
 		FCombatAnimationData>(*AnimName, ""))

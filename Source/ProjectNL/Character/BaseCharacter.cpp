@@ -3,10 +3,13 @@
 #include "AbilitySystemComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
 
-ABaseCharacter::ABaseCharacter(const class FObjectInitializer& ObjectInitializer)
+ABaseCharacter::ABaseCharacter(
+	const class FObjectInitializer& ObjectInitializer)
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(
+		TEXT("AbilitySystemComponent"));
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(
+		TEXT("Combat Component"));
 }
 
 void ABaseCharacter::BeginPlay()

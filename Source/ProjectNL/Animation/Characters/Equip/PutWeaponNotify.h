@@ -10,12 +10,14 @@ UCLASS()
 class PROJECTNL_API UPutWeaponNotify : public UAnimNotify
 {
 	GENERATED_BODY()
-	
+
 public:
 	FOnPutWeaponNotifiedSignature OnNotified;
-	virtual void Notify(
-		USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-		const FAnimNotifyEventReference& EventReference) override
+
+	virtual void Notify(USkeletalMeshComponent* MeshComp
+											, UAnimSequenceBase* Animation
+											, const FAnimNotifyEventReference&
+											EventReference) override
 	{
 		OnNotified.Broadcast();
 		Super::Notify(MeshComp, Animation, EventReference);
