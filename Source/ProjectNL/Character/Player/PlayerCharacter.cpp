@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
+#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Manager/WeaponManager.h"
@@ -29,10 +30,9 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
-	GetCharacterMovement()->JumpZVelocity = 550.f;
+	GetCharacterMovement()->JumpZVelocity = 450.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 250.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
+	GetCharacterMovement()->MinAnalogWalkSpeed = 50.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
@@ -48,8 +48,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCameraComponent->SetThirdPersonView();
-	// PlayerCameraComponent->OnPlayerCameraModeChanged.AddDynamic(
-	// 	this, &APlayerCharacter::OnToggleCamera);
 
 	CombatComponent->SetMainWeapon(
 		GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
@@ -57,12 +55,15 @@ void APlayerCharacter::BeginPlay()
 		SetSubWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
 
 	InitAbilitySystem();
-	EquipPlayer();
+	InitPlayerWeapon();
 	CombatComponent->UpdateCombatStatus();
 
 	// TODO: 추후 패시브 Ability로 추가
-	GetAbilitySystemComponent()->AddLooseGameplayTag(
-		NlGameplayTags::State_Player_Idle);
+	FGameplayTagContainer InitContainer;
+	InitContainer.AddTag(NlGameplayTags::State_Player_Idle);
+	InitContainer.AddTag(NlGameplayTags::Ability_Util_DoubleJump);
+
+	GetAbilitySystemComponent()->AddLooseGameplayTags(InitContainer);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -147,87 +148,15 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::EquipPlayer()
+void APlayerCharacter::InitPlayerWeapon()
 {
-	UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
-																			, CombatComponent->GetMainWeapon(), true);
-	UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
-																			, CombatComponent->GetSubWeapon(), false);
+	UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
+																				, CombatComponent->GetMainWeapon()
+																				, true);
+	UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
+																				, CombatComponent->GetSubWeapon()
+																				, false);
 }
-
-// void APlayerCharacter::OnAttackStart()
-// {
-// 	switch (UWeaponManager::GetCharacterEquipStatus(
-// 		CombatComponent->GetMainWeapon(), CombatComponent->GetSubWeapon()))
-// 	{
-// 	case EHandEquipStatus::Dual:
-// 	case EHandEquipStatus::Empty:
-// 		{
-// 			if (CombatComponent->GetComboIndex() % 2 == 0)
-// 			{
-// 				CombatComponent->GetMainWeapon()->SetWeaponDamageable();
-// 			}
-// 			else
-// 			{
-// 				CombatComponent->GetSubWeapon()->SetWeaponDamageable();
-// 			}
-// 		}
-// 	case EHandEquipStatus::OnlyMain:
-// 		{
-// 			CombatComponent->GetMainWeapon()->SetWeaponDamageable();
-// 		}
-// 	case EHandEquipStatus::OnlySub:
-// 		{
-// 			CombatComponent->GetSubWeapon()->SetWeaponDamageable();
-// 		}
-// 	}
-// }
-
-// void APlayerCharacter::OnAttackEnd()
-// {
-// 	switch (UWeaponManager::GetCharacterEquipStatus(
-// 		CombatComponent->GetMainWeapon(), CombatComponent->GetSubWeapon()))
-// 	{
-// 	case EHandEquipStatus::Dual:
-// 	case EHandEquipStatus::Empty:
-// 		{
-// 			if (CombatComponent->GetComboIndex() % 2 == 0)
-// 			{
-// 				CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
-// 			}
-// 			else
-// 			{
-// 				CombatComponent->GetSubWeapon()->UnsetWeaponDamageable();
-// 			}
-// 		}
-// 	case EHandEquipStatus::OnlyMain:
-// 		{
-// 			CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
-// 		}
-// 	case EHandEquipStatus::OnlySub:
-// 		{
-// 			CombatComponent->GetSubWeapon()->UnsetWeaponDamageable();
-// 		}
-// 	}
-// }
-
-// void APlayerCharacter::OnToggleCamera(EPlayerCameraStatus CameraStatus)
-// {
-// 	switch (CameraStatus)
-// 	{
-// 	case EPlayerCameraStatus::First:
-// 		{
-// 			bUseControllerRotationYaw = true;
-// 		}
-// 	case EPlayerCameraStatus::Third:
-// 		{
-// 			bUseControllerRotationYaw = false;
-// 		}
-// 	default:
-// 		{
-// 		}
-// 	}
-// }
 
 
 void APlayerCharacter::OnRep_PlayerState()
@@ -257,6 +186,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 void APlayerCharacter::InitAbilitySystem()
 {
+	GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetMovementSpeed();
 	if (PlayerGAInputDataAsset)
 	{
 		for (const FGameplayInputAbilityInfo& It : PlayerGAInputDataAsset->

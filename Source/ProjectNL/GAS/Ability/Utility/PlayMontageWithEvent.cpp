@@ -140,7 +140,6 @@ void UPlayMontageWithEvent::OnGameplayEvent(FGameplayTag EventTag
 
 void UPlayMontageWithEvent::OnAbilityCancelled()
 {
-	UE_LOG(LogTemp, Display, TEXT("HIHI"));
 	if (StopPlayingMontage())
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())

@@ -1,7 +1,9 @@
 ﻿#include "CombatManager.h"
 
+#include "AbilitySystemComponent.h"
 #include "WeaponManager.h"
 #include "ProjectNL/DataTable/CombatAnimationData.h"
+#include "ProjectNL/Helper/GameplayTagsHelper.h"
 
 UAnimMontage* UCombatManager::GetUnEquipAnimation(
 	const FDataTableRowHandle CombatDT
@@ -25,10 +27,24 @@ UAnimMontage* UCombatManager::GetEquipAnimation(
 {
 	const FString UnEquipAnimRowName = FEnumHelper::GetClassEnumKeyAsString(
 		CurrentEquipStatus) + "EquipAnim";
-	if (const FCombatAnimationData* UnEquipAnim = CombatDT.DataTable->FindRow<
+	if (const FCombatAnimationData* EquipAnim = CombatDT.DataTable->FindRow<
 		FCombatAnimationData>(*UnEquipAnimRowName, ""))
 	{
-		return UnEquipAnim->AnimGroup.Top();
+		return EquipAnim->AnimGroup.Top();
+	}
+	return nullptr;
+}
+
+UAnimMontage* UCombatManager::GetDoubleJumpAnimation(
+	const FDataTableRowHandle CombatDT
+	, const EPlayerCombatWeaponState CurrentEquipStatus)
+{
+	const FString UnEquipAnimRowName = FEnumHelper::GetClassEnumKeyAsString(
+		CurrentEquipStatus) + "DoubleJumpAnim";
+	if (const FCombatAnimationData* EquipAnim = CombatDT.DataTable->FindRow<
+		FCombatAnimationData>(*UnEquipAnimRowName, ""))
+	{
+		return EquipAnim->AnimGroup.Top();
 	}
 	return nullptr;
 }
@@ -47,4 +63,9 @@ TArray<UAnimMontage*> UCombatManager::GetAttackAnimation(
 	}
 
 	return TArray<UAnimMontage*>();
+}
+
+bool UCombatManager::IsCharacterCombat(const UAbilitySystemComponent* Ability)
+{
+	return Ability->HasMatchingGameplayTag(NlGameplayTags::Status_Combat);
 }

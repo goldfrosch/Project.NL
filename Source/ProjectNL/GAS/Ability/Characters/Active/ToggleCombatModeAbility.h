@@ -21,12 +21,14 @@ protected:
 															ActivationInfo
 															, const FGameplayEventData*
 															TriggerEventData) override;
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle
+																	, const FGameplayAbilityActorInfo* ActorInfo
+																	, const FGameplayTagContainer* SourceTags
+																	, const FGameplayTagContainer* TargetTags
+																	, FGameplayTagContainer* OptionalRelevantTags)
+	const override;
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Anim"
-		, meta = (AllowPrivateAccess = "true"))
-	FDataTableRowHandle CombatAnimData;
-
 	UFUNCTION()
 	void HandleToggleCombat();
 

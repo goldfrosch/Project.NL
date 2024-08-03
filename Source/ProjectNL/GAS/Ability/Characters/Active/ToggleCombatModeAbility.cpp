@@ -16,10 +16,23 @@ UToggleCombatModeAbility::UToggleCombatModeAbility(
 	const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
+bool UToggleCombatModeAbility::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayTagContainer* SourceTags
+	, const FGameplayTagContainer* TargetTags
+	, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags
+																, OptionalRelevantTags))
+	{
+		return false;
+	}
+	return FStateHelper::IsPlayerIdle(GetAbilitySystemComponentFromActorInfo());
+}
 
 void UToggleCombatModeAbility::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle
@@ -27,50 +40,33 @@ void UToggleCombatModeAbility::ActivateAbility(
 	, const FGameplayAbilityActivationInfo ActivationInfo
 	, const FGameplayEventData* TriggerEventData)
 {
-	if (!FStateHelper::IsPlayerIdle(GetAbilitySystemComponentFromActorInfo()))
-	{
-		return;
-	}
-
 	if (const ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(
 		ActorInfo->AvatarActor.Get()))
 	{
-		const AWeaponBase* MainWeapon = OwnerCharacter->CombatComponent->
-																										GetMainWeapon();
-		const AWeaponBase* SubWeapon = OwnerCharacter->CombatComponent->
-																									GetSubWeapon();
-
 		HandleToggleCombat();
-
-		if (FStateHelper::IsCharacterCombat(
+		if (UCombatManager::IsCharacterCombat(
 			GetAbilitySystemComponentFromActorInfo()))
 		{
-			SetCurrentMontage(UCombatManager::GetEquipAnimation(
-				CombatAnimData
-				, OwnerCharacter->CombatComponent->GetPlayerCombatWeaponState()));
+			SetCurrentMontage(OwnerCharacter->CombatComponent->GetUnEquipAnim());
 			// 애니메이션 Notify 추가
 			if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
 				UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(
 					GetCurrentMontage()))
 			{
-				// TODO: 추후 별도의 Anim과 Notify 정보를 저장하는 Ability를 생성 후 이전
-				// 현재는 여러번 Notify가 걸리는 이슈가 존재함.
 				PutWeaponNotify->OnNotified.AddDynamic(
-					this, &UToggleCombatModeAbility::HandleEquip);
+					this, &UToggleCombatModeAbility::HandleUnEquip);
 			}
 		}
 		else
 		{
-			SetCurrentMontage(UCombatManager::GetUnEquipAnimation(
-				CombatAnimData
-				, OwnerCharacter->CombatComponent->GetPlayerCombatWeaponState()));
+			SetCurrentMontage(OwnerCharacter->CombatComponent->GetEquipAnim());
 			// 애니메이션 Notify 추가
 			if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
 				UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(
 					GetCurrentMontage()))
 			{
 				GrabWeaponNotify->OnNotified.AddDynamic(
-					this, &UToggleCombatModeAbility::HandleUnEquip);
+					this, &UToggleCombatModeAbility::HandleEquip);
 			}
 		}
 
@@ -118,7 +114,7 @@ void UToggleCombatModeAbility::HandleEquip()
 
 void UToggleCombatModeAbility::HandleToggleCombat()
 {
-	const bool IsCombat = FStateHelper::IsCharacterCombat(
+	const bool IsCombat = UCombatManager::IsCharacterCombat(
 		GetAbilitySystemComponentFromActorInfo());
 	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
 																	, NlGameplayTags::State_Player_Idle
@@ -130,7 +126,7 @@ void UToggleCombatModeAbility::HandleToggleCombat()
 void UToggleCombatModeAbility::HandleToggleCombatEnd(
 	FGameplayTag EventTag, FGameplayEventData EventData)
 {
-	const bool IsCombat = FStateHelper::IsCharacterCombat(
+	const bool IsCombat = UCombatManager::IsCharacterCombat(
 		GetAbilitySystemComponentFromActorInfo());
 
 	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
@@ -138,7 +134,8 @@ void UToggleCombatModeAbility::HandleToggleCombatEnd(
 																			? NlGameplayTags::State_Player_Equip
 																			: NlGameplayTags::State_Player_UnEquip
 																	, NlGameplayTags::State_Player_Idle);
-	if (FStateHelper::IsCharacterCombat(GetAbilitySystemComponentFromActorInfo()))
+	if (UCombatManager::IsCharacterCombat(
+		GetAbilitySystemComponentFromActorInfo()))
 	{
 		GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(
 			NlGameplayTags::Status_Combat);
@@ -155,7 +152,7 @@ void UToggleCombatModeAbility::HandleToggleCombatEnd(
 void UToggleCombatModeAbility::HandleCancelAbilityTask(FGameplayTag EventTag
 	, FGameplayEventData EventData)
 {
-	const bool IsCombat = FStateHelper::IsCharacterCombat(
+	const bool IsCombat = UCombatManager::IsCharacterCombat(
 		GetAbilitySystemComponentFromActorInfo());
 
 	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()

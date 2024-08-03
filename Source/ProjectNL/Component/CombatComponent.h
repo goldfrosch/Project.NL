@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ProjectNL/Helper/EnumHelper.h"
 #include "ProjectNL/Helper/UtilHelper.h"
 #include "CombatComponent.generated.h"
 
@@ -9,7 +10,7 @@
 enum class EPlayerCombatWeaponState : uint8;
 class AWeaponBase;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS()
 class PROJECTNL_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -24,12 +25,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	EPlayerCombatWeaponState PlayerCombatWeaponState;
-	GETTER_SETTER(EPlayerCombatWeaponState, PlayerCombatWeaponState)
-
-	UPROPERTY(EditAnywhere, Category = Input
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State
 		, meta = (AllowPrivateAccess = "true"))
-	FDataTableRowHandle MoveAnimData;
+	EPlayerCombatWeaponState PlayerCombatWeaponState =
+		EPlayerCombatWeaponState::None;
+	GETTER_SETTER(EPlayerCombatWeaponState, PlayerCombatWeaponState)
 
 	UPROPERTY(EditAnywhere, Category = Input
 		, meta = (AllowPrivateAccess = "true"))
@@ -54,6 +54,11 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UAnimMontage> UnEquipAnim;
 	GETTER(TObjectPtr<UAnimMontage>, UnEquipAnim)
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UAnimMontage> DoubleJumpAnim;
+	GETTER(TObjectPtr<UAnimMontage>, DoubleJumpAnim)
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation
 		, meta = (AllowPrivateAccess = true))
