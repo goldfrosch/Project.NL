@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "AbilitySystemComponent.h"
 #include "GameplayTagsHelper.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 
 class AWeaponBase;
@@ -8,15 +10,21 @@ class AWeaponBase;
 class FStateHelper
 {
 public:
-	FORCEINLINE static bool IsCharacterCombat(
-		const UAbilitySystemComponent* Ability)
-	{
-		return Ability->HasMatchingGameplayTag(NlGameplayTags::Status_Combat);
-	}
-
 	FORCEINLINE static bool IsPlayerIdle(const UAbilitySystemComponent* Ability)
 	{
 		return Ability->HasMatchingGameplayTag(NlGameplayTags::State_Player_Idle);
+	}
+
+	FORCEINLINE static bool IsPlayerCanDoubleJump(
+		const UAbilitySystemComponent* Ability, const ACharacter* Obj)
+	{
+		const bool IsCharacterJumping = Ability->HasMatchingGameplayTag(
+			NlGameplayTags::State_Player_Jump);
+		const bool IsCharacterCanDoubleJump = Ability->HasMatchingGameplayTag(
+			NlGameplayTags::Ability_Util_DoubleJump);
+
+		return IsCharacterJumping && IsCharacterCanDoubleJump && Obj->
+			GetMovementComponent()->IsFalling();
 	}
 
 	FORCEINLINE static void ChangePlayerState(UAbilitySystemComponent* Ability

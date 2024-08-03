@@ -4,6 +4,7 @@
 #include "CombatManager.generated.h"
 
 class AWeaponBase;
+class UAbilitySystemComponent;
 enum class EPlayerCombatWeaponState : uint8;
 
 UCLASS()
@@ -24,7 +25,15 @@ public:
 																				CurrentEquipStatus);
 
 	UFUNCTION()
+	static UAnimMontage* GetDoubleJumpAnimation(const FDataTableRowHandle CombatDT
+																							, const EPlayerCombatWeaponState
+																							CurrentEquipStatus);
+
+	UFUNCTION()
 	static TArray<UAnimMontage*> GetAttackAnimation(
 		const FDataTableRowHandle CombatDT
 		, const EPlayerCombatWeaponState CurrentEquipStatus);
+
+	UFUNCTION(BlueprintCallable)
+	static bool IsCharacterCombat(const UAbilitySystemComponent* Ability);
 };

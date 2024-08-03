@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProjectNL/Helper/EnumHelper.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
@@ -28,7 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void EquipPlayer();
+	void InitPlayerWeapon();
 
 	FORCEINLINE UPlayerGAInputDataAsset*
 	GetPlayerGameplayAbilitiesDataAsset() const { return PlayerGAInputDataAsset; }

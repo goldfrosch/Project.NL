@@ -21,8 +21,6 @@ void UCombatComponent::UpdateCombatStatus()
 		CombatAnimData, GetPlayerCombatWeaponState());
 	UnEquipAnim = UCombatManager::GetUnEquipAnimation(
 		CombatAnimData, GetPlayerCombatWeaponState());
-
-	// ComboAttackAnim.RemoveAll([]() { return true; });
-	// ComboAttackAnim.Append(UCombatManager::GetAttackAnimation(
-	// 	CombatAnimData, GetMainWeapon(), GetSubWeapon()));
+	DoubleJumpAnim = UCombatManager::GetDoubleJumpAnimation(
+		CombatAnimData, GetPlayerCombatWeaponState());
 }

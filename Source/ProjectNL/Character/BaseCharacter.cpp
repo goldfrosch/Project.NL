@@ -2,9 +2,9 @@
 #include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
+#include "ProjectNL/Helper/GameplayTagsHelper.h"
 
-ABaseCharacter::ABaseCharacter(
-	const class FObjectInitializer& ObjectInitializer)
+ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(
 		TEXT("AbilitySystemComponent"));
@@ -36,4 +36,20 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 	}
 
 	SetOwner(NewController);
+}
+
+void ABaseCharacter::Jump()
+{
+	Super::Jump();
+	AbilitySystemComponent->AddLooseGameplayTag(
+		NlGameplayTags::State_Player_Jump);
+}
+
+void ABaseCharacter::Landed(const FHitResult& Hit)
+{
+	Super::StopJumping();
+	AbilitySystemComponent->RemoveLooseGameplayTag(
+		NlGameplayTags::State_Player_Jump);
+	AbilitySystemComponent->RemoveLooseGameplayTag(
+		NlGameplayTags::State_Player_DoubleJump);
 }

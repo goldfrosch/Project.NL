@@ -3,20 +3,6 @@
 #include "GameFramework/Character.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 
-void UWeaponManager::UnEquipCharacterWeapon(const ACharacter* Character
-																						, AWeaponBase* Weapon
-																						, const bool IsMain)
-{
-	if (!IsValid(Character) || !IsValid(Weapon))
-	{
-		return;
-	}
-
-	Weapon->AttachToComponent(Character->GetMesh()
-														, FAttachmentTransformRules::SnapToTargetIncludingScale
-														, IsMain ? "weapon_r" : "weapon_l");
-}
-
 void UWeaponManager::EquipCharacterWeapon(const ACharacter* Character
 																					, AWeaponBase* Weapon
 																					, const bool IsMain)
@@ -28,7 +14,21 @@ void UWeaponManager::EquipCharacterWeapon(const ACharacter* Character
 
 	Weapon->AttachToComponent(Character->GetMesh()
 														, FAttachmentTransformRules::SnapToTargetIncludingScale
-														, IsMain ? "weapon_hip_r" : "weapon_hip_l");
+														, IsMain ? "weapon_r" : "weapon_l");
+}
+
+void UWeaponManager::UnEquipCharacterWeapon(const ACharacter* Character
+																						, AWeaponBase* Weapon
+																						, const bool IsMain)
+{
+	if (!IsValid(Character) || !IsValid(Weapon))
+	{
+		return;
+	}
+
+	Weapon->AttachToComponent(Character->GetMesh()
+														, FAttachmentTransformRules::SnapToTargetIncludingScale
+														, IsMain ? "weapon_back_r" : "weapon_back_l");
 	Weapon->InitEquipWeapon();
 }
 
