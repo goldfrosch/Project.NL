@@ -11,6 +11,23 @@ UDoubleJump::UDoubleJump(const FObjectInitializer& ObjectInitializer)
 {
 }
 
+bool UDoubleJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle
+																		, const FGameplayAbilityActorInfo* ActorInfo
+																		, const FGameplayTagContainer* SourceTags
+																		, const FGameplayTagContainer* TargetTags
+																		, FGameplayTagContainer*
+																		OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags
+																, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	return FStateHelper::IsPlayerIdle(GetAbilitySystemComponentFromActorInfo());
+}
+
+
 void UDoubleJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 																	, const FGameplayAbilityActorInfo* ActorInfo
 																	, const FGameplayAbilityActivationInfo
