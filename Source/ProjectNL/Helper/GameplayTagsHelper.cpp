@@ -11,8 +11,21 @@ namespace NlGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Util_DoubleJump
 																, "Ability.Util.DoubleJump"
 																, "현재 캐릭터가 DoubleJump가 가능한 상황임을 나타내는 Tag - (ex. 무기 및 스킬을 통해 해당 태그 확보 가능)")
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Category_Entity, "Category.Entity"
+																, "해당 액터의 카테고리가 엔티티임을 나타내는 Root Tag")
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Category_Entity_Player
+																, "Category.Entity.Player"
+																, "해당 액터의 카테고리가 플레이어임을 나타냄")
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Category_Entity_Neutral
+																, "Category.Entity.Neutral"
+																, "해당 액터의 카테고리가 중립 엔티티임을 나타냄")
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Category_Entity_Enemy, "Category.Entity.Enemy"
+																, "해당 액터의 카테고리가 적대적 엔티티임을 나타냄")
+
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Status_Combat, "Status.Combat"
 																, "현재 캐릭터가 전투 모드임을 암시하는 Tag");
+
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Player, "State.Player"
 																, "현재 캐릭터의 애니메이션 상태를 표현하는 Root Tag");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Player_Idle, "State.Player.Idle"

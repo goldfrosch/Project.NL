@@ -86,3 +86,11 @@ enum class EPlayerCombatWeaponState: uint8
 	, TwoHandBow UMETA(DisplayName = "TwoHandBow")
 	, TwoHandKatana UMETA(DisplayName = "TwoHandKatana")
 	, TwoHandMagicStaff UMETA(DisplayName = "TwoHandMagicStaff")};
+
+UENUM(BlueprintType)
+enum class EEntityCategory: uint8
+{
+	Undefined UMETA(DisplayName = "Undefined")
+	, Player UMETA(DisplayName = "Player"), Neutral UMETA(DisplayName = "Neutral")
+	, Enemy UMETA(DisplayName = "Enemy"),
+};
