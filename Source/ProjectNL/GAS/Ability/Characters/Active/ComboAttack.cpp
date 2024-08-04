@@ -138,7 +138,6 @@ void UComboAttack::OnCompleted(FGameplayTag EventTag
 void UComboAttack::OnCancelled(FGameplayTag EventTag
 															, FGameplayEventData EventData)
 {
-	ComboIndex = 0;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);
 }
