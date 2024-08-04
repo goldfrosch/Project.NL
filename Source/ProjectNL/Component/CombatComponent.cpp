@@ -23,4 +23,6 @@ void UCombatComponent::UpdateCombatStatus()
 		CombatAnimData, GetPlayerCombatWeaponState());
 	DoubleJumpAnim = UCombatManager::GetDoubleJumpAnimation(
 		CombatAnimData, GetPlayerCombatWeaponState());
+	ComboAttackAnim = UCombatManager::GetAttackAnimation(
+		CombatAnimData, GetPlayerCombatWeaponState());
 }

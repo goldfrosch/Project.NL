@@ -15,6 +15,19 @@ public:
 		return Ability->HasMatchingGameplayTag(NlGameplayTags::State_Player_Idle);
 	}
 
+	FORCEINLINE static bool IsPlayerJumping(
+		const UAbilitySystemComponent* Ability)
+	{
+		return Ability->HasMatchingGameplayTag(NlGameplayTags::State_Player_Jump) ||
+			Ability->HasMatchingGameplayTag(NlGameplayTags::State_Player_DoubleJump);
+	}
+
+	FORCEINLINE static bool IsPlayerCombatMode(
+		const UAbilitySystemComponent* Ability)
+	{
+		return Ability->HasMatchingGameplayTag(NlGameplayTags::Status_Combat);
+	}
+
 	FORCEINLINE static bool IsPlayerCanDoubleJump(
 		const UAbilitySystemComponent* Ability, const ACharacter* Obj)
 	{
@@ -36,7 +49,7 @@ public:
 	}
 
 	FORCEINLINE static EPlayerCombatWeaponState GetCharacterWeaponState(
-		const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon)
+		AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
 	{
 		// 0. MainWeapon이 장착되지 않은 것은 비지니스 로직 상 SubWeapon도 장착되지 않는다.
 		if (MainWeapon == nullptr)

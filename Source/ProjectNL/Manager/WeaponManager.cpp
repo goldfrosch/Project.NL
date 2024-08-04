@@ -47,7 +47,7 @@ void UWeaponManager::StartEquipCharacterWeapon(AWeaponBase* Weapon)
 }
 
 EHandEquipStatus UWeaponManager::GetCharacterEquipStatus(
-	const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon)
+	AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)
 {
 	if (!IsValid(MainWeapon) && !IsValid(SubWeapon))
 	{

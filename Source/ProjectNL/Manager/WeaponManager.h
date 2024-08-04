@@ -28,5 +28,5 @@ public:
 	static void StartEquipCharacterWeapon(AWeaponBase* Weapon);
 
 	static EHandEquipStatus GetCharacterEquipStatus(
-		const AWeaponBase* MainWeapon, const AWeaponBase* SubWeapon);
+		AWeaponBase* MainWeapon, AWeaponBase* SubWeapon);
 };

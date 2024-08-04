@@ -87,7 +87,7 @@ void UToggleCombatModeAbility::HandleUnEquip()
 	if (const ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(
 		GetAvatarActorFromActorInfo()))
 	{
-		const UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
+		UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
 		UWeaponManager::UnEquipCharacterWeapon(
 			Cast<ACharacter>(GetAvatarActorFromActorInfo())
 			, CombatComponent->GetMainWeapon(), true);
@@ -102,7 +102,7 @@ void UToggleCombatModeAbility::HandleEquip()
 	if (const ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(
 		GetAvatarActorFromActorInfo()))
 	{
-		const UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
+		UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
 		UWeaponManager::EquipCharacterWeapon(
 			Cast<ACharacter>(GetAvatarActorFromActorInfo())
 			, CombatComponent->GetMainWeapon(), true);

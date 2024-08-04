@@ -2,33 +2,59 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "ComboAttack.generated.h"
 
 UCLASS()
-class PROJECTNL_API UComboAttack : public UGameplayAbility
+class PROJECTNL_API UComboAttack : public UBaseInputTriggerAbility
 {
 	GENERATED_BODY()
-	
-public:
-	UComboAttack();
-	
-	uint8 GetComboIndex() const { return ComboIndex; }
-	uint8 GetMaxCombo() const { return MaxCombo; }
 
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
-	
+public:
+	UComboAttack(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle
+																	, const FGameplayAbilityActorInfo* ActorInfo
+																	, const FGameplayTagContainer* SourceTags
+																	, const FGameplayTagContainer* TargetTags
+																	, FGameplayTagContainer* OptionalRelevantTags)
+	const override;
+
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle
+															, const FGameplayAbilityActorInfo* ActorInfo
+															, const FGameplayAbilityActivationInfo
+															ActivationInfo
+															, const FGameplayEventData*
+															TriggerEventData) override;
+
+	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle
+														, const FGameplayAbilityActorInfo* ActorInfo
+														, const FGameplayAbilityActivationInfo
+														ActivationInfo
+														, bool bReplicateCancelAbility) override;
+
 private:
-	bool IsNextCombo = false;
 	uint8 ComboIndex = 0;
 	uint8 MaxCombo = 0;
-	
+
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = true))
 	TSubclassOf<UGameplayEffect> GEDamage;
-	
+
+	UFUNCTION()
+	void HandleComboNotifyStart();
+
+	UFUNCTION()
+	void HandleComboNotifyEnd();
+
+	UFUNCTION()
+	void Damage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
+							, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex
+							, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
 	void OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION()
+	void OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData);
 };
