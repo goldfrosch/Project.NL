@@ -7,10 +7,12 @@ AWeaponBase::AWeaponBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	WeaponSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Bone"));
+	WeaponSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(
+		TEXT("Weapon Bone"));
 	RootComponent = WeaponSkeleton;
 
-	WeaponCollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Weapon Capsule"));
+	WeaponCollisionComp = CreateDefaultSubobject<UCapsuleComponent>(
+		TEXT("Weapon Capsule"));
 	WeaponCollisionComp->SetupAttachment(WeaponSkeleton);
 
 	WeaponCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -24,14 +26,16 @@ void AWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	WeaponCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AWeaponBase::GiveDamage);
+	WeaponCollisionComp->OnComponentBeginOverlap.AddDynamic(
+		this, &AWeaponBase::GiveDamage);
 }
 
 void AWeaponBase::InitEquipWeapon()
 {
 	if (USceneComponent* Parent = GetRootComponent()->GetAttachParent())
 	{
-		if (APlayerCharacter* Player = Cast<APlayerCharacter>(Parent->GetAttachmentRootActor()))
+		if (APlayerCharacter* Player = Cast<APlayerCharacter>(
+			Parent->GetAttachmentRootActor()))
 		{
 			// Player->CombatComponent->OnNotifiedComboAttackStart.AddDynamic(this, &AWeaponBase::SetWeaponDamageable);
 			// Player->CombatComponent->OnNotifiedComboAttackEnd.AddDynamic(this, &AWeaponBase::UnsetWeaponDamageable);
@@ -45,18 +49,21 @@ void AWeaponBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWeaponBase::SetWeaponDamageable()
+void AWeaponBase::SetWeaponDamageable() const
 {
-	WeaponCollisionComp->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
+	WeaponCollisionComp->SetCollisionEnabled(
+		ECollisionEnabled::Type::QueryAndPhysics);
 }
 
-void AWeaponBase::UnsetWeaponDamageable()
+void AWeaponBase::UnsetWeaponDamageable() const
 {
-	WeaponCollisionComp->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	WeaponCollisionComp->
+		SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 }
 
-void AWeaponBase::GiveDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
-														, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep
+void AWeaponBase::GiveDamage(UPrimitiveComponent* OverlappedComponent
+														, AActor* OtherActor, UPrimitiveComponent* OtherComp
+														, int32 OtherBodyIndex, bool bFromSweep
 														, const FHitResult& SweepResult)
 {
 	if (const USceneComponent* Parent = GetRootComponent()->GetAttachParent())
@@ -71,7 +78,8 @@ void AWeaponBase::GiveDamage(UPrimitiveComponent* OverlappedComponent, AActor* O
 		}
 	}
 
-	UE_LOG(LogTemp, Display, TEXT("Result: %s, %s"), *OverlappedComponent->GetName(), *OtherActor->GetName());
+	OnNotifiedAttack.Broadcast(OverlappedComponent, OtherActor, OtherComp
+														, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
 
