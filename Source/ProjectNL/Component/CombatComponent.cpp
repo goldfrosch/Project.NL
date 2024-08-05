@@ -6,6 +6,8 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	MainWeapon = MainWeaponTemplate.GetDefaultObject();
+	SubWeapon = SubWeaponTemplate.GetDefaultObject();
 }
 
 void UCombatComponent::BeginPlay()

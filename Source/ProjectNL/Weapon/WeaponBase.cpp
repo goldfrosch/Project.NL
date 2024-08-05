@@ -1,7 +1,6 @@
 ﻿#include "WeaponBase.h"
 
 #include "ProjectNL/Character/Player/PlayerCharacter.h"
-// #include "ProjectNL/Component/CombatComponent.h"
 
 AWeaponBase::AWeaponBase()
 {
@@ -13,7 +12,6 @@ AWeaponBase::AWeaponBase()
 
 	WeaponCollisionComp = CreateDefaultSubobject<UCapsuleComponent>(
 		TEXT("Weapon Capsule"));
-	WeaponCollisionComp->SetupAttachment(WeaponSkeleton);
 
 	WeaponCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollisionComp->SetCollisionObjectType(ECC_WorldDynamic);

@@ -37,10 +37,20 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon
 		, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeaponBase> MainWeaponTemplate;
+	GETTER(TSubclassOf<AWeaponBase>, MainWeaponTemplate)
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon
+		, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeaponBase> SubWeaponTemplate;
+	GETTER(TSubclassOf<AWeaponBase>, SubWeaponTemplate)
+
+	UPROPERTY(BlueprintReadOnly, Category = Weapon
+		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AWeaponBase> MainWeapon;
 	GETTER_SETTER(TObjectPtr<AWeaponBase>, MainWeapon)
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon
+	UPROPERTY(BlueprintReadOnly, Category = Weapon
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AWeaponBase> SubWeapon;
 	GETTER_SETTER(TObjectPtr<AWeaponBase>, SubWeapon)

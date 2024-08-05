@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
+#include "ProjectNL/Manager/WeaponManager.h"
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
@@ -15,6 +16,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	InitCharacterWeapon();
 	if (IsValid(AbilitySystemComponent))
 	{
 		AttributeSet = AbilitySystemComponent->GetSet<UBasicAttributeSet>();
@@ -52,4 +54,31 @@ void ABaseCharacter::Landed(const FHitResult& Hit)
 		NlGameplayTags::State_Player_Jump);
 	AbilitySystemComponent->RemoveLooseGameplayTag(
 		NlGameplayTags::State_Player_DoubleJump);
+}
+
+void ABaseCharacter::InitCharacterWeapon()
+{
+	CombatComponent->SetMainWeapon(this->GetWorld()->SpawnActor<AWeaponBase>(
+		CombatComponent->GetMainWeaponTemplate()));
+	CombatComponent->SetSubWeapon(this->GetWorld()->SpawnActor<AWeaponBase>(
+		CombatComponent->GetSubWeaponTemplate()));
+
+	if (GetIsFirstEquip())
+	{
+		UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
+																				, CombatComponent->GetMainWeapon()
+																				, true);
+		UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
+																				, CombatComponent->GetSubWeapon()
+																				, false);
+	}
+	else
+	{
+		UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
+																					, CombatComponent->GetMainWeapon()
+																					, true);
+		UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
+																					, CombatComponent->GetSubWeapon()
+																					, false);
+	}
 }

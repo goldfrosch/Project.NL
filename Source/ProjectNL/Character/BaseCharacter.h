@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "ProjectNL/Helper/EnumHelper.h"
+#include "ProjectNL/Helper/UtilHelper.h"
 #include "BaseCharacter.generated.h"
 
+enum class EEntityCategory : uint8;
 class AWeaponBase;
 class UCombatComponent;
 class UBasicAttributeSet;
@@ -39,6 +42,8 @@ public:
 	virtual void Jump() override;
 	virtual void Landed(const FHitResult& Hit) override;
 
+	void InitCharacterWeapon();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,4 +52,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes"
 		, meta = (AllowPrivateAccess = "true"))
 	const UBasicAttributeSet* AttributeSet;
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"
+		, meta = (AllowPrivateAccess = "true"))
+	EEntityCategory EntityType = EEntityCategory::Undefined;
+	GETTER_SETTER(EEntityCategory, EntityType);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Status"
+		, meta = (AllowPrivateAccess = "true"))
+	bool IsFirstEquip = false;
+	GETTER(bool, IsFirstEquip);
 };
