@@ -6,9 +6,8 @@
 #include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "ToggleFixedCamera.generated.h"
 
-/**
- * 
- */
+class APlayerCharacter;
+
 UCLASS()
 class PROJECTNL_API UToggleFixedCamera : public UBaseInputTriggerAbility
 {
@@ -31,4 +30,8 @@ protected:
 																	, const FGameplayTagContainer* TargetTags
 																	, FGameplayTagContainer* OptionalRelevantTags)
 	const override;
+
+private:
+	void ToggleFixedViewWidget(APlayerCharacter* Player, AActor* Target
+														, const bool IsActive);
 };

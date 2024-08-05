@@ -1,7 +1,9 @@
 ﻿#include "BaseCharacter.h"
 #include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "Components/WidgetComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
+#include "ProjectNL/Component/WidgetsComponent.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
 #include "ProjectNL/Manager/WeaponManager.h"
 
@@ -11,6 +13,10 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 		TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(
 		TEXT("Combat Component"));
+	WidgetsComponent = CreateDefaultSubobject<UWidgetsComponent>(
+		TEXT("Widgets Component"));
+
+	WidgetsComponent->FixedViewWidget->SetupAttachment(GetCapsuleComponent());
 }
 
 void ABaseCharacter::BeginPlay()

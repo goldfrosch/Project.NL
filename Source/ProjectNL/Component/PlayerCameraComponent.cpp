@@ -25,10 +25,13 @@ void UPlayerCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (IsValid(TargetActor))
 	{
-		if (APlayerCharacter* Owner = Cast<APlayerCharacter>(GetOwner()))
+		if (const APlayerCharacter* Owner = Cast<APlayerCharacter>(GetOwner()))
 		{
+			FVector StartVector = Owner->GetActorLocation();
+			StartVector.Z += FixedViewPlusZ;
+
 			const FRotator ViewTo = UKismetMathLibrary::FindLookAtRotation(
-				Owner->GetActorLocation(), TargetActor->GetActorLocation());
+				StartVector, TargetActor->GetActorLocation());
 			Owner->GetController()->SetControlRotation(ViewTo);
 		}
 	}
