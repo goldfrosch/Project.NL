@@ -13,10 +13,8 @@
 #include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/MovementManager.h"
-#include "ProjectNL/Manager/WeaponManager.h"
 #include "ProjectNL/Player/DefaultPlayerState.h"
 #include "ProjectNL/Player/PlayerGAInputDataAsset.h"
-#include "ProjectNL/Weapon/WeaponBase.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -39,23 +37,17 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	PlayerCameraComponent = CreateDefaultSubobject<UPlayerCameraComponent>(
 		TEXT("Camera Component"));
 	PlayerCameraComponent->CameraSpring->SetupAttachment(RootComponent);
-	PlayerCameraComponent->FirstCamera->SetupAttachment(GetMesh(), "head");
 	PlayerCameraComponent->ThirdFollowCamera->SetupAttachment(
 		PlayerCameraComponent->CameraSpring, USpringArmComponent::SocketName);
+
+	SetEntityType(EEntityCategory::Player);
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	PlayerCameraComponent->SetThirdPersonView();
-
-	CombatComponent->SetMainWeapon(
-		GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
-	CombatComponent->
-		SetSubWeapon(GetWorld()->SpawnActor<AWeaponBase>(TestWeapon));
 
 	InitAbilitySystem();
-	InitPlayerWeapon();
 	CombatComponent->UpdateCombatStatus();
 
 	// TODO: 추후 패시브 Ability로 추가
@@ -147,17 +139,6 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(NewPitch);
 	}
 }
-
-void APlayerCharacter::InitPlayerWeapon()
-{
-	UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
-																				, CombatComponent->GetMainWeapon()
-																				, true);
-	UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
-																				, CombatComponent->GetSubWeapon()
-																				, false);
-}
-
 
 void APlayerCharacter::OnRep_PlayerState()
 {

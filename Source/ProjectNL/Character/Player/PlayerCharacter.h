@@ -26,11 +26,12 @@ public:
 	APlayerCharacter(const class FObjectInitializer& ObjectInitializer);
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	void InitPlayerWeapon();
-
 	FORCEINLINE UPlayerGAInputDataAsset*
 	GetPlayerGameplayAbilitiesDataAsset() const { return PlayerGAInputDataAsset; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action
+		, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPlayerCameraComponent> PlayerCameraComponent;
 
 protected:
 	virtual void BeginPlay() override;
@@ -51,10 +52,6 @@ private:
 	void OnAbilityInputPressed(const int32 InputID);
 	void OnAbilityInputReleased(const int32 InputID);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action
-		, meta = (AllowPrivateAccess = "true"))
-	UPlayerCameraComponent* PlayerCameraComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Action
 		, meta = (AllowPrivateAccess = "true"))
 	bool IsCombatMode = false;
@@ -74,9 +71,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem"
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerGAInputDataAsset> PlayerGAInputDataAsset;
-
-	// TODO: 추후 제거
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon
-		, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AWeaponBase> TestWeapon;
 };
