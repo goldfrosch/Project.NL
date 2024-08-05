@@ -60,6 +60,11 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 			return;
 		}
 
+		if (IsValid(Task))
+		{
+			Task->ExternalCancel();
+		}
+
 		const TArray<TObjectPtr<UAnimMontage>> ComboAttack = CurrentCharacter->
 			CombatComponent->GetComboAttackAnim();
 		MaxCombo = ComboAttack.Num();
@@ -80,8 +85,9 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
 																		, NlGameplayTags::State_Player_Idle
 																		, NlGameplayTags::State_Player_Attack);
-		UPlayMontageWithEvent* Task = UPlayMontageWithEvent::InitialEvent(
-			this, NAME_None, GetCurrentMontage(), FGameplayTagContainer());
+		Task = UPlayMontageWithEvent::InitialEvent(this, NAME_None
+																							, GetCurrentMontage()
+																							, FGameplayTagContainer());
 		Task->OnCancelled.AddDynamic(this, &UComboAttack::OnCancelled);
 		Task->OnInterrupted.AddDynamic(this, &UComboAttack::OnCancelled);
 		Task->OnBlendOut.AddDynamic(this, &UComboAttack::OnCancelled);
