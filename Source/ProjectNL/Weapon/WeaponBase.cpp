@@ -28,20 +28,6 @@ void AWeaponBase::BeginPlay()
 		this, &AWeaponBase::GiveDamage);
 }
 
-void AWeaponBase::InitEquipWeapon()
-{
-	if (USceneComponent* Parent = GetRootComponent()->GetAttachParent())
-	{
-		if (APlayerCharacter* Player = Cast<APlayerCharacter>(
-			Parent->GetAttachmentRootActor()))
-		{
-			// Player->CombatComponent->OnNotifiedComboAttackStart.AddDynamic(this, &AWeaponBase::SetWeaponDamageable);
-			// Player->CombatComponent->OnNotifiedComboAttackEnd.AddDynamic(this, &AWeaponBase::UnsetWeaponDamageable);
-		}
-	}
-}
-
-
 void AWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

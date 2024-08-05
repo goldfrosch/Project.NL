@@ -29,8 +29,6 @@ public:
 
 	FWeaponAttackNotified OnNotifiedAttack;
 
-	void InitEquipWeapon();
-
 	UFUNCTION()
 	void SetWeaponDamageable() const;
 

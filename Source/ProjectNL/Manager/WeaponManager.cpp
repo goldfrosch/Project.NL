@@ -29,7 +29,6 @@ void UWeaponManager::UnEquipCharacterWeapon(const ACharacter* Character
 	Weapon->AttachToComponent(Character->GetMesh()
 														, FAttachmentTransformRules::SnapToTargetIncludingScale
 														, IsMain ? "weapon_back_r" : "weapon_back_l");
-	Weapon->InitEquipWeapon();
 }
 
 void UWeaponManager::StartEquipCharacterWeapon(AWeaponBase* Weapon)
