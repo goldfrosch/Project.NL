@@ -42,8 +42,12 @@ void UToggleFixedCamera::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
 
 		const FVector StartVector = PlayerActor->GetActorLocation();
-		FVector EndVector = UKismetMathLibrary::GetForwardVector(
-			PlayerActor->GetControlRotation()) * 50;
+
+		constexpr float EndVectorDistance = 5000;
+		FVector EndVector = PlayerActor->GetActorLocation() +
+			UKismetMathLibrary::GetForwardVector(PlayerActor->GetControlRotation()) *
+			EndVectorDistance;
+
 		TArray<AActor*> ActorsToNotTargeting;
 		ActorsToNotTargeting.Add(PlayerActor);
 		FHitResult OutHit;
