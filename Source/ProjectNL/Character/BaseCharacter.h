@@ -9,6 +9,7 @@
 #include "ProjectNL/Helper/UtilHelper.h"
 #include "BaseCharacter.generated.h"
 
+class UWidgetsComponent;
 enum class EEntityCategory : uint8;
 class AWeaponBase;
 class UCombatComponent;
@@ -31,6 +32,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat
 		, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget
+		, meta = (AllowPrivateAccess = "true"))
+	UWidgetsComponent* WidgetsComponent;
 
 	virtual void Tick(float DeltaTime) override;
 

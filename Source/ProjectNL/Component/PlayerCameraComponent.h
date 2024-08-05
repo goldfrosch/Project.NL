@@ -6,6 +6,7 @@
 #include "ProjectNL/Helper/UtilHelper.h"
 #include "PlayerCameraComponent.generated.h"
 
+class UWidgetComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerCameraModeChanged
 																						, EPlayerCameraStatus
 																						, CameraStatus);
@@ -43,7 +44,15 @@ private:
 		, meta = (AllowPrivateAccess = "true"))
 	float CameraZoom = 300.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Variable"
+		, meta = (AllowPrivateAccess = "true"))
+	float FixedViewPlusZ;
+
 	UPROPERTY()
 	TObjectPtr<AActor> TargetActor;
 	GETTER_SETTER(TObjectPtr<AActor>, TargetActor)
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Entity|Widget"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UWidgetComponent> FixedViewWidget;
 };

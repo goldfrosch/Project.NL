@@ -7,6 +7,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "ProjectNL/Character/Player/PlayerCharacter.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
+#include "ProjectNL/Component/WidgetsComponent.h"
 
 UToggleFixedCamera::UToggleFixedCamera(
 	const FObjectInitializer& ObjectInitializer)
@@ -59,19 +60,37 @@ void UToggleFixedCamera::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 			if (OutHit.GetActor() == PlayerActor->PlayerCameraComponent->
 																						GetTargetActor())
 			{
-				PlayerActor->PlayerCameraComponent->SetTargetActor(nullptr);
+				ToggleFixedViewWidget(PlayerActor, OutHit.GetActor(), false);
 			}
 			else
 			{
-				PlayerActor->PlayerCameraComponent->SetTargetActor(OutHit.GetActor());
+				ToggleFixedViewWidget(PlayerActor, OutHit.GetActor(), true);
 			}
 		}
 		else
 		{
-			PlayerActor->PlayerCameraComponent->SetTargetActor(nullptr);
+			ToggleFixedViewWidget(PlayerActor, OutHit.GetActor(), false);
 		}
 
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 							, false);
 	}
+}
+
+void UToggleFixedCamera::ToggleFixedViewWidget(APlayerCharacter* Player
+																							, AActor* Target
+																							, const bool IsActive)
+{
+	// TODO: 추후 위젯 관련은 BasePawn으로 이전 예정
+	if (ABaseCharacter* TargetCharacter = Cast<ABaseCharacter>(Target))
+	{
+		TargetCharacter->WidgetsComponent->ToggleFixedViewWidget(IsActive);
+	}
+
+	if (IsActive)
+	{
+		Player->PlayerCameraComponent->SetTargetActor(Target);
+		return;
+	}
+	Player->PlayerCameraComponent->SetTargetActor(nullptr);
 }
