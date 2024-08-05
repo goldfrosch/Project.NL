@@ -21,7 +21,8 @@ UWidgetsComponent::UWidgetsComponent()
 			FVector FixedViewWidgetPos = OwnerCharacter->GetCapsuleComponent()->
 																									GetCenterOfMass();
 			FixedViewWidgetPos.Z += OwnerCharacter->GetCapsuleComponent()->
-																							GetScaledCapsuleHalfHeight() / 2;
+																							GetScaledCapsuleHalfHeight() *
+				0.75;
 
 			FixedViewWidget->SetRelativeLocation(FixedViewWidgetPos);
 

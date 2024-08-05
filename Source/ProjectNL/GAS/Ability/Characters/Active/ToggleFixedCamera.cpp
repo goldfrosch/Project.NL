@@ -55,7 +55,7 @@ void UToggleFixedCamera::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 		if (UKismetSystemLibrary::SphereTraceSingleForObjects(
 			GetWorld(), StartVector, EndVector, 350.f, ObjectTypesArray, false
-			, ActorsToNotTargeting, EDrawDebugTrace::ForDuration, OutHit, true))
+			, ActorsToNotTargeting, EDrawDebugTrace::None, OutHit, true))
 		{
 			if (OutHit.GetActor() == PlayerActor->PlayerCameraComponent->
 																						GetTargetActor())
@@ -90,7 +90,9 @@ void UToggleFixedCamera::ToggleFixedViewWidget(APlayerCharacter* Player
 	if (IsActive)
 	{
 		Player->PlayerCameraComponent->SetTargetActor(Target);
+		Player->bUseControllerRotationYaw = true;
 		return;
 	}
 	Player->PlayerCameraComponent->SetTargetActor(nullptr);
+	Player->bUseControllerRotationYaw = false;
 }

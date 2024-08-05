@@ -48,7 +48,8 @@ private:
 		, meta = (AllowPrivateAccess = "true"))
 	float FixedViewPlusZ;
 
-	UPROPERTY()
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Entity|Variable"
+		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<AActor> TargetActor;
 	GETTER_SETTER(TObjectPtr<AActor>, TargetActor)
 
