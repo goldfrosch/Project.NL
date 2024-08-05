@@ -1,47 +1,36 @@
 ﻿#include "PlayerCameraComponent.h"
 
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "ProjectNL/Character/Player/PlayerCharacter.h"
 
 UPlayerCameraComponent::UPlayerCameraComponent()
 {
-	CameraSpring = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpring"));
+	PrimaryComponentTick.bCanEverTick = true;
+
+	CameraSpring = CreateDefaultSubobject<USpringArmComponent>(
+		TEXT("CameraSpring"));
 	CameraSpring->TargetArmLength = CameraZoom;
 	CameraSpring->bUsePawnControlRotation = true;
-	
-	FirstCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstCamera"));
-	FirstCamera->bUsePawnControlRotation = true;
-	
-	ThirdFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdFollowCamera"));
+
+	ThirdFollowCamera = CreateDefaultSubobject<UCameraComponent>(
+		TEXT("ThirdFollowCamera"));
 	ThirdFollowCamera->bUsePawnControlRotation = false;
 }
 
-
-void UPlayerCameraComponent::ToggleCamera(const FInputActionValue& Value)
+void UPlayerCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType
+																					, FActorComponentTickFunction*
+																					ThisTickFunction)
 {
-	if (CameraStatus != EPlayerCameraStatus::First && CameraStatus != EPlayerCameraStatus::Third) return;
-	
-	if (CameraStatus == EPlayerCameraStatus::Third)
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (IsValid(TargetActor))
 	{
-		CameraSpring->TargetArmLength = 0;
-		SetFirstPersonView();
-		CameraStatus = EPlayerCameraStatus::First;
-	} else
-	{
-		CameraStatus = EPlayerCameraStatus::Third;
-		CameraSpring->TargetArmLength = CameraZoom;
-		SetThirdPersonView();
+		UE_LOG(LogTemp, Display, TEXT("A: %s"), *GetOwner()->GetName());
+		if (APlayerCharacter* Owner = Cast<APlayerCharacter>(GetOwner()))
+		{
+			const FRotator ViewTo = UKismetMathLibrary::FindLookAtRotation(
+				Owner->GetActorLocation(), TargetActor->GetActorLocation());
+			Owner->GetController()->SetControlRotation(ViewTo);
+		}
 	}
-	OnPlayerCameraModeChanged.Broadcast(CameraStatus);
-}
-
-void UPlayerCameraComponent::SetFirstPersonView()
-{
-	FirstCamera->SetActive(true);
-	ThirdFollowCamera->SetActive(false);
-}
-
-void UPlayerCameraComponent::SetThirdPersonView()
-{
-	FirstCamera->SetActive(false);
-	ThirdFollowCamera->SetActive(true);
 }
