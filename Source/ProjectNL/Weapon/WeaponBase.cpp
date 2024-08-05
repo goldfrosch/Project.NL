@@ -1,7 +1,5 @@
 ﻿#include "WeaponBase.h"
 
-#include "ProjectNL/Character/Player/PlayerCharacter.h"
-
 AWeaponBase::AWeaponBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
