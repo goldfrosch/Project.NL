@@ -6,6 +6,9 @@
 #include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "ToggleCombatModeAbility.generated.h"
 
+class UGrabWeaponNotify;
+class UPutWeaponNotify;
+
 UCLASS()
 class PROJECTNL_API UToggleCombatModeAbility : public UBaseInputTriggerAbility
 {
@@ -45,4 +48,9 @@ private:
 	UFUNCTION()
 	void HandleCancelAbilityTask(FGameplayTag EventTag
 															, FGameplayEventData EventData);
+
+	void ClearDelegate();
+
+	TObjectPtr<UPutWeaponNotify> PutWeaponNotify;
+	TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify;
 };

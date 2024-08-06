@@ -5,6 +5,7 @@
 #include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "ComboAttack.generated.h"
 
+class UComboAttackNotifyState;
 class UPlayMontageWithEvent;
 
 UCLASS()
@@ -60,5 +61,9 @@ private:
 	UFUNCTION()
 	void OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData);
 
+	void ClearDelegate();
+
 	TObjectPtr<UPlayMontageWithEvent> Task;
+
+	TObjectPtr<UComboAttackNotifyState> ComboAttackNotifyState;
 };

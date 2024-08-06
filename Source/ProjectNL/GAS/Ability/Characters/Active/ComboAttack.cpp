@@ -68,11 +68,20 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		const TArray<TObjectPtr<UAnimMontage>> ComboAttack = CurrentCharacter->
 			CombatComponent->GetComboAttackAnim();
 		MaxCombo = ComboAttack.Num();
+		if (!IsValid(ComboAttack[ComboIndex]))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Fail to Load Combo Animation Try Again"));
+			ComboIndex = 0;
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo
+								, true, true);
+		}
 
 		SetCurrentMontage(ComboAttack[ComboIndex]);
-		if (const TObjectPtr<UComboAttackNotifyState> ComboAttackNotifyState =
-			UAnimNotifyManager::FindNotifyStateByClass<UComboAttackNotifyState>(
-				GetCurrentMontage()))
+
+		ComboAttackNotifyState = UAnimNotifyManager::FindNotifyStateByClass<
+			UComboAttackNotifyState>(GetCurrentMontage());
+
+		if (IsValid(ComboAttackNotifyState))
 		{
 			ComboAttackNotifyState->OnNotifiedBegin.Clear();
 			ComboAttackNotifyState->OnNotifiedBegin.AddDynamic(
@@ -137,6 +146,7 @@ void UComboAttack::HandleComboNotifyEnd()
 void UComboAttack::OnCompleted(FGameplayTag EventTag
 															, FGameplayEventData EventData)
 {
+	ClearDelegate();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);
 }
@@ -144,6 +154,7 @@ void UComboAttack::OnCompleted(FGameplayTag EventTag
 void UComboAttack::OnCancelled(FGameplayTag EventTag
 															, FGameplayEventData EventData)
 {
+	ClearDelegate();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);
 }
@@ -154,4 +165,13 @@ void UComboAttack::Damage(UPrimitiveComponent* OverlappedComponent
 													, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Display, TEXT("TEST: %d"), OtherBodyIndex);
+}
+
+void UComboAttack::ClearDelegate()
+{
+	if (ComboAttackNotifyState)
+	{
+		ComboAttackNotifyState->OnNotifiedBegin.RemoveAll(this);
+		ComboAttackNotifyState->OnNotifiedEnd.RemoveAll(this);
+	}
 }
