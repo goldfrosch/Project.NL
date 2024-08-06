@@ -49,9 +49,9 @@ void UToggleCombatModeAbility::ActivateAbility(
 		{
 			SetCurrentMontage(OwnerCharacter->CombatComponent->GetUnEquipAnim());
 			// 애니메이션 Notify 추가
-			if (const TObjectPtr<UPutWeaponNotify> PutWeaponNotify =
-				UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(
-					GetCurrentMontage()))
+			PutWeaponNotify = UAnimNotifyManager::FindNotifyByClass<UPutWeaponNotify>(
+				GetCurrentMontage());
+			if (IsValid(PutWeaponNotify))
 			{
 				PutWeaponNotify->OnNotified.AddDynamic(
 					this, &UToggleCombatModeAbility::HandleUnEquip);
@@ -61,9 +61,9 @@ void UToggleCombatModeAbility::ActivateAbility(
 		{
 			SetCurrentMontage(OwnerCharacter->CombatComponent->GetEquipAnim());
 			// 애니메이션 Notify 추가
-			if (const TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify =
-				UAnimNotifyManager::FindNotifyByClass<UGrabWeaponNotify>(
-					GetCurrentMontage()))
+			GrabWeaponNotify = UAnimNotifyManager::FindNotifyByClass<
+				UGrabWeaponNotify>(GetCurrentMontage());
+			if (IsValid(GrabWeaponNotify))
 			{
 				GrabWeaponNotify->OnNotified.AddDynamic(
 					this, &UToggleCombatModeAbility::HandleEquip);
@@ -134,6 +134,8 @@ void UToggleCombatModeAbility::HandleToggleCombatEnd(
 																			? NlGameplayTags::State_Player_Equip
 																			: NlGameplayTags::State_Player_UnEquip
 																	, NlGameplayTags::State_Player_Idle);
+	ClearDelegate();
+
 	if (UCombatManager::IsCharacterCombat(
 		GetAbilitySystemComponentFromActorInfo()))
 	{
@@ -160,4 +162,16 @@ void UToggleCombatModeAbility::HandleCancelAbilityTask(FGameplayTag EventTag
 																			? NlGameplayTags::State_Player_Equip
 																			: NlGameplayTags::State_Player_UnEquip
 																	, NlGameplayTags::State_Player_Idle);
+}
+
+void UToggleCombatModeAbility::ClearDelegate()
+{
+	if (PutWeaponNotify)
+	{
+		PutWeaponNotify->OnNotified.RemoveAll(this);
+	}
+	if (GrabWeaponNotify)
+	{
+		GrabWeaponNotify->OnNotified.RemoveAll(this);
+	}
 }
