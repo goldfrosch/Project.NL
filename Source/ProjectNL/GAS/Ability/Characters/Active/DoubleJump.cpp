@@ -54,7 +54,7 @@ void UDoubleJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 				NlGameplayTags::State_Player_DoubleJump);
 			OwnerCharacter->PlayAnimMontage(
 				OwnerCharacter->CombatComponent->GetDoubleJumpAnim());
-			OwnerCharacter->LaunchCharacter(FVector(0, 0, 400), false, false);
+			OwnerCharacter->LaunchCharacter(FVector(0, 0, 200), false, false);
 		}
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 	}

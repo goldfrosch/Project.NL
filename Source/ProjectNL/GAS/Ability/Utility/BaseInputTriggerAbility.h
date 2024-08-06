@@ -44,7 +44,6 @@ protected:
 													, bool bWasCancelled) override;
 	virtual void OnTriggeredInputAction(const FInputActionValue& Value);
 
-private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability"
 		, meta = (AllowPrivateAccess = true))
 	bool bCancelAbilityOnInputReleased;
