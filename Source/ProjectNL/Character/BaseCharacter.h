@@ -57,6 +57,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes"
 		, meta = (AllowPrivateAccess = "true"))
 	const UBasicAttributeSet* AttributeSet;
+	GETTER(UBasicAttributeSet*, AttributeSet)
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"
