@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
@@ -71,4 +72,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem"
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerGAInputDataAsset> PlayerGAInputDataAsset;
+
+
+	FDelegateHandle MovementSpeedChangedDelegateHandle;
+
+	virtual void MovementSpeedChanged(const FOnAttributeChangeData& Data);
 };

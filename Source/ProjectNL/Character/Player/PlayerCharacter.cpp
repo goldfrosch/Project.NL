@@ -193,6 +193,18 @@ void APlayerCharacter::InitAbilitySystem()
 			}
 		}
 	}
+
+	if (AbilitySystemComponent)
+	{
+		MovementSpeedChangedDelegateHandle = AbilitySystemComponent->
+																				GetGameplayAttributeValueChangeDelegate(
+																					AttributeSet->
+																					GetMovementSpeedAttribute()).
+																				AddUObject(
+																					this
+																					, &
+																					APlayerCharacter::MovementSpeedChanged);
+	}
 }
 
 void APlayerCharacter::OnAbilityInputPressed(const int32 InputID)
@@ -209,4 +221,9 @@ void APlayerCharacter::OnAbilityInputReleased(const int32 InputID)
 	{
 		AbilitySystemComponent->AbilityLocalInputReleased(InputID);
 	}
+}
+
+void APlayerCharacter::MovementSpeedChanged(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetMovementSpeed();
 }
