@@ -37,6 +37,10 @@ public:
 		, meta = (AllowPrivateAccess = "true"))
 	UWidgetsComponent* WidgetsComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes"
+		, meta = (AllowPrivateAccess = "true"))
+	const UBasicAttributeSet* AttributeSet;
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
@@ -53,11 +57,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes"
-		, meta = (AllowPrivateAccess = "true"))
-	const UBasicAttributeSet* AttributeSet;
-	GETTER(UBasicAttributeSet*, AttributeSet)
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"
