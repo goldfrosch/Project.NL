@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "BasicAttributeSet.h"
+﻿#include "BasicAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
 void UBasicAttributeSet::OnRepHealth(const FGameplayAttributeData& OldHealth)
@@ -39,6 +36,13 @@ void UBasicAttributeSet::OnRepMaxStamina(
 void UBasicAttributeSet::OnRepLevel(const FGameplayAttributeData& OldLevel)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBasicAttributeSet, Level, OldLevel);
+}
+
+void UBasicAttributeSet::OnRepMovementSpeed(
+	const FGameplayAttributeData& OldMovementSpeed)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBasicAttributeSet, MovementSpeed
+															, OldMovementSpeed);
 }
 
 void UBasicAttributeSet::GetLifetimeReplicatedProps(

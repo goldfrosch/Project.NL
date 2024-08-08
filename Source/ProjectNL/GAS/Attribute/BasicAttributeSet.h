@@ -18,34 +18,41 @@ UCLASS()
 class PROJECTNL_API UBasicAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
-	
+
 public:
 	// TODO: 복제에 도움이 되는 함수지만 정확한 기능은 추후
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(
+		TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void InitBaseAttribute();
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepHealth)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepHealth)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepMaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepMaxHealth)
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MaxHealth)
-	
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepMana)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepMana)
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Mana)
-	
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepMaxMana)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepMaxMana)
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MaxMana)
-	
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepStamina)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepStamina)
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Stamina)
-	
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepMaxStamina)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepMaxStamina)
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MaxStamina)
 
@@ -57,19 +64,20 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
 	FGameplayAttributeData MagicalDamage;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MagicalDamage)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
 	FGameplayAttributeData Defense;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Defense)
-	
-	UPROPERTY(BlueprintReadOnly, Category="Attributes")
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepMovementSpeed)
 	FGameplayAttributeData MovementSpeed;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, MovementSpeed)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
 	FGameplayAttributeData CriticalPercent;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, CriticalPercent)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
 	FGameplayAttributeData CriticalPower;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, CriticalPower)
@@ -104,8 +112,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Attributes")
 	FGameplayAttributeData Guts;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Guts)
-	
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing = OnRepLevel)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes"
+		, ReplicatedUsing = OnRepLevel)
 	FGameplayAttributeData Level;
 	ATTRIBUTE_ACCESSORS(UBasicAttributeSet, Level)
 
@@ -123,4 +132,7 @@ public:
 	virtual void OnRepMaxStamina(const FGameplayAttributeData& OldMaxStamina);
 	UFUNCTION()
 	virtual void OnRepLevel(const FGameplayAttributeData& OldLevel);
+	UFUNCTION()
+	virtual void OnRepMovementSpeed(
+		const FGameplayAttributeData& OldMovementSpeed);
 };
