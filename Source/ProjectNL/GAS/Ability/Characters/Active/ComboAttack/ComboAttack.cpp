@@ -1,6 +1,5 @@
 ﻿#include "ComboAttack.h"
 
-#include "ProjectNL/Animation/Characters/Attack/ComboAttackNotifyState.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/GAS/Ability/Utility/PlayMontageWithEvent.h"
@@ -8,6 +7,7 @@
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
+#include "AnimNotify/ComboAttackNotifyState.h"
 
 UComboAttack::UComboAttack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -78,6 +78,7 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 		SetCurrentMontage(ComboAttack[ComboIndex]);
 
+		// TODO: 메인 서브 선택해서 Delegate 실행되게끔 처리
 		ComboAttackNotifyState = UAnimNotifyManager::FindNotifyStateByClass<
 			UComboAttackNotifyState>(GetCurrentMontage());
 
@@ -105,26 +106,37 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	}
 }
 
-void UComboAttack::HandleComboNotifyStart()
+void UComboAttack::HandleComboNotifyStart(const EHandEquipStatus AttackHand)
 {
 	ABaseCharacter* AvatarCharacter = Cast<ABaseCharacter>(
 		GetAvatarActorFromActorInfo());
 
-	AvatarCharacter->CombatComponent->GetMainWeapon()->SetWeaponDamageable();
-	AvatarCharacter->CombatComponent->GetMainWeapon()->OnNotifiedAttack.
-									AddDynamic(this, &UComboAttack::Damage);
-
-	// 어차피 ComboAttack 자체가 무기를 뽑지 않은 Combat 상태가 아니기 때문에
-	// MainWeapon은 따로 검증하지 않는다.
-	if (IsValid(AvatarCharacter->CombatComponent->GetSubWeapon()))
+	if (AttackHand == EHandEquipStatus::Dual || AttackHand ==
+		EHandEquipStatus::OnlyMain)
 	{
+		if (!IsValid(AvatarCharacter->CombatComponent->GetMainWeapon()))
+		{
+			return;
+		}
+		AvatarCharacter->CombatComponent->GetMainWeapon()->SetWeaponDamageable();
+		AvatarCharacter->CombatComponent->GetMainWeapon()->OnNotifiedAttack.
+										AddDynamic(this, &UComboAttack::Damage);
+	}
+
+	if (AttackHand == EHandEquipStatus::Dual || AttackHand ==
+		EHandEquipStatus::OnlySub)
+	{
+		if (!IsValid(AvatarCharacter->CombatComponent->GetSubWeapon()))
+		{
+			return;
+		}
 		AvatarCharacter->CombatComponent->GetSubWeapon()->SetWeaponDamageable();
 		AvatarCharacter->CombatComponent->GetSubWeapon()->OnNotifiedAttack.
 										AddDynamic(this, &UComboAttack::Damage);
 	}
 }
 
-void UComboAttack::HandleComboNotifyEnd()
+void UComboAttack::HandleComboNotifyEnd(const EHandEquipStatus AttackHand)
 {
 	ComboIndex = ComboIndex == MaxCombo - 1 ? 0 : ComboIndex + 1;
 	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
@@ -133,11 +145,24 @@ void UComboAttack::HandleComboNotifyEnd()
 	ABaseCharacter* AvatarCharacter = Cast<ABaseCharacter>(
 		GetAvatarActorFromActorInfo());
 
-	AvatarCharacter->CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
-	AvatarCharacter->CombatComponent->GetMainWeapon()->OnNotifiedAttack.Clear();
-
-	if (IsValid(AvatarCharacter->CombatComponent->GetSubWeapon()))
+	if (AttackHand == EHandEquipStatus::Dual || AttackHand ==
+		EHandEquipStatus::OnlyMain)
 	{
+		if (!IsValid(AvatarCharacter->CombatComponent->GetMainWeapon()))
+		{
+			return;
+		}
+		AvatarCharacter->CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
+		AvatarCharacter->CombatComponent->GetMainWeapon()->OnNotifiedAttack.Clear();
+	}
+
+	if (AttackHand == EHandEquipStatus::Dual || AttackHand ==
+		EHandEquipStatus::OnlySub)
+	{
+		if (!IsValid(AvatarCharacter->CombatComponent->GetSubWeapon()))
+		{
+			return;
+		}
 		AvatarCharacter->CombatComponent->GetSubWeapon()->UnsetWeaponDamageable();
 		AvatarCharacter->CombatComponent->GetSubWeapon()->OnNotifiedAttack.Clear();
 	}
