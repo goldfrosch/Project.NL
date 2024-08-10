@@ -1,8 +1,6 @@
 ﻿#include "ToggleCombatModeAbility.h"
 
 #include "AbilitySystemComponent.h"
-#include "ProjectNL/Animation/Characters/Equip/GrabWeaponNotify.h"
-#include "ProjectNL/Animation/Characters/Equip/PutWeaponNotify.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/GAS/Ability/Utility/PlayMontageWithEvent.h"
@@ -11,6 +9,8 @@
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/WeaponManager.h"
+#include "AnimNotify/GrabWeaponNotify.h"
+#include "AnimNotify/PutWeaponNotify.h"
 
 UToggleCombatModeAbility::UToggleCombatModeAbility(
 	const FObjectInitializer& ObjectInitializer)

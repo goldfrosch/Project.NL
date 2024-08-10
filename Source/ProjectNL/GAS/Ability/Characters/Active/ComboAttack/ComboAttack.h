@@ -5,6 +5,7 @@
 #include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "ComboAttack.generated.h"
 
+enum class EHandEquipStatus : uint8;
 class UComboAttackNotifyState;
 class UPlayMontageWithEvent;
 
@@ -45,10 +46,10 @@ private:
 	TSubclassOf<UGameplayEffect> GEDamage;
 
 	UFUNCTION()
-	void HandleComboNotifyStart();
+	void HandleComboNotifyStart(const EHandEquipStatus AttackHand);
 
 	UFUNCTION()
-	void HandleComboNotifyEnd();
+	void HandleComboNotifyEnd(const EHandEquipStatus AttackHand);
 
 	UFUNCTION()
 	void Damage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
