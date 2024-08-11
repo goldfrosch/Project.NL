@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayEffectTypes.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
 class UPlayerGAInputDataAsset;
 class UPlayerCameraComponent;
 class UCameraComponent;
+class UGameplayEffect;
 class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
@@ -24,7 +24,7 @@ class PROJECTNL_API APlayerCharacter : public ABaseCharacter
 	GENERATED_BODY()
 
 public:
-	APlayerCharacter(const class FObjectInitializer& ObjectInitializer);
+	APlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void Tick(float DeltaTime) override;
 
 	FORCEINLINE UPlayerGAInputDataAsset*
@@ -44,6 +44,10 @@ protected:
 	virtual void OnRep_PlayerState() override;
 
 	void Move(const FInputActionValue& Value);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Move(const FInputActionValue& Value);
+
 	void Look(const FInputActionValue& Value);
 
 private:
@@ -53,9 +57,7 @@ private:
 	void OnAbilityInputPressed(const int32 InputID);
 	void OnAbilityInputReleased(const int32 InputID);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Action
-		, meta = (AllowPrivateAccess = "true"))
-	bool IsCombatMode = false;
+	void InitTag();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = "true"))
@@ -72,9 +74,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem"
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerGAInputDataAsset> PlayerGAInputDataAsset;
-
-
-	FDelegateHandle MovementSpeedChangedDelegateHandle;
-
-	virtual void MovementSpeedChanged(const FOnAttributeChangeData& Data);
 };

@@ -139,13 +139,13 @@ void UToggleCombatModeAbility::HandleToggleCombatEnd(
 	if (UCombatManager::IsCharacterCombat(
 		GetAbilitySystemComponentFromActorInfo()))
 	{
-		GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(
-			NlGameplayTags::Status_Combat);
+		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
+			NlGameplayTags::Status_Combat, 0);
 	}
 	else
 	{
-		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(
-			NlGameplayTags::Status_Combat);
+		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
+			NlGameplayTags::Status_Combat, 1);
 	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);

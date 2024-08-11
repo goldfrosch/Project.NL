@@ -10,7 +10,7 @@ UBaseInputTriggerAbility::UBaseInputTriggerAbility(
 	, bCancelAbilityOnInputReleased(false)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 void UBaseInputTriggerAbility::ActivateAbility(
