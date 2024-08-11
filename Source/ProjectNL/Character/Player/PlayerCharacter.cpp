@@ -7,11 +7,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Kismet/GameplayStatics.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/Helper/StateHelper.h"
-#include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Player/DefaultPlayerState.h"
 #include "ProjectNL/Player/PlayerGAInputDataAsset.h"
 
@@ -77,10 +75,14 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::InitTag()
 {
-	GetAbilitySystemComponent()->SetLooseGameplayTagCount(
-		NlGameplayTags::State_Player_Idle, 1);
-	GetAbilitySystemComponent()->SetLooseGameplayTagCount(
-		NlGameplayTags::Ability_Util_DoubleJump, 1);
+	GetAbilitySystemComponent()->AddLooseGameplayTag(
+		NlGameplayTags::State_Player_Idle);
+	GetAbilitySystemComponent()->AddLooseGameplayTag(
+		NlGameplayTags::Ability_Util_DoubleJump);
+	GetAbilitySystemComponent()->AddReplicatedLooseGameplayTag(
+		NlGameplayTags::State_Player_Idle);
+	GetAbilitySystemComponent()->AddReplicatedLooseGameplayTag(
+		NlGameplayTags::Ability_Util_DoubleJump);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -108,11 +110,6 @@ void APlayerCharacter::SetupPlayerInputComponent(
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<
 		UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered
-																			, this, &APlayerCharacter::Move);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered
-																			, this, &APlayerCharacter::Look);
-
 		if (PlayerGAInputDataAsset)
 		{
 			const TSet<FGameplayInputAbilityInfo>& InputAbilities =
@@ -137,67 +134,6 @@ void APlayerCharacter::SetupPlayerInputComponent(
 				}
 			}
 		}
-	}
-}
-
-void APlayerCharacter::Move(const FInputActionValue& Value)
-{
-	for (const auto CurrentTag : GetAbilitySystemComponent()->
-			GetOwnedGameplayTags())
-	{
-		UE_LOG(LogTemp, Display, TEXT("TEST1: %s")
-					, *CurrentTag.GetTagName().ToString());
-	}
-
-	if (APlayerCharacter* SecondPlayer = Cast<APlayerCharacter>(
-		UGameplayStatics::GetPlayerPawn(this->GetWorld(), 1)))
-	{
-		for (const auto CurrentTag : SecondPlayer->GetAbilitySystemComponent()->
-																							GetOwnedGameplayTags())
-		{
-			UE_LOG(LogTemp, Display, TEXT("TEST2: %s")
-						, *CurrentTag.GetTagName().ToString());
-		}
-	}
-
-	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))
-	{
-		const FVector2D MovementVector = Value.Get<FVector2D>();
-		UMovementManager::Move(this, MovementVector);
-	}
-	Server_Move_Implementation(Value);
-}
-
-void APlayerCharacter::Server_Move_Implementation(
-	const FInputActionValue& Value)
-{
-	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))
-	{
-		const FVector2D MovementVector = Value.Get<FVector2D>();
-		UMovementManager::Move(this, MovementVector);
-	}
-}
-
-bool APlayerCharacter::Server_Move_Validate(const FInputActionValue& Value)
-{
-	// 제한 조건 만들어두기
-	return true;
-}
-
-
-void APlayerCharacter::Look(const FInputActionValue& Value)
-{
-	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		const float NewPitch = LookAxisVector.Y *
-			UGameplayStatics::GetWorldDeltaSeconds(this) * 60.f;
-		const float NewYaw = LookAxisVector.X *
-			UGameplayStatics::GetWorldDeltaSeconds(this) * 60.f;
-
-		AddControllerYawInput(NewYaw);
-		AddControllerPitchInput(NewPitch);
 	}
 }
 

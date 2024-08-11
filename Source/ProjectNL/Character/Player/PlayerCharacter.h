@@ -43,13 +43,6 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
-	void Move(const FInputActionValue& Value);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(const FInputActionValue& Value);
-
-	void Look(const FInputActionValue& Value);
-
 private:
 	bool IsThirdCamera = true;
 
