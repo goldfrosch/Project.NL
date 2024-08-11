@@ -10,11 +10,9 @@ public class ProjectNL : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new[]
 		{
-			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG"
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+			"UMG", "GameplayAbilities", "GameplayTags", "GameplayTasks"
 		});
-
-		PrivateDependencyModuleNames.AddRange(new[]
-			{ "GameplayAbilities", "GameplayTags", "GameplayTasks" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

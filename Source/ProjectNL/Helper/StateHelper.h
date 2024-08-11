@@ -12,7 +12,7 @@ class FStateHelper
 public:
 	FORCEINLINE static bool IsPlayerIdle(const UAbilitySystemComponent* Ability)
 	{
-		return Ability->HasMatchingGameplayTag(NlGameplayTags::State_Player_Idle);
+		return Ability->GetGameplayTagCount(NlGameplayTags::State_Player_Idle) == 1;
 	}
 
 	FORCEINLINE static bool IsPlayerJumping(
@@ -25,7 +25,7 @@ public:
 	FORCEINLINE static bool IsPlayerCombatMode(
 		const UAbilitySystemComponent* Ability)
 	{
-		return Ability->HasMatchingGameplayTag(NlGameplayTags::Status_Combat);
+		return Ability->GetGameplayTagCount(NlGameplayTags::Status_Combat) == 1;
 	}
 
 	FORCEINLINE static bool IsPlayerCanDoubleJump(
@@ -44,8 +44,8 @@ public:
 																						, const FGameplayTag PreviousTag
 																						, const FGameplayTag NewTag)
 	{
-		Ability->RemoveLooseGameplayTag(PreviousTag);
-		Ability->AddLooseGameplayTag(NewTag);
+		Ability->SetLooseGameplayTagCount(PreviousTag, 0);
+		Ability->SetLooseGameplayTagCount(NewTag, 1);
 	}
 
 	FORCEINLINE static EPlayerCombatWeaponState GetCharacterWeaponState(

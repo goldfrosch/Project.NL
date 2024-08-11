@@ -7,11 +7,14 @@
 
 ADefaultPlayerState::ADefaultPlayerState()
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(
+		TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	AbilitySystemComponent->SetReplicationMode(
+		EGameplayEffectReplicationMode::Mixed);
 
-	AttributeSet = CreateDefaultSubobject<UPlayerAttributeSet>(TEXT("Attributeset"));
+	AttributeSet = CreateDefaultSubobject<UPlayerAttributeSet>(
+		TEXT("Attributeset"));
 }
 
 void ADefaultPlayerState::BeginPlay()
@@ -23,8 +26,9 @@ void ADefaultPlayerState::BeginPlay()
 			AttributeSet->InitBaseAttribute();
 		}
 		AbilitySystemComponent->
-			GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute())
-			.AddUObject(this, &ADefaultPlayerState::HealthChanged);
+			GetGameplayAttributeValueChangeDelegate(
+				AttributeSet->GetHealthAttribute()).AddUObject(
+				this, &ADefaultPlayerState::HealthChanged);
 	}
 }
 
@@ -37,4 +41,3 @@ void ADefaultPlayerState::Tick(float DeltaSeconds)
 {
 	// TODO: GameplayEffect로 체력 깎아보기 테스트 진행
 }
-

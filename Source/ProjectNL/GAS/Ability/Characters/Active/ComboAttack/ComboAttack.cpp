@@ -171,6 +171,7 @@ void UComboAttack::HandleComboNotifyEnd(const EHandEquipStatus AttackHand)
 void UComboAttack::OnCompleted(FGameplayTag EventTag
 															, FGameplayEventData EventData)
 {
+	ComboIndex = 0;
 	ClearDelegate();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);

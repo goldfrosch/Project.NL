@@ -10,7 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
-#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Player/DefaultPlayerState.h"
@@ -43,6 +42,29 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	SetEntityType(EEntityCategory::Player);
 }
 
+void APlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	{
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	}
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	{
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	}
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -50,12 +72,15 @@ void APlayerCharacter::BeginPlay()
 	InitAbilitySystem();
 	CombatComponent->UpdateCombatStatus();
 
-	// TODO: 추후 패시브 Ability로 추가
-	FGameplayTagContainer InitContainer;
-	InitContainer.AddTag(NlGameplayTags::State_Player_Idle);
-	InitContainer.AddTag(NlGameplayTags::Ability_Util_DoubleJump);
+	InitTag();
+}
 
-	GetAbilitySystemComponent()->AddLooseGameplayTags(InitContainer);
+void APlayerCharacter::InitTag()
+{
+	GetAbilitySystemComponent()->SetLooseGameplayTagCount(
+		NlGameplayTags::State_Player_Idle, 1);
+	GetAbilitySystemComponent()->SetLooseGameplayTagCount(
+		NlGameplayTags::Ability_Util_DoubleJump, 1);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -117,12 +142,48 @@ void APlayerCharacter::SetupPlayerInputComponent(
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
+	for (const auto CurrentTag : GetAbilitySystemComponent()->
+			GetOwnedGameplayTags())
+	{
+		UE_LOG(LogTemp, Display, TEXT("TEST1: %s")
+					, *CurrentTag.GetTagName().ToString());
+	}
+
+	if (APlayerCharacter* SecondPlayer = Cast<APlayerCharacter>(
+		UGameplayStatics::GetPlayerPawn(this->GetWorld(), 1)))
+	{
+		for (const auto CurrentTag : SecondPlayer->GetAbilitySystemComponent()->
+																							GetOwnedGameplayTags())
+		{
+			UE_LOG(LogTemp, Display, TEXT("TEST2: %s")
+						, *CurrentTag.GetTagName().ToString());
+		}
+	}
+
+	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))
+	{
+		const FVector2D MovementVector = Value.Get<FVector2D>();
+		UMovementManager::Move(this, MovementVector);
+	}
+	Server_Move_Implementation(Value);
+}
+
+void APlayerCharacter::Server_Move_Implementation(
+	const FInputActionValue& Value)
+{
 	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))
 	{
 		const FVector2D MovementVector = Value.Get<FVector2D>();
 		UMovementManager::Move(this, MovementVector);
 	}
 }
+
+bool APlayerCharacter::Server_Move_Validate(const FInputActionValue& Value)
+{
+	// 제한 조건 만들어두기
+	return true;
+}
+
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
@@ -140,34 +201,8 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
-	{
-		AbilitySystemComponent = Cast<UAbilitySystemComponent>(
-			PS->GetAbilitySystemComponent());
-		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	}
-}
-
-void APlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
-	{
-		AbilitySystemComponent = Cast<UAbilitySystemComponent>(
-			PS->GetAbilitySystemComponent());
-		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	}
-}
-
 void APlayerCharacter::InitAbilitySystem()
 {
-	GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetMovementSpeed();
 	if (PlayerGAInputDataAsset)
 	{
 		for (const FGameplayInputAbilityInfo& It : PlayerGAInputDataAsset->
@@ -193,18 +228,6 @@ void APlayerCharacter::InitAbilitySystem()
 			}
 		}
 	}
-
-	if (AbilitySystemComponent)
-	{
-		MovementSpeedChangedDelegateHandle = AbilitySystemComponent->
-																				GetGameplayAttributeValueChangeDelegate(
-																					AttributeSet->
-																					GetMovementSpeedAttribute()).
-																				AddUObject(
-																					this
-																					, &
-																					APlayerCharacter::MovementSpeedChanged);
-	}
 }
 
 void APlayerCharacter::OnAbilityInputPressed(const int32 InputID)
@@ -221,9 +244,4 @@ void APlayerCharacter::OnAbilityInputReleased(const int32 InputID)
 	{
 		AbilitySystemComponent->AbilityLocalInputReleased(InputID);
 	}
-}
-
-void APlayerCharacter::MovementSpeedChanged(const FOnAttributeChangeData& Data)
-{
-	GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetMovementSpeed();
 }
