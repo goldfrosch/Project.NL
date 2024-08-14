@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "ProjectNL/Helper/EnumHelper.h"
@@ -26,9 +27,7 @@ class PROJECTNL_API ABaseCharacter
 public:
 	ABaseCharacter(const class FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS"
-		, meta = (AllowPrivateAccess = "true"))
-	UAbilitySystemComponent* AbilitySystemComponent;
+	TWeakObjectPtr<class UNLAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS"
 		, meta = (AllowPrivateAccess = "true"))
@@ -50,7 +49,7 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
 	{
-		return AbilitySystemComponent;
+		return Cast<UAbilitySystemComponent>(AbilitySystemComponent.Get());
 	}
 
 	virtual void Jump() override;

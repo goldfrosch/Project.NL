@@ -5,12 +5,13 @@
 #include "ProjectNL/Component/AttributeComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/WidgetsComponent.h"
+#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
 #include "ProjectNL/Manager/WeaponManager.h"
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(
+	AbilitySystemComponent = CreateDefaultSubobject<UNLAbilitySystemComponent>(
 		TEXT("AbilitySystemComponent"));
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(
 		TEXT("Attribute Component"));
@@ -26,7 +27,7 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	InitCharacterWeapon();
-	if (IsValid(AbilitySystemComponent))
+	if (IsValid(GetAbilitySystemComponent()))
 	{
 		AttributeSet = AbilitySystemComponent->GetSet<UBasicAttributeSet>();
 	}
@@ -42,7 +43,7 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (AbilitySystemComponent)
+	if (GetAbilitySystemComponent())
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
