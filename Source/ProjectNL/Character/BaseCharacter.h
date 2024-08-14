@@ -9,6 +9,7 @@
 #include "ProjectNL/Helper/UtilHelper.h"
 #include "BaseCharacter.generated.h"
 
+class UAttributeComponent;
 class UWidgetsComponent;
 enum class EEntityCategory : uint8;
 class AWeaponBase;
@@ -28,6 +29,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS"
 		, meta = (AllowPrivateAccess = "true"))
 	UAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS"
+		, meta = (AllowPrivateAccess = "true"))
+	UAttributeComponent* AttributeComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat
 		, meta = (AllowPrivateAccess = "true"))

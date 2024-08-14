@@ -25,7 +25,7 @@ void UAttributeComponent::InitAttributeChanged()
 void UAttributeComponent::MovementSpeedChanged(
 	const FOnAttributeChangeData& Data) const
 {
-	if (const ABaseCharacter* OwnerActor = Cast<ABaseCharacter>(GetOwner()))
+	if (ABaseCharacter* OwnerActor = Cast<ABaseCharacter>(GetOwner()))
 	{
 		OwnerActor->GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
 	}

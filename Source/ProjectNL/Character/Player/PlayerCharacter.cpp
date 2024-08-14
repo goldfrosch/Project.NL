@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Net/UnrealNetwork.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/Helper/StateHelper.h"
@@ -48,7 +49,9 @@ void APlayerCharacter::OnRep_PlayerState()
 	{
 		AbilitySystemComponent = PS->GetAbilitySystemComponent();
 		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+		GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+		InitTag();
+		BindAbility();
 	}
 }
 
@@ -59,8 +62,16 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	{
 		AbilitySystemComponent = PS->GetAbilitySystemComponent();
 		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+		GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+		InitTag();
 	}
+}
+
+void APlayerCharacter::GetLifetimeReplicatedProps(
+	TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APlayerCharacter, IsInputBound);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -69,51 +80,40 @@ void APlayerCharacter::BeginPlay()
 
 	InitAbilitySystem();
 	CombatComponent->UpdateCombatStatus();
-
-	InitTag();
+	BindAbility();
 }
 
 void APlayerCharacter::InitTag()
 {
-	GetAbilitySystemComponent()->AddLooseGameplayTag(
-		NlGameplayTags::State_Player_Idle);
-	GetAbilitySystemComponent()->AddLooseGameplayTag(
-		NlGameplayTags::Ability_Util_DoubleJump);
-	GetAbilitySystemComponent()->AddReplicatedLooseGameplayTag(
-		NlGameplayTags::State_Player_Idle);
-	GetAbilitySystemComponent()->AddReplicatedLooseGameplayTag(
-		NlGameplayTags::Ability_Util_DoubleJump);
+	FGameplayTagContainer NewContainer;
+	NewContainer.AddTag(NlGameplayTags::State_Player_Idle);
+	NewContainer.AddTag(NlGameplayTags::Ability_Util_DoubleJump);
+
+	GetAbilitySystemComponent()->AddLooseGameplayTags(NewContainer);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UE_LOG(LogTemp, Display, TEXT("Test Result: %d")
+				, GetAbilitySystemComponent()->GetActivatableAbilities().Num());
 }
 
-// TODO: BeginPlay보다 먼저 호출되고 2번 호출되는 함수
-void APlayerCharacter::SetupPlayerInputComponent(
-	UInputComponent* PlayerInputComponent)
+void APlayerCharacter::BindAbility()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(
-		GetController()))
+	if (IsInputBound)
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-				PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
+		return;
 	}
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<
-		UEnhancedInputComponent>(PlayerInputComponent))
+		UEnhancedInputComponent>(InputComponent))
 	{
 		if (PlayerGAInputDataAsset)
 		{
 			const TSet<FGameplayInputAbilityInfo>& InputAbilities =
 				PlayerGAInputDataAsset->GetInputAbilities();
+
 			for (const auto& It : InputAbilities)
 			{
 				if (It.IsValid())
@@ -133,8 +133,30 @@ void APlayerCharacter::SetupPlayerInputComponent(
 																						, InputID);
 				}
 			}
+			IsInputBound = true;
 		}
 	}
+}
+
+
+// TODO: BeginPlay보다 먼저 호출되고 2번 호출되는 함수
+void APlayerCharacter::SetupPlayerInputComponent(
+	UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(
+		GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+				PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+
+	BindAbility();
 }
 
 void APlayerCharacter::InitAbilitySystem()
@@ -146,10 +168,13 @@ void APlayerCharacter::InitAbilitySystem()
 		{
 			if (It.IsValid())
 			{
-				constexpr int32 AbilityLevel = 1;
-				const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(
-					It.GameplayAbilityClass, AbilityLevel, It.InputID);
-				AbilitySystemComponent->GiveAbility(AbilitySpec);
+				if (HasAuthority())
+				{
+					constexpr int32 AbilityLevel = 1;
+					const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(
+						It.GameplayAbilityClass, AbilityLevel, It.InputID);
+					AbilitySystemComponent->GiveAbility(AbilitySpec);
+				}
 			}
 		}
 		if (const APlayerController* PlayerController = Cast<APlayerController>(

@@ -45,12 +45,16 @@ protected:
 
 private:
 	bool IsThirdCamera = true;
+	UPROPERTY(Replicated)
+	bool IsInputBound = false;
 
 	void InitAbilitySystem();
 	void OnAbilityInputPressed(const int32 InputID);
 	void OnAbilityInputReleased(const int32 InputID);
 
 	void InitTag();
+
+	void BindAbility();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = "true"))

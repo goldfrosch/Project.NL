@@ -2,6 +2,7 @@
 #include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Components/WidgetComponent.h"
+#include "ProjectNL/Component/AttributeComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/WidgetsComponent.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
@@ -11,6 +12,8 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(
 		TEXT("AbilitySystemComponent"));
+	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(
+		TEXT("Attribute Component"));
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(
 		TEXT("Combat Component"));
 	WidgetsComponent = CreateDefaultSubobject<UWidgetsComponent>(
@@ -27,6 +30,7 @@ void ABaseCharacter::BeginPlay()
 	{
 		AttributeSet = AbilitySystemComponent->GetSet<UBasicAttributeSet>();
 	}
+	AttributeComponent->InitAttributeChanged();
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
