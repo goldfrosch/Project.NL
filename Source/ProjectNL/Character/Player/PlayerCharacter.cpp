@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
+#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Player/DefaultPlayerState.h"
 #include "ProjectNL/Player/PlayerGAInputDataAsset.h"
@@ -47,7 +48,8 @@ void APlayerCharacter::OnRep_PlayerState()
 
 	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
 	{
-		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
+			PS->GetAbilitySystemComponent());
 		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
 		GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
 		InitTag();
@@ -60,7 +62,8 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
 	{
-		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
+			PS->GetAbilitySystemComponent());
 		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
 		GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
 		InitTag();
@@ -173,7 +176,7 @@ void APlayerCharacter::InitAbilitySystem()
 					constexpr int32 AbilityLevel = 1;
 					const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(
 						It.GameplayAbilityClass, AbilityLevel, It.InputID);
-					AbilitySystemComponent->GiveAbility(AbilitySpec);
+					GetAbilitySystemComponent()->GiveAbility(AbilitySpec);
 				}
 			}
 		}
@@ -193,16 +196,16 @@ void APlayerCharacter::InitAbilitySystem()
 
 void APlayerCharacter::OnAbilityInputPressed(const int32 InputID)
 {
-	if (AbilitySystemComponent)
+	if (GetAbilitySystemComponent())
 	{
-		AbilitySystemComponent->AbilityLocalInputPressed(InputID);
+		GetAbilitySystemComponent()->AbilityLocalInputPressed(InputID);
 	}
 }
 
 void APlayerCharacter::OnAbilityInputReleased(const int32 InputID)
 {
-	if (AbilitySystemComponent)
+	if (GetAbilitySystemComponent())
 	{
-		AbilitySystemComponent->AbilityLocalInputReleased(InputID);
+		GetAbilitySystemComponent()->AbilityLocalInputReleased(InputID);
 	}
 }
