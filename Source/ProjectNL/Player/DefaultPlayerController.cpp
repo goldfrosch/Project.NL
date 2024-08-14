@@ -4,6 +4,7 @@
 #include "DefaultPlayerController.h"
 
 #include "AbilitySystemComponent.h"
+#include "DefaultPlayerState.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 
 void ADefaultPlayerController::AcknowledgePossession(APawn* P)
@@ -14,8 +15,8 @@ void ADefaultPlayerController::AcknowledgePossession(APawn* P)
 	{
 		// 컨트롤러에서 빙의된 폰이 base character 일 경우에 대해서
 		// OwnerActor와 AvatarActor를 동일한 결과로 기본 값을 세팅한다.
-		BaseCharacter->GetAbilitySystemComponent()
-		->InitAbilityActorInfo(BaseCharacter, BaseCharacter);
+		BaseCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(
+			BaseCharacter, BaseCharacter);
 	}
 }
 
@@ -26,3 +27,18 @@ void ADefaultPlayerController::BeginPlay()
 	ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
+void ADefaultPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	{
+		// Init ASC with PS (Owner) and our new Pawn (AvatarActor)
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, InPawn);
+	}
+}
+
+void ADefaultPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+}
