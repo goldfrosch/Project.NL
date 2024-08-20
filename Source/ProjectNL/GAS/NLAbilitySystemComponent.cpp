@@ -1,21 +1,49 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "NLAbilitySystemComponent.h"
 
+#include "NLAbilitySystemInitializationData.h"
 
-#include "NLAbilitySystemComponent.h"
-
-#include "Ability/Utility/AbilityBindingInterface.h"
 
 UNLAbilitySystemComponent::UNLAbilitySystemComponent()
 {
+	ReplicationMode = EGameplayEffectReplicationMode::Mixed;
+	SetIsReplicatedByDefault(true);
 }
 
-void UNLAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
+void UNLAbilitySystemComponent::InitializeAbilitySystem(
+	const FNLAbilitySystemInitializationData& InitData, AActor* InOwningActor
+	, AActor* InAvatarActor)
 {
-	if (const IAbilityBindingInterface* ABI = Cast<IAbilityBindingInterface>(
-		GetAvatarActor_Direct()))
+	if (GetbAbilitySystemInitialized())
 	{
-		ABI->BindAbility(AbilitySpec);
+		return;
 	}
 
-	Super::OnGiveAbility(AbilitySpec);
+	SetbAbilitySystemInitialized(true);
+
+	InitAbilityActorInfo(InOwningActor, InAvatarActor);
+
+	if (GetOwnerActor()->HasAuthority())
+	{
+		if (!InitData.AttributeSets.IsEmpty())
+		{
+			for (const TSubclassOf<UAttributeSet> AttributeSetClass : InitData.
+					AttributeSets)
+			{
+				GetOrCreateAttributeSubobject(AttributeSetClass);
+			}
+		}
+
+		if (!InitData.GameplayAbilities.IsEmpty())
+		{
+			for (const TSubclassOf<UGameplayAbility> Ability : InitData.
+					GameplayAbilities)
+			{
+				GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
+			}
+		}
+		if (!InitData.GameplayTags.IsEmpty())
+		{
+			AddLooseGameplayTags(InitData.GameplayTags);
+		}
+	}
 }

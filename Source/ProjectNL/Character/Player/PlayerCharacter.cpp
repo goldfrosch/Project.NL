@@ -1,19 +1,17 @@
 ﻿#include "PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "Net/UnrealNetwork.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/Helper/StateHelper.h"
-#include "ProjectNL/Player/DefaultPlayerState.h"
-#include "ProjectNL/Player/PlayerGAInputDataAsset.h"
+#include "ProjectNL/Player/PlayerStateBase.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -42,111 +40,39 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	SetEntityType(EEntityCategory::Player);
 }
 
+// PlayerState 변경 시에 대한 처리
+// 변경되는 경우 보통 캐릭터도 같이 변하기에 한번 실행된다고 생각하면 편하다
 void APlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
 	{
-		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
-			PS->GetAbilitySystemComponent());
-		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
-		GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
-		InitTag();
-		BindAbility();
+		AbilitySystemComponent =
+			UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PS);
+		if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
+			AbilitySystemComponent))
+		{
+			ASC->InitializeAbilitySystem(InitializeData, this, this);
+		}
 	}
 }
 
 void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	if (ADefaultPlayerState* PS = GetPlayerState<ADefaultPlayerState>())
+	AbilitySystemComponent =
+		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState());
+	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
+		AbilitySystemComponent))
 	{
-		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
-			PS->GetAbilitySystemComponent());
-		// BaseCharacter에서도 init 과정은 있었지만 플레이어의 경우는 playerState가 적용될 때 owner에 playerState를 넣어준다.
-		GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
-		InitTag();
+		ASC->InitializeAbilitySystem(InitializeData, this, this);
 	}
-}
-
-void APlayerCharacter::GetLifetimeReplicatedProps(
-	TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(APlayerCharacter, IsInputBound);
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	InitAbilitySystem();
-	CombatComponent->UpdateCombatStatus();
-	BindAbility();
-}
-
-void APlayerCharacter::InitTag()
-{
-	FGameplayTagContainer NewContainer;
-	NewContainer.AddTag(NlGameplayTags::State_Player_Idle);
-	NewContainer.AddTag(NlGameplayTags::Ability_Util_DoubleJump);
-
-	GetAbilitySystemComponent()->AddLooseGameplayTags(NewContainer);
-}
-
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Display, TEXT("Test Result: %d")
-				, GetAbilitySystemComponent()->GetActivatableAbilities().Num());
-}
-
-void APlayerCharacter::BindAbility()
-{
-	if (IsInputBound)
-	{
-		return;
-	}
-
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<
-		UEnhancedInputComponent>(InputComponent))
-	{
-		if (PlayerGAInputDataAsset)
-		{
-			const TSet<FGameplayInputAbilityInfo>& InputAbilities =
-				PlayerGAInputDataAsset->GetInputAbilities();
-
-			for (const auto& It : InputAbilities)
-			{
-				if (It.IsValid())
-				{
-					const UInputAction* InputAction = It.InputAction;
-					const int32 InputID = It.InputID;
-
-					EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Started
-																						, this
-																						, &
-																						APlayerCharacter::OnAbilityInputPressed
-																						, InputID);
-					EnhancedInputComponent->BindAction(InputAction
-																						, ETriggerEvent::Completed, this
-																						, &
-																						APlayerCharacter::OnAbilityInputReleased
-																						, InputID);
-				}
-			}
-			IsInputBound = true;
-		}
-	}
-}
-
-
-// TODO: BeginPlay보다 먼저 호출되고 2번 호출되는 함수
-void APlayerCharacter::SetupPlayerInputComponent(
-	UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(
 		GetController()))
@@ -159,53 +85,10 @@ void APlayerCharacter::SetupPlayerInputComponent(
 		}
 	}
 
-	BindAbility();
+	CombatComponent->UpdateCombatStatus();
 }
 
-void APlayerCharacter::InitAbilitySystem()
+void APlayerCharacter::Tick(float DeltaTime)
 {
-	if (PlayerGAInputDataAsset)
-	{
-		for (const FGameplayInputAbilityInfo& It : PlayerGAInputDataAsset->
-				GetInputAbilities())
-		{
-			if (It.IsValid())
-			{
-				if (HasAuthority())
-				{
-					constexpr int32 AbilityLevel = 1;
-					const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(
-						It.GameplayAbilityClass, AbilityLevel, It.InputID);
-					GetAbilitySystemComponent()->GiveAbility(AbilitySpec);
-				}
-			}
-		}
-		if (const APlayerController* PlayerController = Cast<APlayerController>(
-			Controller))
-		{
-			if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-				ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-					PlayerController->GetLocalPlayer()))
-			{
-				constexpr int32 Priority = 0;
-				Subsystem->AddMappingContext(DefaultMappingContext, Priority);
-			}
-		}
-	}
-}
-
-void APlayerCharacter::OnAbilityInputPressed(const int32 InputID)
-{
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->AbilityLocalInputPressed(InputID);
-	}
-}
-
-void APlayerCharacter::OnAbilityInputReleased(const int32 InputID)
-{
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->AbilityLocalInputReleased(InputID);
-	}
+	Super::Tick(DeltaTime);
 }

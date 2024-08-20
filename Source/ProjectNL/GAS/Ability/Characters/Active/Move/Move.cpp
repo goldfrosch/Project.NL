@@ -11,7 +11,6 @@
 UMove::UMove(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bCancelAbilityOnInputReleased = true;
 }
 
 void UMove::OnTriggeredInputAction(const FInputActionValue& Value)

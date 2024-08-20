@@ -18,5 +18,5 @@ public:
 	ULook(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	virtual void OnTriggeredInputAction(const FInputActionValue& Value) override;
+	virtual void OnTriggeredInputAction(const FInputActionValue& Value);
 };

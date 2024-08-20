@@ -1,8 +1,7 @@
 ﻿#include "BaseCharacter.h"
-#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Components/WidgetComponent.h"
-#include "ProjectNL/Component/AttributeComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/WidgetsComponent.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
@@ -13,8 +12,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UNLAbilitySystemComponent>(
 		TEXT("AbilitySystemComponent"));
-	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(
-		TEXT("Attribute Component"));
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(
 		TEXT("Combat Component"));
 	WidgetsComponent = CreateDefaultSubobject<UWidgetsComponent>(
@@ -23,32 +20,23 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	WidgetsComponent->FixedViewWidget->SetupAttachment(GetCapsuleComponent());
 }
 
+void ABaseCharacter::GetLifetimeReplicatedProps(
+	TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, CombatComponent);
+}
+
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	InitCharacterWeapon();
-	if (IsValid(GetAbilitySystemComponent()))
-	{
-		AttributeSet = AbilitySystemComponent->GetSet<UBasicAttributeSet>();
-	}
-	AttributeComponent->InitAttributeChanged();
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void ABaseCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	if (GetAbilitySystemComponent())
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	}
-
-	SetOwner(NewController);
 }
 
 void ABaseCharacter::Jump()

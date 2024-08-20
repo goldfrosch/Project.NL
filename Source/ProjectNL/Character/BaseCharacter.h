@@ -6,17 +6,16 @@
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "ProjectNL/GAS/NLAbilitySystemInitializationData.h"
 #include "ProjectNL/Helper/EnumHelper.h"
 #include "ProjectNL/Helper/UtilHelper.h"
 #include "BaseCharacter.generated.h"
 
-class UAttributeComponent;
-class UWidgetsComponent;
-enum class EEntityCategory : uint8;
 class AWeaponBase;
 class UCombatComponent;
+class UWidgetsComponent;
 class UBasicAttributeSet;
-class UAbilitySystemComponent;
+enum class EEntityCategory : uint8;
 
 UCLASS()
 class PROJECTNL_API ABaseCharacter
@@ -27,13 +26,7 @@ class PROJECTNL_API ABaseCharacter
 public:
 	ABaseCharacter(const class FObjectInitializer& ObjectInitializer);
 
-	TWeakObjectPtr<class UNLAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS"
-		, meta = (AllowPrivateAccess = "true"))
-	UAttributeComponent* AttributeComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat
+	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly, Category = Combat
 		, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
 
@@ -41,15 +34,11 @@ public:
 		, meta = (AllowPrivateAccess = "true"))
 	UWidgetsComponent* WidgetsComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Attributes"
-		, meta = (AllowPrivateAccess = "true"))
-	const UBasicAttributeSet* AttributeSet;
-
 	virtual void Tick(float DeltaTime) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
 	{
-		return Cast<UAbilitySystemComponent>(AbilitySystemComponent.Get());
+		return AbilitySystemComponent;
 	}
 
 	virtual void Jump() override;
@@ -59,8 +48,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-	virtual void PossessedBy(AController* NewController) override;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"
@@ -72,4 +59,11 @@ private:
 		, meta = (AllowPrivateAccess = "true"))
 	bool IsFirstEquip = false;
 	GETTER(bool, IsFirstEquip);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem"
+		, meta = (AllowPrivateAccess = "true"))
+	FNLAbilitySystemInitializationData InitializeData;
+
+	UPROPERTY()
+	UAbilitySystemComponent* AbilitySystemComponent;
 };

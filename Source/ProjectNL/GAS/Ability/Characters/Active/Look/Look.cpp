@@ -6,7 +6,6 @@
 ULook::ULook(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bCancelAbilityOnInputReleased = true;
 }
 
 void ULook::OnTriggeredInputAction(const FInputActionValue& Value)
