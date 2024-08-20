@@ -24,8 +24,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType
+														, FActorComponentTickFunction*
+														ThisTickFunction) override;
+
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = State
 		, meta = (AllowPrivateAccess = "true"))
 	EPlayerCombatWeaponState PlayerCombatWeaponState =
 		EPlayerCombatWeaponState::None;
@@ -45,12 +49,12 @@ private:
 	TSubclassOf<AWeaponBase> SubWeaponTemplate;
 	GETTER(TSubclassOf<AWeaponBase>, SubWeaponTemplate)
 
-	UPROPERTY(BlueprintReadOnly, Category = Weapon
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = Weapon
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AWeaponBase> MainWeapon;
 	GETTER_SETTER(TObjectPtr<AWeaponBase>, MainWeapon)
 
-	UPROPERTY(BlueprintReadOnly, Category = Weapon
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = Weapon
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AWeaponBase> SubWeapon;
 	GETTER_SETTER(TObjectPtr<AWeaponBase>, SubWeapon)

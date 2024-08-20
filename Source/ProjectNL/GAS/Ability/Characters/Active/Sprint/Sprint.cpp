@@ -5,7 +5,6 @@
 USprint::USprint(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bCancelAbilityOnInputReleased = true;
 }
 
 bool USprint::CanActivateAbility(const FGameplayAbilitySpecHandle Handle

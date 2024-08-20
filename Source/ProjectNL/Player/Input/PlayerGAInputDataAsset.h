@@ -5,19 +5,20 @@
 #include "Abilities/GameplayAbility.h"
 #include "PlayerGAInputDataAsset.generated.h"
 
+class UNLAbilitySystemComponent;
 class UInputAction;
 
 USTRUCT()
 struct FGameplayInputAbilityInfo
 {
 	GENERATED_USTRUCT_BODY()
- 
+
 	UPROPERTY(EditAnywhere, Category = "GameplayInputAbilityInfo")
 	TSubclassOf<UGameplayAbility> GameplayAbilityClass;
 
 	UPROPERTY(EditAnywhere, Category = "GameplayInputAbilityInfo")
 	TObjectPtr<UInputAction> InputAction;
- 
+
 	UPROPERTY(VisibleAnywhere, Category = "GameplayInputAbilityInfo")
 	int32 InputID;
 
@@ -25,10 +26,11 @@ struct FGameplayInputAbilityInfo
 	{
 		return GameplayAbilityClass && InputAction;
 	}
- 
+
 	bool operator==(const FGameplayInputAbilityInfo& Other) const
 	{
-		return GameplayAbilityClass == Other.GameplayAbilityClass && InputAction == Other.InputAction;
+		return GameplayAbilityClass == Other.GameplayAbilityClass && InputAction ==
+			Other.InputAction;
 	}
 
 	bool operator!=(const FGameplayInputAbilityInfo& Other) const
@@ -38,7 +40,8 @@ struct FGameplayInputAbilityInfo
 
 	friend uint32 GetTypeHash(const FGameplayInputAbilityInfo& Item)
 	{
-		return HashCombine(GetTypeHash(Item.GameplayAbilityClass), GetTypeHash(Item.InputAction));
+		return HashCombine(GetTypeHash(Item.GameplayAbilityClass)
+											, GetTypeHash(Item.InputAction));
 	}
 };
 
@@ -46,15 +49,17 @@ UCLASS()
 class PROJECTNL_API UPlayerGAInputDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
+
 public:
 	UPlayerGAInputDataAsset(const FObjectInitializer& ObjectInitializer);
 	const TSet<FGameplayInputAbilityInfo>& GetInputAbilities() const;
-	
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "AbilitySystem")
 	TSet<FGameplayInputAbilityInfo> InputAbilities;
 
 #if WITH_EDITOR
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditChangeProperty(
+		FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };

@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "DefaultPlayerController.generated.h"
+#include "PlayerControllerBase.generated.h"
+
 
 UCLASS()
-class PROJECTNL_API ADefaultPlayerController : public APlayerController
+class PROJECTNL_API APlayerControllerBase : public APlayerController
 {
 	GENERATED_BODY()
 
