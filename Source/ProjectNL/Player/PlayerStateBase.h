@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "PlayerStateBase.generated.h"
 
 UCLASS()
@@ -15,7 +16,7 @@ public:
 	APlayerStateBase();
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Ability System")
-	UAbilitySystemComponent* AbilitySystemComponent;
+	UNLAbilitySystemComponent* AbilitySystemComponent;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 };

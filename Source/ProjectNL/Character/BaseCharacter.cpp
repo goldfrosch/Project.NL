@@ -10,8 +10,6 @@
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UNLAbilitySystemComponent>(
-		TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(
 		TEXT("Combat Component"));
 	WidgetsComponent = CreateDefaultSubobject<UWidgetsComponent>(

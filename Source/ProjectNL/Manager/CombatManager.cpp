@@ -67,5 +67,9 @@ TArray<UAnimMontage*> UCombatManager::GetAttackAnimation(
 
 bool UCombatManager::IsCharacterCombat(const UAbilitySystemComponent* Ability)
 {
+	if (!IsValid(Ability))
+	{
+		return false;
+	}
 	return Ability->HasMatchingGameplayTag(NlGameplayTags::Status_Combat);
 }

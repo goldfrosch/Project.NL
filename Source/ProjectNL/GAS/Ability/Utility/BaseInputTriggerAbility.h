@@ -27,6 +27,8 @@ public:
 
 	ETriggerEvent InputReleasedTriggerType = ETriggerEvent::Completed;
 
+	FEnhancedInputActionValueBinding* InputValue;
+
 protected:
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 													, const FGameplayAbilitySpec& Spec) override;
