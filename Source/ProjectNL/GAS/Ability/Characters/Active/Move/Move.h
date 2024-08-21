@@ -13,5 +13,10 @@ public:
 	UMove(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	virtual void OnTriggeredInputAction(const FInputActionValue& Value);
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle
+															, const FGameplayAbilityActorInfo* ActorInfo
+															, const FGameplayAbilityActivationInfo
+															ActivationInfo
+															, const FGameplayEventData*
+															TriggerEventData) override;
 };

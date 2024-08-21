@@ -1,5 +1,6 @@
 ﻿#include "PlayerStateBase.h"
 
+#include "ProjectNL/Character/BaseCharacter.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 
 APlayerStateBase::APlayerStateBase()

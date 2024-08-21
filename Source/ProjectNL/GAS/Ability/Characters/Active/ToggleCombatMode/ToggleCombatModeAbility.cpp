@@ -31,6 +31,12 @@ bool UToggleCombatModeAbility::CanActivateAbility(
 	{
 		return false;
 	}
+
+	if (!IsValid(GetAbilitySystemComponentFromActorInfo()))
+	{
+		UE_LOG(LogTemp, Display, TEXT("테스트으으"));
+		return false;
+	}
 	return FStateHelper::IsPlayerIdle(GetAbilitySystemComponentFromActorInfo());
 }
 

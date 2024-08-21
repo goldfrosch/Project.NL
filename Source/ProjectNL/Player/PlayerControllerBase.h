@@ -11,11 +11,7 @@ class PROJECTNL_API APlayerControllerBase : public APlayerController
 	GENERATED_BODY()
 
 public:
-	virtual void AcknowledgePossession(APawn* P) override;
-
 	virtual void BeginPlay() override;
 
 	virtual void OnPossess(APawn* InPawn) override;
-
-	virtual void OnRep_PlayerState() override;
 };

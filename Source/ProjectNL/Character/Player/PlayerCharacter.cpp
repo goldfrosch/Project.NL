@@ -53,7 +53,7 @@ void APlayerCharacter::OnRep_PlayerState()
 		if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
 			AbilitySystemComponent))
 		{
-			ASC->InitializeAbilitySystem(InitializeData, this, this);
+			ASC->InitializeAbilitySystem(InitializeData, PS, this);
 		}
 	}
 }
@@ -63,11 +63,14 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	AbilitySystemComponent =
 		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState());
+
 	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
 		AbilitySystemComponent))
 	{
 		ASC->InitializeAbilitySystem(InitializeData, this, this);
 	}
+
+	SetOwner(NewController);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -82,6 +85,15 @@ void APlayerCharacter::BeginPlay()
 				PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+
+	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
+	{
+		if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
+			AbilitySystemComponent))
+		{
+			ASC->InitializeAbilitySystem(InitializeData, PS, this);
 		}
 	}
 

@@ -14,7 +14,6 @@ void UBaseInputTriggerAbility::OnAvatarSet(
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
-
 	SetupEnhancedInputBindings(ActorInfo, Spec);
 
 	if (ActivateAbilityOnGranted)
@@ -47,6 +46,8 @@ void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
 									, AbilityInstance->InputPressedTriggerType, AbilityInstance
 									, &ThisClass::HandleInputPressedEvent, ActorInfo
 									, Spec.Handle);
+								InputValue = &EnhancedInputComponent->BindActionValue(
+									ActivationInputAction);
 							}
 
 							if (InputReleasedTriggerType != ETriggerEvent::None)
