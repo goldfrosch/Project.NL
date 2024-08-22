@@ -4,13 +4,17 @@
 #include "AbilitySystemGlobals.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/Helper/StateHelper.h"
+#include "ProjectNL/Manager/CombatManager.h"
+#include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Player/PlayerStateBase.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -100,7 +104,52 @@ void APlayerCharacter::BeginPlay()
 	CombatComponent->UpdateCombatStatus();
 }
 
+void APlayerCharacter::SetupPlayerInputComponent(
+	UInputComponent* PlayerInputComponent)
+{
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<
+		UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered
+																			, this, &ThisClass::MoveTo);
+		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered
+																			, this, &ThisClass::Look);
+	}
+}
+
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	DrawDebugString(GetWorld(), FVector(0, 0, 100)
+									, UCombatManager::IsCharacterCombat(
+											Cast<UAbilitySystemComponent>(AbilitySystemComponent))
+											? TEXT("전투 상태")
+											: TEXT("일반 상태"), this, FColor::White, DeltaTime);
+}
+
+void APlayerCharacter::MoveTo(const FInputActionValue& Value)
+{
+	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))
+	{
+		const FVector2D MovementVector = Value.Get<FVector2D>();
+		UMovementManager::Move(this, MovementVector);
+	}
+}
+
+void APlayerCharacter::Look(const FInputActionValue& Value)
+{
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
+	if (Controller != nullptr)
+	{
+		const float NewPitch = LookAxisVector.Y *
+			UGameplayStatics::GetWorldDeltaSeconds(this) * 60.f;
+		const float NewYaw = LookAxisVector.X *
+			UGameplayStatics::GetWorldDeltaSeconds(this) * 60.f;
+
+		AddControllerYawInput(NewYaw);
+		AddControllerPitchInput(NewPitch);
+	}
 }

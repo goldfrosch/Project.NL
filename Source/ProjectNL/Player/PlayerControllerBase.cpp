@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "PlayerControllerBase.h"
+﻿#include "PlayerControllerBase.h"
 
 #include "PlayerStateBase.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"

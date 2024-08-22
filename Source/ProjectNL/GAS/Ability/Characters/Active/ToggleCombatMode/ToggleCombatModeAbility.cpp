@@ -103,6 +103,11 @@ void UToggleCombatModeAbility::HandleUnEquip()
 		UWeaponManager::UnEquipCharacterWeapon(
 			Cast<ACharacter>(GetAvatarActorFromActorInfo())
 			, CombatComponent->GetSubWeapon(), false);
+		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
+			NlGameplayTags::Status_Combat, 0);
+		FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
+																		, NlGameplayTags::State_Player_UnEquip
+																		, NlGameplayTags::State_Player_Idle);
 	}
 }
 
@@ -118,6 +123,12 @@ void UToggleCombatModeAbility::HandleEquip()
 		UWeaponManager::EquipCharacterWeapon(
 			Cast<ACharacter>(GetAvatarActorFromActorInfo())
 			, CombatComponent->GetSubWeapon(), false);
+
+		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
+			NlGameplayTags::Status_Combat, 1);
+		FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
+																		, NlGameplayTags::State_Player_Equip
+																		, NlGameplayTags::State_Player_Idle);
 	}
 }
 
@@ -128,34 +139,14 @@ void UToggleCombatModeAbility::HandleToggleCombat()
 	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
 																	, NlGameplayTags::State_Player_Idle
 																	, IsCombat
-																			? NlGameplayTags::State_Player_Equip
-																			: NlGameplayTags::State_Player_UnEquip);
+																			? NlGameplayTags::State_Player_UnEquip
+																			: NlGameplayTags::State_Player_Equip);
 }
 
 void UToggleCombatModeAbility::HandleToggleCombatEnd(
 	FGameplayTag EventTag, FGameplayEventData EventData)
 {
-	const bool IsCombat = UCombatManager::IsCharacterCombat(
-		GetAbilitySystemComponentFromActorInfo());
-
-	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
-																	, IsCombat
-																			? NlGameplayTags::State_Player_Equip
-																			: NlGameplayTags::State_Player_UnEquip
-																	, NlGameplayTags::State_Player_Idle);
 	ClearDelegate();
-
-	if (UCombatManager::IsCharacterCombat(
-		GetAbilitySystemComponentFromActorInfo()))
-	{
-		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
-			NlGameplayTags::Status_Combat, 0);
-	}
-	else
-	{
-		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
-			NlGameplayTags::Status_Combat, 1);
-	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);
 }

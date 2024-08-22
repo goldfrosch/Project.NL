@@ -7,7 +7,7 @@ UBaseInputTriggerAbility::UBaseInputTriggerAbility(
 	: Super(ObjectInitializer)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 void UBaseInputTriggerAbility::OnAvatarSet(
@@ -46,8 +46,6 @@ void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
 									, AbilityInstance->InputPressedTriggerType, AbilityInstance
 									, &ThisClass::HandleInputPressedEvent, ActorInfo
 									, Spec.Handle);
-								InputValue = &EnhancedInputComponent->BindActionValue(
-									ActivationInputAction);
 							}
 
 							if (InputReleasedTriggerType != ETriggerEvent::None)
@@ -65,6 +63,12 @@ void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
 		}
 	}
 }
+
+void UBaseInputTriggerAbility::HandleInputTriggerInputEvent(
+	const FInputActionValue& Value)
+{
+}
+
 
 void UBaseInputTriggerAbility::HandleInputPressedEvent(
 	const FGameplayAbilityActorInfo* ActorInfo

@@ -25,7 +25,7 @@ class PROJECTNL_API ABaseCharacter
 public:
 	ABaseCharacter(const class FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly, Category = Combat
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat
 		, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
 
