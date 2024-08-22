@@ -27,8 +27,6 @@ public:
 
 	ETriggerEvent InputReleasedTriggerType = ETriggerEvent::Completed;
 
-	FEnhancedInputActionValueBinding* InputValue;
-
 protected:
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 													, const FGameplayAbilitySpec& Spec) override;
@@ -41,6 +39,8 @@ protected:
 
 	void HandleInputReleasedEvent(const FGameplayAbilityActorInfo* ActorInfo
 																, const FGameplayAbilitySpecHandle SpecHandle);
+
+	virtual void HandleInputTriggerInputEvent(const FInputActionValue& Value);
 
 	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo
 															, const FGameplayAbilitySpec& Spec) override;

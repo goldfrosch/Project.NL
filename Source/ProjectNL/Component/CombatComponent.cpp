@@ -31,11 +31,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType
 																		ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	DrawDebugString(GetWorld(), FVector(0, 0, 100)
-									, FEnumHelper::GetClassEnumKeyAsString(
-										PlayerCombatWeaponState), GetOwner(), FColor::White
-									, DeltaTime);
 }
 
 

@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.4",
+	"EngineAssociation": "{1FAA7A6A-424B-5B63-BE50-C2AB1468ADC3}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -24,6 +24,10 @@
 		},
 		{
 			"Name": "SkeletalMeshModelingTools",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionTrajectory",
 			"Enabled": true
 		}
 	]

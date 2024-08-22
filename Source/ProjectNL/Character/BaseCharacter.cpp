@@ -18,14 +18,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	WidgetsComponent->FixedViewWidget->SetupAttachment(GetCapsuleComponent());
 }
 
-void ABaseCharacter::GetLifetimeReplicatedProps(
-	TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ThisClass, CombatComponent);
-}
-
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
