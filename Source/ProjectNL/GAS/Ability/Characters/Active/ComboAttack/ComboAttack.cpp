@@ -119,8 +119,6 @@ void UComboAttack::HandleComboNotifyStart(const EHandEquipStatus AttackHand)
 			return;
 		}
 		AvatarCharacter->CombatComponent->GetMainWeapon()->SetWeaponDamageable();
-		AvatarCharacter->CombatComponent->GetMainWeapon()->OnNotifiedAttack.
-										AddDynamic(this, &UComboAttack::Damage);
 	}
 
 	if (AttackHand == EHandEquipStatus::Dual || AttackHand ==
@@ -131,8 +129,6 @@ void UComboAttack::HandleComboNotifyStart(const EHandEquipStatus AttackHand)
 			return;
 		}
 		AvatarCharacter->CombatComponent->GetSubWeapon()->SetWeaponDamageable();
-		AvatarCharacter->CombatComponent->GetSubWeapon()->OnNotifiedAttack.
-										AddDynamic(this, &UComboAttack::Damage);
 	}
 }
 
@@ -153,7 +149,6 @@ void UComboAttack::HandleComboNotifyEnd(const EHandEquipStatus AttackHand)
 			return;
 		}
 		AvatarCharacter->CombatComponent->GetMainWeapon()->UnsetWeaponDamageable();
-		AvatarCharacter->CombatComponent->GetMainWeapon()->OnNotifiedAttack.Clear();
 	}
 
 	if (AttackHand == EHandEquipStatus::Dual || AttackHand ==
@@ -164,7 +159,6 @@ void UComboAttack::HandleComboNotifyEnd(const EHandEquipStatus AttackHand)
 			return;
 		}
 		AvatarCharacter->CombatComponent->GetSubWeapon()->UnsetWeaponDamageable();
-		AvatarCharacter->CombatComponent->GetSubWeapon()->OnNotifiedAttack.Clear();
 	}
 }
 
@@ -183,14 +177,6 @@ void UComboAttack::OnCancelled(FGameplayTag EventTag
 	ClearDelegate();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);
-}
-
-void UComboAttack::Damage(UPrimitiveComponent* OverlappedComponent
-													, AActor* OtherActor, UPrimitiveComponent* OtherComp
-													, int32 OtherBodyIndex, bool bFromSweep
-													, const FHitResult& SweepResult)
-{
-	UE_LOG(LogTemp, Display, TEXT("TEST: %d"), OtherBodyIndex);
 }
 
 void UComboAttack::ClearDelegate()

@@ -8,14 +8,6 @@
 
 #include "WeaponBase.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FWeaponAttackNotified
-																						, UPrimitiveComponent*
-																						, OverlappedComponent, AActor*
-																						, OtherActor, UPrimitiveComponent*
-																						, OtherComp, int32, OtherBodyIndex
-																						, bool, bFromSweep
-																						, const FHitResult&, SweepResult);
-
 UCLASS()
 class PROJECTNL_API AWeaponBase : public AActor
 {
@@ -27,18 +19,11 @@ public:
 
 	USkeletalMeshComponent* GetWeaponMesh() const;
 
-	FWeaponAttackNotified OnNotifiedAttack;
-
 	UFUNCTION()
 	void SetWeaponDamageable() const;
 
 	UFUNCTION()
 	void UnsetWeaponDamageable() const;
-
-	UFUNCTION()
-	void GiveDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
-									, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex
-									, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
 	virtual void BeginPlay() override;
