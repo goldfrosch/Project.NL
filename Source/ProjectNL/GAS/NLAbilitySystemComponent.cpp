@@ -1,6 +1,7 @@
 ﻿#include "NLAbilitySystemComponent.h"
 
 #include "NLAbilitySystemInitializationData.h"
+#include "Ability/Utility/BaseInputTriggerAbility.h"
 
 
 UNLAbilitySystemComponent::UNLAbilitySystemComponent()
@@ -35,10 +36,15 @@ void UNLAbilitySystemComponent::InitializeAbilitySystem(
 
 		if (!InitData.GameplayAbilities.IsEmpty())
 		{
-			for (const TSubclassOf<UGameplayAbility> Ability : InitData.
+			for (TSubclassOf<UBaseInputTriggerAbility> Ability : InitData.
 					GameplayAbilities)
 			{
-				GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
+				UBaseInputTriggerAbility* InputAbility = Ability->GetDefaultObject<
+					UBaseInputTriggerAbility>();
+
+				GiveAbility(FGameplayAbilitySpec(
+					Ability, InputAbility->GetAbilityLevel()
+					, static_cast<uint32>(InputAbility->GetInputID()), this));
 			}
 		}
 	}
