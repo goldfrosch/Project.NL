@@ -1,14 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "DoubleJump.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTNL_API UDoubleJump : public UBaseInputTriggerAbility
 {

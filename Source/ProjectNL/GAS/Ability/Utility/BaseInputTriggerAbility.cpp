@@ -5,6 +5,7 @@
 UBaseInputTriggerAbility::UBaseInputTriggerAbility(
 	const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, bCancelAbilityOnInputReleased(false)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
@@ -15,11 +16,6 @@ void UBaseInputTriggerAbility::OnAvatarSet(
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
 	SetupEnhancedInputBindings(ActorInfo, Spec);
-
-	if (ActivateAbilityOnGranted)
-	{
-		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle);
-	}
 }
 
 void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
@@ -39,23 +35,15 @@ void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
 					{
 						if (IsValid(AbilityInstance->ActivationInputAction))
 						{
-							if (InputPressedTriggerType != ETriggerEvent::None)
-							{
-								EnhancedInputComponent->BindAction(
-									AbilityInstance->ActivationInputAction
-									, AbilityInstance->InputPressedTriggerType, AbilityInstance
-									, &ThisClass::HandleInputPressedEvent, ActorInfo
-									, Spec.Handle);
-							}
+							EnhancedInputComponent->BindAction(
+								AbilityInstance->ActivationInputAction, ETriggerEvent::Started
+								, AbilityInstance, &ThisClass::OnAbilityInputPressed
+								, ActorInfo);
 
-							if (InputReleasedTriggerType != ETriggerEvent::None)
-							{
-								EnhancedInputComponent->BindAction(
-									AbilityInstance->ActivationInputAction
-									, AbilityInstance->InputReleasedTriggerType, AbilityInstance
-									, &ThisClass::HandleInputReleasedEvent, ActorInfo
-									, Spec.Handle);
-							}
+							EnhancedInputComponent->BindAction(
+								AbilityInstance->ActivationInputAction, ETriggerEvent::Completed
+								, AbilityInstance, &ThisClass::OnAbilityInputReleased
+								, ActorInfo);
 						}
 					}
 				}
@@ -64,74 +52,80 @@ void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
 	}
 }
 
-void UBaseInputTriggerAbility::HandleInputTriggerInputEvent(
-	const FInputActionValue& Value)
+void UBaseInputTriggerAbility::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayAbilityActivationInfo ActivationInfo
+	, const FGameplayEventData* TriggerEventData)
 {
-}
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	bool bSuccess = false;
 
-void UBaseInputTriggerAbility::HandleInputPressedEvent(
-	const FGameplayAbilityActorInfo* ActorInfo
-	, const FGameplayAbilitySpecHandle SpecHandle)
-{
-	if (FGameplayAbilitySpec* Spec = ActorInfo->AbilitySystemComponent->
-																							FindAbilitySpecFromHandle(
-																								SpecHandle))
+	if (const APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
 	{
-		if (UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->
-			AbilitySystemComponent.Get())
+		if (const AController* PawnController = AvatarPawn->GetController())
 		{
-			Spec->InputPressed = true;
-
-			if (Spec->IsActive())
+			if (UEnhancedInputComponent* EnhancedInputComponent = Cast<
+				UEnhancedInputComponent>(PawnController->InputComponent.Get()))
 			{
-				if (Spec->Ability.Get()->bReplicateInputDirectly && !
-					AbilitySystemComponent->IsOwnerActorAuthoritative())
-				{
-					AbilitySystemComponent->ServerSetInputPressed(
-						Spec->Ability.Get()->GetCurrentAbilitySpecHandle());
-				}
-				AbilitySystemComponent->AbilitySpecInputPressed(*Spec);
-				AbilitySystemComponent->InvokeReplicatedEvent(
-					EAbilityGenericReplicatedEvent::InputPressed, Spec->Handle
-					, Spec->ActivationInfo.GetActivationPredictionKey());
-			}
-			else
-			{
-				AbilitySystemComponent->TryActivateAbility(SpecHandle);
+				const FEnhancedInputActionEventBinding& TriggeredEventBinding =
+					EnhancedInputComponent->BindAction(ActivationInputAction
+																						, ETriggerEvent::Triggered, this
+																						, &
+																						UBaseInputTriggerAbility::OnTriggeredInputAction);
+				TriggeredEventHandle = TriggeredEventBinding.GetHandle();
+				bSuccess = true;
 			}
 		}
 	}
-}
 
-void UBaseInputTriggerAbility::HandleInputReleasedEvent(
-	const FGameplayAbilityActorInfo* ActorInfo
-	, const FGameplayAbilitySpecHandle SpecHandle)
-{
-	if (FGameplayAbilitySpec* Spec = ActorInfo->AbilitySystemComponent->
-																							FindAbilitySpecFromHandle(
-																								SpecHandle))
+	if (bSuccess)
 	{
-		if (UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->
-			AbilitySystemComponent.Get())
-		{
-			Spec->InputPressed = false;
-
-			if (Spec->IsActive())
-			{
-				if (Spec->Ability.Get()->bReplicateInputDirectly && !
-					AbilitySystemComponent->IsOwnerActorAuthoritative())
-				{
-					AbilitySystemComponent->ServerSetInputReleased(SpecHandle);
-				}
-				AbilitySystemComponent->AbilitySpecInputPressed(*Spec);
-				AbilitySystemComponent->InvokeReplicatedEvent(
-					EAbilityGenericReplicatedEvent::InputReleased, SpecHandle
-					, Spec->ActivationInfo.GetActivationPredictionKey());
-			}
-		}
+		CommitAbility(Handle, ActorInfo, ActivationInfo);
+	}
+	else
+	{
+		constexpr bool bReplicateCancelAbility = true;
+		CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 	}
 }
+
+void UBaseInputTriggerAbility::EndAbility(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayAbilityActivationInfo ActivationInfo
+	, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility
+										, bWasCancelled);
+	if (const APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
+	{
+		if (const AController* PawnController = AvatarPawn->GetController())
+		{
+			if (UEnhancedInputComponent* EnhancedInputComponent = Cast<
+				UEnhancedInputComponent>(PawnController->InputComponent.Get()))
+			{
+				EnhancedInputComponent->RemoveBindingByHandle(TriggeredEventHandle);
+			}
+		}
+		TriggeredEventHandle = -1;
+	}
+}
+
+void UBaseInputTriggerAbility::InputReleased(
+	const FGameplayAbilitySpecHandle Handle
+	, const FGameplayAbilityActorInfo* ActorInfo
+	, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+
+	if (bCancelAbilityOnInputReleased)
+	{
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+	}
+}
+
 
 void UBaseInputTriggerAbility::OnRemoveAbility(
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -153,3 +147,25 @@ void UBaseInputTriggerAbility::OnRemoveAbility(
 
 	Super::OnRemoveAbility(ActorInfo, Spec);
 }
+
+void UBaseInputTriggerAbility::OnAbilityInputPressed(
+	const FGameplayAbilityActorInfo* ActorInfo)
+{
+	if (const ABaseCharacter* Owner = Cast<
+		ABaseCharacter>(ActorInfo->AvatarActor))
+	{
+		Owner->AbilitySystemComponent->AbilityLocalInputPressed(
+			static_cast<uint32>(InputID));
+	}
+}
+
+void UBaseInputTriggerAbility::OnAbilityInputReleased(
+	const FGameplayAbilityActorInfo* ActorInfo)
+{
+	if (const ABaseCharacter* Owner = Cast<
+		ABaseCharacter>(ActorInfo->AvatarActor))
+	{
+		Owner->AbilitySystemComponent->AbilityLocalInputReleased(
+			static_cast<uint32>(InputID));
+	}
+};

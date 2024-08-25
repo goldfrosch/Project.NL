@@ -5,8 +5,8 @@
 #include "GameplayTagContainer.h"
 #include "NLAbilitySystemInitializationData.generated.h"
 
+class UBaseInputTriggerAbility;
 class UAttributeSet;
-class UGameplayAbility;
 class UGameplayEffect;
 
 USTRUCT(BlueprintType)
@@ -24,7 +24,7 @@ struct FNLAbilitySystemInitializationData
 
 	// An Array of Gameplay Abilities to give.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<TSubclassOf<UGameplayAbility>> GameplayAbilities;
+	TArray<TSubclassOf<UBaseInputTriggerAbility>> GameplayAbilities;
 
 	// An array of Gameplay Effects to apply.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
