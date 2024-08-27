@@ -5,7 +5,7 @@
 UBaseInputTriggerAbility::UBaseInputTriggerAbility(
 	const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, bCancelAbilityOnInputReleased(false)
+	, bActivateAbilityInputTrigger(false)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
@@ -36,14 +36,12 @@ void UBaseInputTriggerAbility::SetupEnhancedInputBindings(
 						if (IsValid(AbilityInstance->ActivationInputAction))
 						{
 							EnhancedInputComponent->BindAction(
-								AbilityInstance->ActivationInputAction, ETriggerEvent::Started
-								, AbilityInstance, &ThisClass::OnAbilityInputPressed
-								, ActorInfo);
+								ActivationInputAction, ETriggerEvent::Started, AbilityInstance
+								, &ThisClass::OnAbilityInputPressed, ActorInfo);
 
 							EnhancedInputComponent->BindAction(
-								AbilityInstance->ActivationInputAction, ETriggerEvent::Completed
-								, AbilityInstance, &ThisClass::OnAbilityInputReleased
-								, ActorInfo);
+								ActivationInputAction, ETriggerEvent::Completed, AbilityInstance
+								, &ThisClass::OnAbilityInputReleased, ActorInfo);
 						}
 					}
 				}
@@ -60,8 +58,6 @@ void UBaseInputTriggerAbility::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	bool bSuccess = false;
-
 	if (const APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
 	{
 		if (const AController* PawnController = AvatarPawn->GetController())
@@ -75,20 +71,14 @@ void UBaseInputTriggerAbility::ActivateAbility(
 																						, &
 																						UBaseInputTriggerAbility::OnTriggeredInputAction);
 				TriggeredEventHandle = TriggeredEventBinding.GetHandle();
-				bSuccess = true;
+				CommitAbility(Handle, ActorInfo, ActivationInfo);
+				return;
 			}
 		}
 	}
 
-	if (bSuccess)
-	{
-		CommitAbility(Handle, ActorInfo, ActivationInfo);
-	}
-	else
-	{
-		constexpr bool bReplicateCancelAbility = true;
-		CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
-	}
+	constexpr bool bReplicateCancelAbility = true;
+	CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UBaseInputTriggerAbility::EndAbility(
@@ -120,7 +110,7 @@ void UBaseInputTriggerAbility::InputReleased(
 {
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 
-	if (bCancelAbilityOnInputReleased)
+	if (bActivateAbilityInputTrigger)
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
@@ -169,3 +159,8 @@ void UBaseInputTriggerAbility::OnAbilityInputReleased(
 			static_cast<uint32>(InputID));
 	}
 };
+
+void UBaseInputTriggerAbility::OnTriggeredInputAction(
+	const FInputActionValue& Value)
+{
+}
