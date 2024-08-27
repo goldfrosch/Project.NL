@@ -5,6 +5,7 @@
 USprint::USprint(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	bActivateAbilityInputTrigger = true;
 }
 
 bool USprint::CanActivateAbility(const FGameplayAbilitySpecHandle Handle
@@ -23,12 +24,11 @@ const
 	return true;
 }
 
-void USprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle
-															, const FGameplayAbilityActorInfo* ActorInfo
-															, const FGameplayAbilityActivationInfo
-															ActivationInfo
-															, const FGameplayEventData* TriggerEventData)
+// TODO: Release될때만 실행되는 이슈 수정
+void USprint::OnTriggeredInputAction(const FInputActionValue& Value)
 {
+	Super::OnTriggeredInputAction(Value);
+
 	if (BuffEffect)
 	{
 		EffectContext = GetAbilitySystemComponentFromActorInfo()->
@@ -44,6 +44,7 @@ void USprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		}
 	}
 }
+
 
 void USprint::CancelAbility(const FGameplayAbilitySpecHandle Handle
 														, const FGameplayAbilityActorInfo* ActorInfo

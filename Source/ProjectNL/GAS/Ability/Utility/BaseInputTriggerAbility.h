@@ -13,7 +13,6 @@ UCLASS()
 class PROJECTNL_API UBaseInputTriggerAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-	bool bCancelAbilityOnInputReleased;
 
 public:
 	UBaseInputTriggerAbility(const FObjectInitializer& ObjectInitializer);
@@ -26,6 +25,9 @@ public:
 	UInputAction* ActivationInputAction = nullptr;
 
 	GETTER(EInputIDType, InputID)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bActivateAbilityInputTrigger;
 
 protected:
 	uint32 TriggeredEventHandle = -1;
@@ -53,10 +55,7 @@ protected:
 													, bool bWasCancelled) override;
 
 
-	FORCEINLINE virtual void OnTriggeredInputAction(
-		const FInputActionValue& Value)
-	{
-	}
+	virtual void OnTriggeredInputAction(const FInputActionValue& Value);
 
 private:
 	// InputID가 -1인 경우 InputID를 할당받지 않은 상태라고 인지함
