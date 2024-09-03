@@ -117,19 +117,6 @@ void APlayerCharacter::SetupPlayerInputComponent(
 	}
 }
 
-
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-
-	DrawDebugString(GetWorld(), FVector(0, 0, 100)
-									, UCombatManager::IsCharacterCombat(
-											Cast<UAbilitySystemComponent>(AbilitySystemComponent))
-											? TEXT("전투 상태")
-											: TEXT("일반 상태"), this, FColor::White, DeltaTime);
-}
-
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
 	if (FStateHelper::IsPlayerIdle(GetAbilitySystemComponent()))

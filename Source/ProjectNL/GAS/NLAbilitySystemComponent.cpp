@@ -34,6 +34,19 @@ void UNLAbilitySystemComponent::InitializeAbilitySystem(
 			}
 		}
 
+		if (!InitData.AttributeBaseValues.IsEmpty())
+		{
+			for (const TTuple<FGameplayAttribute, float> AttributeBaseValue : InitData
+					.AttributeBaseValues)
+			{
+				if (HasAttributeSetForAttribute(AttributeBaseValue.Key))
+				{
+					SetNumericAttributeBase(AttributeBaseValue.Key
+																	, AttributeBaseValue.Value);
+				}
+			}
+		}
+
 		if (!InitData.GameplayAbilities.IsEmpty())
 		{
 			for (TSubclassOf<UBaseInputTriggerAbility> Ability : InitData.

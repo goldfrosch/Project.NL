@@ -71,3 +71,13 @@ void ABaseCharacter::InitCharacterWeapon()
 																					, false);
 	}
 }
+
+float ABaseCharacter::TakeDamage(float DamageAmount
+																, const FDamageEvent& DamageEvent
+																, AController* EventInstigator
+																, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Display, TEXT("%s 's Test Damaged Result : %f"), *GetName()
+				, DamageAmount);
+	return DamageAmount;
+}

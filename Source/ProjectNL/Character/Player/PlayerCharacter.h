@@ -16,7 +16,6 @@ class PROJECTNL_API APlayerCharacter : public ABaseCharacter
 
 public:
 	APlayerCharacter(const FObjectInitializer& ObjectInitializer);
-	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action
 		, meta = (AllowPrivateAccess = "true"))
