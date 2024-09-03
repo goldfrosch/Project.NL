@@ -48,6 +48,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent
+													, AController* EventInstigator
+													, AActor* DamageCauser) override;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"
 		, meta = (AllowPrivateAccess = "true"))

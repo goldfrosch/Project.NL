@@ -187,3 +187,17 @@ void UComboAttack::ClearDelegate()
 		ComboAttackNotifyState->OnNotifiedEnd.RemoveAll(this);
 	}
 }
+
+void UComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handle
+															, const FGameplayAbilityActorInfo* ActorInfo
+															, const FGameplayAbilityActivationInfo
+															ActivationInfo, bool bReplicateEndAbility
+															, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility
+										, bWasCancelled);
+
+	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
+																	, NlGameplayTags::State_Player_Attack
+																	, NlGameplayTags::State_Player_Idle);
+}

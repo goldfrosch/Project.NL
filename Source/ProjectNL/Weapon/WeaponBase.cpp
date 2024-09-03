@@ -1,26 +1,27 @@
 ﻿#include "WeaponBase.h"
 
+#include "Kismet/GameplayStatics.h"
+
 AWeaponBase::AWeaponBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Dummy"));
+
 	WeaponSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(
 		TEXT("Weapon Bone"));
-	RootComponent = WeaponSkeleton;
+	WeaponSkeleton->SetupAttachment(RootComponent);
 
 	WeaponCollisionComp = CreateDefaultSubobject<UCapsuleComponent>(
 		TEXT("Weapon Capsule"));
-
-	WeaponCollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	WeaponCollisionComp->SetCollisionObjectType(ECC_WorldDynamic);
-	WeaponCollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	// TODO: ECC_Pawn -> Custom ECC로 전환
-	WeaponCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	WeaponCollisionComp->SetupAttachment(WeaponSkeleton);
 }
 
 void AWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+	WeaponCollisionComp->OnComponentBeginOverlap.AddDynamic(
+		this, &ThisClass::OnBeginOverlap);
 }
 
 void AWeaponBase::Tick(float DeltaTime)
@@ -36,8 +37,26 @@ void AWeaponBase::SetWeaponDamageable() const
 
 void AWeaponBase::UnsetWeaponDamageable() const
 {
-	WeaponCollisionComp->
-		SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	WeaponCollisionComp->SetCollisionEnabled(
+		ECollisionEnabled::Type::NoCollision);
+}
+
+void AWeaponBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent
+																, AActor* OtherActor
+																, UPrimitiveComponent* OtherComp
+																, int32 OtherBodyIndex, bool bFromSweep
+																, const FHitResult& SweepResult)
+{
+	if (GetAttachParentActor())
+	{
+		if (GetAttachParentActor() != OtherActor)
+		{
+			UGameplayStatics::ApplyDamage(OtherActor, 20
+																		, GetAttachParentActor()->
+																		GetInstigatorController(), this
+																		, UDamageType::StaticClass());
+		}
+	}
 }
 
 
