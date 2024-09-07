@@ -49,6 +49,51 @@ UAnimMontage* UCombatManager::GetDoubleJumpAnimation(
 	return nullptr;
 }
 
+UAnimMontage* UCombatManager::GetDamagedAnimation(
+	const FDataTableRowHandle CombatDT, FVector DamagedActorVector
+	, FRotator DamagedActorRotator)
+{
+	EDamagedHeight Height = EDamagedHeight::Middle;
+	EDamagedDirection Direction = EDamagedDirection::Front;
+	// 임의로 높이 50 이상이 되는 경우 높게 설정함
+	// 추후 Actor 자체의 높이를 가져와서 처리하는 것이 가장 나아보임
+	if (DamagedActorVector.Z > 30)
+	{
+		Height = EDamagedHeight::High;
+	}
+	else if (DamagedActorVector.Z < -30)
+	{
+		Height = EDamagedHeight::Low;
+	}
+
+	if (DamagedActorRotator.Yaw > 45 && DamagedActorRotator.Yaw <= 135)
+	{
+		Direction = EDamagedDirection::Right;
+	}
+	else if (DamagedActorRotator.Yaw >= -135 && DamagedActorRotator.Yaw < -45)
+	{
+		Direction = EDamagedDirection::Left;
+	}
+	else if ((DamagedActorRotator.Yaw > 135 && DamagedActorRotator.Yaw <= 180) ||
+		(DamagedActorRotator.Yaw >= -180 && DamagedActorRotator.Yaw < -135))
+	{
+		Direction = EDamagedDirection::Back;
+	}
+
+	const FString AnimTitle = "Damage" +
+		FEnumHelper::GetClassEnumKeyAsString(Height) +
+		FEnumHelper::GetClassEnumKeyAsString(Direction);
+
+	if (const FCombatAnimationData* AnimData = CombatDT.DataTable->FindRow<
+		FCombatAnimationData>(*AnimTitle, ""))
+	{
+		return AnimData->AnimGroup.Top();
+	}
+
+	return nullptr;
+}
+
+
 TArray<UAnimMontage*> UCombatManager::GetAttackAnimation(
 	const FDataTableRowHandle CombatDT
 	, const EPlayerCombatWeaponState CurrentEquipStatus)

@@ -10,6 +10,7 @@
 #include "ProjectNL/Helper/UtilHelper.h"
 #include "BaseCharacter.generated.h"
 
+class UDamagedComponent;
 class AWeaponBase;
 class UCombatComponent;
 class UWidgetsComponent;
@@ -32,6 +33,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget
 		, meta = (AllowPrivateAccess = "true"))
 	UWidgetsComponent* WidgetsComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat
+		, meta = (AllowPrivateAccess = "true"))
+	UDamagedComponent* DamagedComponent;
 
 	virtual void Tick(float DeltaTime) override;
 

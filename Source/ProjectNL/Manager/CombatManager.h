@@ -30,6 +30,11 @@ public:
 																							CurrentEquipStatus);
 
 	UFUNCTION()
+	static UAnimMontage* GetDamagedAnimation(const FDataTableRowHandle CombatDT
+																					, FVector DamagedActorVector
+																					, FRotator DamagedActorRotator);
+
+	UFUNCTION()
 	static TArray<UAnimMontage*> GetAttackAnimation(
 		const FDataTableRowHandle CombatDT
 		, const EPlayerCombatWeaponState CurrentEquipStatus);

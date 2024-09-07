@@ -1,10 +1,9 @@
 ﻿#include "BaseCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Components/WidgetComponent.h"
-#include "Net/UnrealNetwork.h"
 #include "ProjectNL/Component/CombatComponent.h"
+#include "ProjectNL/Component/DamagedComponent.h"
 #include "ProjectNL/Component/WidgetsComponent.h"
-#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
 #include "ProjectNL/Manager/WeaponManager.h"
 
@@ -14,6 +13,8 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 		TEXT("Combat Component"));
 	WidgetsComponent = CreateDefaultSubobject<UWidgetsComponent>(
 		TEXT("Widgets Component"));
+	DamagedComponent = CreateDefaultSubobject<UDamagedComponent>(
+		TEXT("Damaged Component"));
 
 	WidgetsComponent->FixedViewWidget->SetupAttachment(GetCapsuleComponent());
 }
@@ -77,7 +78,7 @@ float ABaseCharacter::TakeDamage(float DamageAmount
 																, AController* EventInstigator
 																, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Display, TEXT("%s 's Test Damaged Result : %f"), *GetName()
-				, DamageAmount);
+	DamagedComponent->HandleDamaged(DamageCauser);
+
 	return DamageAmount;
 }
