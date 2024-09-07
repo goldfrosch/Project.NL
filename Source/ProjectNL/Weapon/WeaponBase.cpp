@@ -15,6 +15,28 @@ AWeaponBase::AWeaponBase()
 	WeaponCollisionComp = CreateDefaultSubobject<UCapsuleComponent>(
 		TEXT("Weapon Capsule"));
 	WeaponCollisionComp->SetupAttachment(WeaponSkeleton);
+
+
+	WeaponCollisionComp->SetCollisionEnabled(
+		ECollisionEnabled::Type::NoCollision);
+
+	WeaponCollisionComp->SetCollisionObjectType(ECC_WorldDynamic);
+	WeaponCollisionComp->SetGenerateOverlapEvents(true);
+
+	WeaponCollisionComp->
+		SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	WeaponCollisionComp->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	WeaponCollisionComp->SetCollisionResponseToChannel(
+		ECC_WorldStatic, ECR_Overlap);
+	WeaponCollisionComp->SetCollisionResponseToChannel(
+		ECC_WorldDynamic, ECR_Overlap);
+	WeaponCollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	WeaponCollisionComp->SetCollisionResponseToChannel(
+		ECC_PhysicsBody, ECR_Overlap);
+	WeaponCollisionComp->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Overlap);
+	WeaponCollisionComp->SetCollisionResponseToChannel(
+		ECC_Destructible, ECR_Overlap);
 }
 
 void AWeaponBase::BeginPlay()

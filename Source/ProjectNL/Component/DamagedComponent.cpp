@@ -43,7 +43,8 @@ void UDamagedComponent::HandleDamaged(AActor* DamageCauser)
 	}
 
 	Owner->GetWorldTimerManager().SetTimer(HitTimerHandle, this
-																				, &ThisClass::HandleHitEnd, 1.5, false);
+																				, &ThisClass::HandleHitEnd, 0.25
+																				, false);
 }
 
 void UDamagedComponent::HandleHitEnd()
