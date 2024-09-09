@@ -6,6 +6,8 @@
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "PlayerStateBase.generated.h"
 
+class UPlayerAttributeSet;
+
 UCLASS()
 class PROJECTNL_API APlayerStateBase
 	: public APlayerState, public IAbilitySystemInterface
@@ -19,4 +21,10 @@ public:
 	UNLAbilitySystemComponent* AbilitySystemComponent;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	void MovementSpeedChanged(const FOnAttributeChangeData& Data);
 };

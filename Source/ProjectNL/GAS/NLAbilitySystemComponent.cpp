@@ -30,7 +30,7 @@ void UNLAbilitySystemComponent::InitializeAbilitySystem(
 			for (const TSubclassOf<UAttributeSet> AttributeSetClass : InitData.
 					AttributeSets)
 			{
-				GetOrCreateAttributeSubobject(AttributeSetClass);
+				AttributeSet = GetOrCreateAttributeSubobject(AttributeSetClass);
 			}
 		}
 
