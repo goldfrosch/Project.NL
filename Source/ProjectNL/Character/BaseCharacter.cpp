@@ -1,9 +1,12 @@
 ﻿#include "BaseCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/DamagedComponent.h"
 #include "ProjectNL/Component/WidgetsComponent.h"
+#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
+#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
 #include "ProjectNL/Manager/WeaponManager.h"
 
@@ -23,6 +26,18 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	InitCharacterWeapon();
+	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
+		AbilitySystemComponent))
+	{
+		ASC->InitializeAbilitySystem(InitializeData, this, this);
+
+		// Attribute Set에 따른 기본 Character 옵션 값 설정
+		if (const UBasicAttributeSet* AttributeSet = Cast<UBasicAttributeSet>(
+			ASC->AttributeSet))
+		{
+			GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetMovementSpeed();
+		}
+	}
 }
 
 void ABaseCharacter::Tick(float DeltaTime)

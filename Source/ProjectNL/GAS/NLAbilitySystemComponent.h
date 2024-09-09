@@ -23,6 +23,9 @@ public:
 		const FNLAbilitySystemInitializationData& InitData, AActor* InOwningActor
 		, AActor* InAvatarActor);
 
+	UPROPERTY()
+	const UAttributeSet* AttributeSet;
+
 private:
 	bool bAbilitySystemInitialized = false;
 	GETTER_SETTER(bool, bAbilitySystemInitialized)
