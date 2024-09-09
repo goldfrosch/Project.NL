@@ -1,49 +1,6 @@
 ﻿#include "WeaponManager.h"
 
-#include "GameFramework/Character.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
-
-void UWeaponManager::EquipCharacterWeapon(const ACharacter* Character
-																					, AWeaponBase* Weapon
-																					, const bool IsMain)
-{
-	if (!IsValid(Character) || !IsValid(Weapon))
-	{
-		return;
-	}
-
-	Weapon->AttachToComponent(Character->GetMesh()
-														, FAttachmentTransformRules::SnapToTargetIncludingScale
-														, IsMain ? "weapon_r" : "weapon_l");
-}
-
-void UWeaponManager::UnEquipCharacterWeapon(const ACharacter* Character
-																						, AWeaponBase* Weapon
-																						, const bool IsMain)
-{
-	if (!IsValid(Character) || !IsValid(Weapon))
-	{
-		return;
-	}
-
-	Weapon->AttachToComponent(Character->GetMesh()
-														, FAttachmentTransformRules::SnapToTargetIncludingScale
-														, IsMain ? "weapon_back_r" : "weapon_back_l");
-}
-
-void UWeaponManager::StartEquipCharacterWeapon(AWeaponBase* Weapon)
-{
-	if (Weapon)
-	{
-		const FRotator CurrentRotator = Weapon->GetWeaponMesh()->
-																						GetRelativeRotation();
-		const FRotator NewRotator = FRotator(CurrentRotator.Pitch
-																				, CurrentRotator.Yaw
-																				, 180 - CurrentRotator.Roll);
-
-		Weapon->GetWeaponMesh()->SetRelativeRotation(NewRotator);
-	}
-}
 
 EHandEquipStatus UWeaponManager::GetCharacterEquipStatus(
 	AWeaponBase* MainWeapon, AWeaponBase* SubWeapon)

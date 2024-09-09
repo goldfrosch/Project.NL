@@ -116,3 +116,8 @@ enum class EDamagedDirection: uint8
 {
 	Front UMETA(DisplayName = "Front"), Back UMETA(DisplayName = "Back")
 	, Left UMETA(DisplayName = "Left"), Right UMETA(DisplayName = "Right")};
+
+UENUM(BlueprintType)
+enum class EWeaponAttachPosition: uint8
+{
+	Back UMETA(DisplayName = "Back"), WaistBack UMETA(DisplayName ="WaistBack")};

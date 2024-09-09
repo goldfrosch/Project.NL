@@ -97,12 +97,14 @@ void UToggleCombatModeAbility::HandleUnEquip()
 		GetAvatarActorFromActorInfo()))
 	{
 		UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
-		UWeaponManager::UnEquipCharacterWeapon(
-			Cast<ACharacter>(GetAvatarActorFromActorInfo())
-			, CombatComponent->GetMainWeapon(), true);
-		UWeaponManager::UnEquipCharacterWeapon(
-			Cast<ACharacter>(GetAvatarActorFromActorInfo())
-			, CombatComponent->GetSubWeapon(), false);
+		if (IsValid(CombatComponent->GetMainWeapon()))
+		{
+			CombatComponent->GetMainWeapon()->UnEquipCharacterWeapon(true);
+		}
+		if (IsValid(CombatComponent->GetSubWeapon()))
+		{
+			CombatComponent->GetSubWeapon()->UnEquipCharacterWeapon(false);
+		}
 		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
 			NlGameplayTags::Status_Combat, 0);
 		FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
@@ -117,12 +119,16 @@ void UToggleCombatModeAbility::HandleEquip()
 		GetAvatarActorFromActorInfo()))
 	{
 		UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
-		UWeaponManager::EquipCharacterWeapon(
-			Cast<ACharacter>(GetAvatarActorFromActorInfo())
-			, CombatComponent->GetMainWeapon(), true);
-		UWeaponManager::EquipCharacterWeapon(
-			Cast<ACharacter>(GetAvatarActorFromActorInfo())
-			, CombatComponent->GetSubWeapon(), false);
+		if (IsValid(CombatComponent->GetMainWeapon()))
+		{
+			CombatComponent->GetMainWeapon()->EquipCharacterWeapon(
+				Cast<ACharacter>(GetAvatarActorFromActorInfo()), true);
+		}
+		if (IsValid(CombatComponent->GetSubWeapon()))
+		{
+			CombatComponent->GetSubWeapon()->EquipCharacterWeapon(
+				Cast<ACharacter>(GetAvatarActorFromActorInfo()), false);
+		}
 
 		GetAbilitySystemComponentFromActorInfo()->SetLooseGameplayTagCount(
 			NlGameplayTags::Status_Combat, 1);
