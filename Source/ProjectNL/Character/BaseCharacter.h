@@ -14,7 +14,6 @@ class UDamagedComponent;
 class AWeaponBase;
 class UCombatComponent;
 class UWidgetsComponent;
-class UBasicAttributeSet;
 enum class EEntityCategory : uint8;
 
 UCLASS()
