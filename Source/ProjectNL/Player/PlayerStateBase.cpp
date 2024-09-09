@@ -43,7 +43,6 @@ void APlayerStateBase::MovementSpeedChanged(const FOnAttributeChangeData& Data)
 
 	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetPawn()))
 	{
-		UE_LOG(LogTemp, Display, TEXT("테스트 Value: %f"), MovementSpeed);
 		Player->GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 	}
 }

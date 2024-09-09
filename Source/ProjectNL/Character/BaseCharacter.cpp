@@ -70,21 +70,25 @@ void ABaseCharacter::InitCharacterWeapon()
 
 	if (GetIsFirstEquip())
 	{
-		UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
-																				, CombatComponent->GetMainWeapon()
-																				, true);
-		UWeaponManager::EquipCharacterWeapon(Cast<ACharacter>(this)
-																				, CombatComponent->GetSubWeapon()
-																				, false);
+		if (IsValid(CombatComponent->GetMainWeapon()))
+		{
+			CombatComponent->GetMainWeapon()->EquipCharacterWeapon(this, true);
+		}
+		if (IsValid(CombatComponent->GetSubWeapon()))
+		{
+			CombatComponent->GetSubWeapon()->EquipCharacterWeapon(this, false);
+		}
 	}
 	else
 	{
-		UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
-																					, CombatComponent->GetMainWeapon()
-																					, true);
-		UWeaponManager::UnEquipCharacterWeapon(Cast<ACharacter>(this)
-																					, CombatComponent->GetSubWeapon()
-																					, false);
+		if (IsValid(CombatComponent->GetMainWeapon()))
+		{
+			CombatComponent->GetMainWeapon()->UnEquipCharacterWeapon(this, true);
+		}
+		if (IsValid(CombatComponent->GetSubWeapon()))
+		{
+			CombatComponent->GetSubWeapon()->UnEquipCharacterWeapon(this, false);
+		}
 	}
 }
 

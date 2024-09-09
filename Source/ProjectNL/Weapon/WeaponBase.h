@@ -25,6 +25,16 @@ public:
 	UFUNCTION()
 	void UnsetWeaponDamageable() const;
 
+	UFUNCTION()
+	void UnEquipCharacterWeapon(const bool IsMain);
+	void UnEquipCharacterWeapon(ACharacter* Character, const bool IsMain);
+
+	UFUNCTION()
+	void EquipCharacterWeapon(ACharacter* Character, const bool IsMain);
+
+	GETTER(EUWeaponType, WeaponType)
+	GETTER(EWeaponAttachPosition, AttachPosition)
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -44,7 +54,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Assets
 		, meta = (AllowPrivateAccess = "true"))
 	EUWeaponType WeaponType;
-	GETTER(EUWeaponType, WeaponType)
 
 private:
 	UFUNCTION()
@@ -52,4 +61,8 @@ private:
 											, AActor* OtherActor, UPrimitiveComponent* OtherComp
 											, int32 OtherBodyIndex, bool bFromSweep
 											, const FHitResult& SweepResult);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Assets
+		, meta = (AllowPrivateAccess = "true"))
+	EWeaponAttachPosition AttachPosition = EWeaponAttachPosition::Back;
 };

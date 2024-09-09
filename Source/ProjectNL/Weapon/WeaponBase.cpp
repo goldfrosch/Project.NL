@@ -1,6 +1,7 @@
 ﻿#include "WeaponBase.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "ProjectNL/Character/BaseCharacter.h"
 
 AWeaponBase::AWeaponBase()
 {
@@ -85,4 +86,37 @@ void AWeaponBase::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent
 USkeletalMeshComponent* AWeaponBase::GetWeaponMesh() const
 {
 	return WeaponSkeleton;
+}
+
+void AWeaponBase::EquipCharacterWeapon(ACharacter* Character, const bool IsMain)
+{
+	AttachToComponent(Character->GetMesh()
+										, FAttachmentTransformRules::SnapToTargetIncludingScale
+										, IsMain ? "weapon_r" : "weapon_l");
+}
+
+void AWeaponBase::UnEquipCharacterWeapon(const bool IsMain)
+{
+	if (const ACharacter* Character = Cast<ACharacter>(GetAttachParentActor()))
+	{
+		const FString Position = IsMain ? "_r" : "_l";
+		const FString AttachSocket = "weapon_" +
+			FEnumHelper::GetClassEnumKeyAsString(GetAttachPosition()).ToLower();
+
+		AttachToComponent(Character->GetMesh()
+											, FAttachmentTransformRules::SnapToTargetIncludingScale
+											, *(AttachSocket + Position));
+	}
+}
+
+void AWeaponBase::UnEquipCharacterWeapon(ACharacter* Character
+																				, const bool IsMain)
+{
+	const FString Position = IsMain ? "_r" : "_l";
+	const FString AttachSocket = "weapon_" + FEnumHelper::GetClassEnumKeyAsString(
+		GetAttachPosition()).ToLower();
+
+	AttachToComponent(Character->GetMesh()
+										, FAttachmentTransformRules::SnapToTargetIncludingScale
+										, *(AttachSocket + Position));
 }
