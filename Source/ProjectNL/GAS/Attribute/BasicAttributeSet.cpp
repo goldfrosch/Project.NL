@@ -64,6 +64,8 @@ void UBasicAttributeSet::GetLifetimeReplicatedProps(
 																, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, Level, COND_None
 																, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, MovementSpeed, COND_None
+																, REPNOTIFY_Always);
 }
 
 void UBasicAttributeSet::InitBaseAttribute()
