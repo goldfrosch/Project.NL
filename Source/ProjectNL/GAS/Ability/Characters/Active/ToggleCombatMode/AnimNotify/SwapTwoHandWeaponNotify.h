@@ -2,17 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "GrabWeaponNotify.generated.h"
+#include "SwapTwoHandWeaponNotify.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGrabWeaponNotifiedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwapWeaponNotifiedSignature);
 
 UCLASS()
-class PROJECTNL_API UGrabWeaponNotify : public UAnimNotify
+class PROJECTNL_API USwapTwoHandWeaponNotify : public UAnimNotify
 {
 	GENERATED_BODY()
 
 public:
-	FOnGrabWeaponNotifiedSignature OnNotified;
+	FOnSwapWeaponNotifiedSignature OnNotified;
 
 	virtual void Notify(USkeletalMeshComponent* MeshComp
 											, UAnimSequenceBase* Animation

@@ -106,7 +106,7 @@ public:
 		}
 
 		// 3. MainWeapon이 두손 대검의 경우
-		if (MainWeapon->GetWeaponType() == EUWeaponType::Sword && MainWeapon->
+		if (MainWeapon->GetWeaponType() == EUWeaponType::GreatSword && MainWeapon->
 			GetEquippedHandType() == EUEquippedHandType::TwoHand)
 		{
 			return EPlayerCombatWeaponState::TwoHandGreatSword;

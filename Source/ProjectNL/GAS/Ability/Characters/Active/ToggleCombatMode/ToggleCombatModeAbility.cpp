@@ -8,9 +8,9 @@
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Manager/CombatManager.h"
-#include "ProjectNL/Manager/WeaponManager.h"
 #include "AnimNotify/GrabWeaponNotify.h"
 #include "AnimNotify/PutWeaponNotify.h"
+#include "AnimNotify/SwapTwoHandWeaponNotify.h"
 
 UToggleCombatModeAbility::UToggleCombatModeAbility(
 	const FObjectInitializer& ObjectInitializer)
@@ -62,8 +62,7 @@ void UToggleCombatModeAbility::ActivateAbility(
 				GetCurrentMontage());
 			if (IsValid(PutWeaponNotify))
 			{
-				PutWeaponNotify->OnNotified.AddDynamic(
-					this, &UToggleCombatModeAbility::HandleUnEquip);
+				PutWeaponNotify->OnNotified.AddDynamic(this, &ThisClass::HandleUnEquip);
 			}
 		}
 		else
@@ -74,18 +73,23 @@ void UToggleCombatModeAbility::ActivateAbility(
 				UGrabWeaponNotify>(GetCurrentMontage());
 			if (IsValid(GrabWeaponNotify))
 			{
-				GrabWeaponNotify->OnNotified.AddDynamic(
-					this, &UToggleCombatModeAbility::HandleEquip);
+				GrabWeaponNotify->OnNotified.AddDynamic(this, &ThisClass::HandleEquip);
+			}
+
+			SwapTwoHandWeaponNotify = UAnimNotifyManager::FindNotifyByClass<
+				USwapTwoHandWeaponNotify>(GetCurrentMontage());
+			if (IsValid(SwapTwoHandWeaponNotify))
+			{
+				SwapTwoHandWeaponNotify->OnNotified.AddDynamic(
+					this, &ThisClass::HandleSwapTwoHandWeapon);
 			}
 		}
 
 		UPlayMontageWithEvent* Task = UPlayMontageWithEvent::InitialEvent(
 			this, NAME_None, GetCurrentMontage(), FGameplayTagContainer());
 
-		Task->OnCompleted.AddDynamic(
-			this, &UToggleCombatModeAbility::HandleToggleCombatEnd);
-		Task->OnCancelled.AddDynamic(
-			this, &UToggleCombatModeAbility::HandleCancelAbilityTask);
+		Task->OnCompleted.AddDynamic(this, &ThisClass::HandleToggleCombatEnd);
+		Task->OnCancelled.AddDynamic(this, &ThisClass::HandleCancelAbilityTask);
 
 		Task->ReadyForActivation();
 	}
@@ -137,6 +141,20 @@ void UToggleCombatModeAbility::HandleEquip()
 																		, NlGameplayTags::State_Player_Idle);
 	}
 }
+
+void UToggleCombatModeAbility::HandleSwapTwoHandWeapon()
+{
+	if (const ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(
+		GetAvatarActorFromActorInfo()))
+	{
+		UCombatComponent* CombatComponent = OwnerCharacter->CombatComponent;
+		if (IsValid(CombatComponent->GetMainWeapon()))
+		{
+			CombatComponent->GetMainWeapon()->SwapTwoHandWeapon();
+		}
+	}
+}
+
 
 void UToggleCombatModeAbility::HandleToggleCombat()
 {

@@ -90,9 +90,12 @@ USkeletalMeshComponent* AWeaponBase::GetWeaponMesh() const
 
 void AWeaponBase::EquipCharacterWeapon(ACharacter* Character, const bool IsMain)
 {
+	const FString AttachSocket = "weapon";
+	const FString Position = IsMain ? "_r" : "_l";
+
 	AttachToComponent(Character->GetMesh()
 										, FAttachmentTransformRules::SnapToTargetIncludingScale
-										, IsMain ? "weapon_r" : "weapon_l");
+										, *(AttachSocket + Position));
 }
 
 void AWeaponBase::UnEquipCharacterWeapon(const bool IsMain)
@@ -108,6 +111,21 @@ void AWeaponBase::UnEquipCharacterWeapon(const bool IsMain)
 											, *(AttachSocket + Position));
 	}
 }
+
+void AWeaponBase::SwapTwoHandWeapon()
+{
+	if (GetEquippedHandType() != EUEquippedHandType::TwoHand)
+	{
+		return;
+	}
+	if (const ACharacter* Character = Cast<ACharacter>(GetAttachParentActor()))
+	{
+		AttachToComponent(Character->GetMesh()
+											, FAttachmentTransformRules::SnapToTargetIncludingScale
+											, "weapon_twoHand");
+	}
+}
+
 
 void AWeaponBase::UnEquipCharacterWeapon(ACharacter* Character
 																				, const bool IsMain)

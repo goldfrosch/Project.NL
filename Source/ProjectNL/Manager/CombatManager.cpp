@@ -1,8 +1,8 @@
 ﻿#include "CombatManager.h"
 
 #include "AbilitySystemComponent.h"
-#include "WeaponManager.h"
 #include "ProjectNL/DataTable/CombatAnimationData.h"
+#include "ProjectNL/Helper/EnumHelper.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
 
 UAnimMontage* UCombatManager::GetUnEquipAnimation(
