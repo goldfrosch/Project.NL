@@ -8,7 +8,7 @@
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
-#include "ProjectNL/Manager/WeaponManager.h"
+#include "ProjectNL/Weapon/WeaponBase.h"
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {

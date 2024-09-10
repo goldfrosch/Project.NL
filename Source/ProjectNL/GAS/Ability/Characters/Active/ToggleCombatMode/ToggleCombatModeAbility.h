@@ -4,6 +4,7 @@
 #include "ProjectNL/GAS/Ability/Utility/BaseInputTriggerAbility.h"
 #include "ToggleCombatModeAbility.generated.h"
 
+class USwapTwoHandWeaponNotify;
 class UGrabWeaponNotify;
 class UPutWeaponNotify;
 
@@ -44,6 +45,9 @@ private:
 	void HandleUnEquip();
 
 	UFUNCTION()
+	void HandleSwapTwoHandWeapon();
+
+	UFUNCTION()
 	void HandleCancelAbilityTask(FGameplayTag EventTag
 															, FGameplayEventData EventData);
 
@@ -51,4 +55,5 @@ private:
 
 	TObjectPtr<UPutWeaponNotify> PutWeaponNotify;
 	TObjectPtr<UGrabWeaponNotify> GrabWeaponNotify;
+	TObjectPtr<USwapTwoHandWeaponNotify> SwapTwoHandWeaponNotify;
 };

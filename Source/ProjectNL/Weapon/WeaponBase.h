@@ -26,11 +26,14 @@ public:
 	void UnsetWeaponDamageable() const;
 
 	UFUNCTION()
+	void EquipCharacterWeapon(ACharacter* Character, const bool IsMain);
+
+	UFUNCTION()
 	void UnEquipCharacterWeapon(const bool IsMain);
 	void UnEquipCharacterWeapon(ACharacter* Character, const bool IsMain);
 
 	UFUNCTION()
-	void EquipCharacterWeapon(ACharacter* Character, const bool IsMain);
+	void SwapTwoHandWeapon();
 
 	GETTER(EUWeaponType, WeaponType)
 	GETTER(EWeaponAttachPosition, AttachPosition)
