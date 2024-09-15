@@ -198,4 +198,8 @@ void UToggleCombatModeAbility::ClearDelegate()
 	{
 		GrabWeaponNotify->OnNotified.RemoveAll(this);
 	}
+	if (SwapTwoHandWeaponNotify)
+	{
+		SwapTwoHandWeaponNotify->OnNotified.RemoveAll(this);
+	}
 }
