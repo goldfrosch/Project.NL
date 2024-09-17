@@ -29,19 +29,11 @@ void USprint::OnTriggeredInputAction(const FInputActionValue& Value)
 {
 	Super::OnTriggeredInputAction(Value);
 
-	if (BuffEffect)
+	if (IsValid(BuffEffect))
 	{
-		EffectContext = GetAbilitySystemComponentFromActorInfo()->
-			MakeEffectContext();
-		EffectContext.AddSourceObject(GetAvatarActorFromActorInfo());
-
-		SpecHandle = GetAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(
-			BuffEffect, 1.0f, EffectContext);
-		if (SpecHandle.IsValid())
-		{
-			GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToSelf(
-				*SpecHandle.Data.Get());
-		}
+		GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectToSelf(
+			BuffEffect.GetDefaultObject(), 1
+			, GetAbilitySystemComponentFromActorInfo()->MakeEffectContext());
 	}
 }
 

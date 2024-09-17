@@ -14,23 +14,27 @@ struct FNLAbilitySystemInitializationData
 {
 	GENERATED_BODY()
 
-	// An array of Attribute Sets to create.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<TSubclassOf<UAttributeSet>> AttributeSets;
 
-	// A map of Attributes / float used to set base values.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TMap<FGameplayAttribute, float> AttributeBaseValues;
 
-	// An Array of Gameplay Abilities to give.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<TSubclassOf<UBaseInputTriggerAbility>> GameplayAbilities;
 
-	// An array of Gameplay Effects to apply.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TSubclassOf<UBaseInputTriggerAbility> FirstNameAbility;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TSubclassOf<UBaseInputTriggerAbility> SecondNameAbility;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TSubclassOf<UBaseInputTriggerAbility> ThirdNameAbility;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<TSubclassOf<UGameplayEffect>> GameplayEffects;
 
-	// A container of GameplayTags to apply.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FGameplayTagContainer GameplayTags;
 };

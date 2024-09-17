@@ -1,7 +1,9 @@
 ﻿#include "PlayerControllerBase.h"
 
 #include "PlayerStateBase.h"
+#include "Blueprint/UserWidget.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
+#include "ProjectNL/Widget/MainHUD.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -16,7 +18,35 @@ void APlayerControllerBase::OnPossess(APawn* InPawn)
 
 	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
 	{
+		CreateMainHUD();
 		// Init ASC with PS (Owner) and our new Pawn (AvatarActor)
 		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, InPawn);
 	}
+}
+
+void APlayerControllerBase::CreateMainHUD()
+{
+	if (MainHUD)
+	{
+		return;
+	}
+
+	if (!MainHUDClass)
+	{
+		return;
+	}
+
+	if (!IsLocalPlayerController())
+	{
+		return;
+	}
+
+	MainHUD = CreateWidget<UMainHUD>(this, MainHUDClass);
+	MainHUD->AddToViewport();
+}
+
+void APlayerControllerBase::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	CreateMainHUD();
 }

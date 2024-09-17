@@ -4,6 +4,7 @@
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class UPostProcessComponent;
 class UInputAction;
 class UPlayerCameraComponent;
 class UInputMappingContext;
@@ -17,8 +18,7 @@ class PROJECTNL_API APlayerCharacter : public ABaseCharacter
 public:
 	APlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action
-		, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action)
 	TObjectPtr<UPlayerCameraComponent> PlayerCameraComponent;
 
 protected:

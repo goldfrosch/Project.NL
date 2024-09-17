@@ -5,6 +5,8 @@
 #include "PlayerControllerBase.generated.h"
 
 
+class UMainHUD;
+
 UCLASS()
 class PROJECTNL_API APlayerControllerBase : public APlayerController
 {
@@ -14,4 +16,14 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnRep_PlayerState() override;
+
+	void CreateMainHUD();
+
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UMainHUD> MainHUDClass;
+
+	TObjectPtr<UMainHUD> MainHUD;
 };

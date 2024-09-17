@@ -43,4 +43,6 @@ namespace NlGameplayTags
 																, "특정 캐릭터가 공격 중인 상태임을 명시");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Player_Damaged, "State.Player.Damaged"
 																, "특정 캐릭터가 피격 상태임을 명시");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Name_Prefix_Cecil, "Name.Prefix.Cecil"
+																, "Name Prefix Cecil");
 }
