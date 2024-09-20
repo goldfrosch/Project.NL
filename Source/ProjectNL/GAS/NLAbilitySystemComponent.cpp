@@ -11,58 +11,31 @@ UNLAbilitySystemComponent::UNLAbilitySystemComponent()
 }
 
 void UNLAbilitySystemComponent::InitializeAbilitySystem(
-	const FNLAbilitySystemInitializationData& InitData, AActor* InOwningActor
-	, AActor* InAvatarActor)
+	const FNLAbilitySystemInitializationData& InitData)
 {
-	if (GetbAbilitySystemInitialized())
+	if (GetOwnerRole() != ROLE_Authority || GetIsInitialized())
 	{
 		return;
 	}
 
-	SetbAbilitySystemInitialized(true);
-
-	InitAbilityActorInfo(InOwningActor, InAvatarActor);
-
-	if (GetOwnerActor()->HasAuthority())
+	if (!InitData.GameplayAbilities.IsEmpty())
 	{
-		if (!InitData.AttributeSets.IsEmpty())
+		for (TSubclassOf<UBaseInputTriggerAbility> Ability : InitData.
+				GameplayAbilities)
 		{
-			for (const TSubclassOf<UAttributeSet> AttributeSetClass : InitData.
-					AttributeSets)
-			{
-				AttributeSet = GetOrCreateAttributeSubobject(AttributeSetClass);
-			}
-		}
+			UBaseInputTriggerAbility* InputAbility = Ability->GetDefaultObject<
+				UBaseInputTriggerAbility>();
 
-		if (!InitData.AttributeBaseValues.IsEmpty())
-		{
-			for (const TTuple<FGameplayAttribute, float> AttributeBaseValue : InitData
-					.AttributeBaseValues)
-			{
-				if (HasAttributeSetForAttribute(AttributeBaseValue.Key))
-				{
-					SetNumericAttributeBase(AttributeBaseValue.Key
-																	, AttributeBaseValue.Value);
-				}
-			}
-		}
-
-		if (!InitData.GameplayAbilities.IsEmpty())
-		{
-			for (TSubclassOf<UBaseInputTriggerAbility> Ability : InitData.
-					GameplayAbilities)
-			{
-				UBaseInputTriggerAbility* InputAbility = Ability->GetDefaultObject<
-					UBaseInputTriggerAbility>();
-
-				GiveAbility(FGameplayAbilitySpec(
-					Ability, InputAbility->GetAbilityLevel()
-					, static_cast<uint32>(InputAbility->GetInputID()), this));
-			}
+			GiveAbility(FGameplayAbilitySpec(Ability, InputAbility->GetAbilityLevel()
+																			, static_cast<uint32>(InputAbility->
+																				GetInputID()), this));
 		}
 	}
+
 	if (!InitData.GameplayTags.IsEmpty())
 	{
 		AddLooseGameplayTags(InitData.GameplayTags);
 	}
+
+	SetIsInitialized(true);
 }

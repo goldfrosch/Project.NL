@@ -26,18 +26,6 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	InitCharacterWeapon();
-	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
-		AbilitySystemComponent))
-	{
-		ASC->InitializeAbilitySystem(InitializeData, this, this);
-
-		// Attribute Set에 따른 기본 Character 옵션 값 설정
-		if (const UBasicAttributeSet* AttributeSet = Cast<UBasicAttributeSet>(
-			ASC->AttributeSet))
-		{
-			GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetMovementSpeed();
-		}
-	}
 }
 
 void ABaseCharacter::Tick(float DeltaTime)

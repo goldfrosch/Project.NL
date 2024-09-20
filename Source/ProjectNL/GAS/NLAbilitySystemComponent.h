@@ -8,8 +8,8 @@
 #include "NLAbilitySystemComponent.generated.h"
 
 
-struct FNLAbilitySystemInitializationData;
 struct FInitGameplayAbilitySystem;
+struct FNLAbilitySystemInitializationData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTNL_API UNLAbilitySystemComponent : public UAbilitySystemComponent
@@ -20,13 +20,10 @@ public:
 	UNLAbilitySystemComponent();
 
 	void InitializeAbilitySystem(
-		const FNLAbilitySystemInitializationData& InitData, AActor* InOwningActor
-		, AActor* InAvatarActor);
+		const FNLAbilitySystemInitializationData& InitData);
 
-	UPROPERTY()
-	const UAttributeSet* AttributeSet;
+	GETTER_SETTER(bool, IsInitialized)
 
 private:
-	bool bAbilitySystemInitialized = false;
-	GETTER_SETTER(bool, bAbilitySystemInitialized)
+	bool IsInitialized = false;
 };

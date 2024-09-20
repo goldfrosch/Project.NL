@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/GAS/NLAbilitySystemInitializationData.h"
 #include "ProjectNL/Helper/EnumHelper.h"
 #include "ProjectNL/Helper/UtilHelper.h"
@@ -56,7 +57,7 @@ protected:
 													, AController* EventInstigator
 													, AActor* DamageCauser) override;
 	UPROPERTY()
-	UAbilitySystemComponent* AbilitySystemComponent;
+	UNLAbilitySystemComponent* AbilitySystemComponent;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"

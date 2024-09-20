@@ -18,7 +18,10 @@ public:
 	APlayerStateBase();
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Ability System")
-	UNLAbilitySystemComponent* AbilitySystemComponent;
+	TObjectPtr<UNLAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UPlayerAttributeSet> AttributeSet;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

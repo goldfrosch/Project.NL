@@ -11,6 +11,8 @@ APlayerStateBase::APlayerStateBase()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UNLAbilitySystemComponent>(
 		"Ability System Component");
+	AttributeSet = CreateDefaultSubobject<UPlayerAttributeSet>(
+		"Player Attribute Set");
 }
 
 UAbilitySystemComponent* APlayerStateBase::GetAbilitySystemComponent() const
@@ -20,17 +22,11 @@ UAbilitySystemComponent* APlayerStateBase::GetAbilitySystemComponent() const
 
 void APlayerStateBase::BeginPlay()
 {
-	Super::BeginPlay();
-
 	if (AbilitySystemComponent)
 	{
-		if (const UPlayerAttributeSet* PlayerAttributeSet = Cast<
-			UPlayerAttributeSet>(AbilitySystemComponent->AttributeSet))
-		{
-			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-				PlayerAttributeSet->GetMovementSpeedAttribute()).AddUObject(
-				this, &ThisClass::MovementSpeedChanged);
-		}
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+			AttributeSet->GetMovementSpeedAttribute()).AddUObject(
+			this, &ThisClass::MovementSpeedChanged);
 	}
 }
 

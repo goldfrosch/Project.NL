@@ -4,11 +4,13 @@
 #include "ProjectNL/Character/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerAttributeSet;
 class UPostProcessComponent;
 class UInputAction;
 class UPlayerCameraComponent;
 class UInputMappingContext;
 struct FInputActionValue;
+struct FOnAttributeChangeData;
 
 UCLASS()
 class PROJECTNL_API APlayerCharacter : public ABaseCharacter
@@ -20,6 +22,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Action)
 	TObjectPtr<UPlayerCameraComponent> PlayerCameraComponent;
+
+	UPROPERTY()
+	TObjectPtr<UPlayerAttributeSet> PlayerAttributeSet;
 
 protected:
 	virtual void BeginPlay() override;

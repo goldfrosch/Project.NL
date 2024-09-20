@@ -1,7 +1,5 @@
 ﻿#include "PlayerCharacter.h"
 
-#include "AbilitySystemComponent.h"
-#include "AbilitySystemGlobals.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
@@ -11,9 +9,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
-#include "ProjectNL/GAS/NLAbilitySystemComponent.h"
+#include "ProjectNL/GAS/Attribute/PlayerAttributeSet.h"
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/MovementManager.h"
+#include "ProjectNL/Player/PlayerControllerBase.h"
 #include "ProjectNL/Player/PlayerStateBase.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -31,6 +30,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->JumpZVelocity = 350.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 50.f;
+	GetCharacterMovement()->MaxWalkSpeed = 280;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
@@ -49,13 +49,21 @@ void APlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	AbilitySystemComponent =
-		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState());
-
-	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
-		AbilitySystemComponent))
+	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
 	{
-		ASC->InitializeAbilitySystem(InitializeData, this, this);
+		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
+			PS->GetAbilitySystemComponent());
+
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+
+		PlayerAttributeSet = PS->AttributeSet;
+		PlayerAttributeSet->InitBaseAttribute();
+
+		if (APlayerControllerBase* PC = Cast<
+			APlayerControllerBase>(GetController()))
+		{
+			PC->CreateMainHUD();
+		}
 	}
 }
 
@@ -63,13 +71,23 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	AbilitySystemComponent =
-		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState());
-
-	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
-		AbilitySystemComponent))
+	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
 	{
-		ASC->InitializeAbilitySystem(InitializeData, this, this);
+		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
+			PS->GetAbilitySystemComponent());
+
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+
+		PlayerAttributeSet = PS->AttributeSet;
+		PlayerAttributeSet->InitBaseAttribute();
+
+		AbilitySystemComponent->InitializeAbilitySystem(InitializeData);
+
+		if (APlayerControllerBase* PC = Cast<
+			APlayerControllerBase>(GetController()))
+		{
+			PC->CreateMainHUD();
+		}
 	}
 }
 

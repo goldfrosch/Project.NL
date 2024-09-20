@@ -12,8 +12,8 @@ void UMainHUD::NativeConstruct()
 		if (UNLAbilitySystemComponent* AbilitySystemComponent = PlayerState->
 			AbilitySystemComponent)
 		{
-			if (const UPlayerAttributeSet* PlayerAttributeSet = Cast<
-				UPlayerAttributeSet>(AbilitySystemComponent->AttributeSet))
+			if (const UPlayerAttributeSet* PlayerAttributeSet = PlayerState->
+				AttributeSet)
 			{
 				CurrentHealth = PlayerAttributeSet->GetHealth();
 				MaxHealth = PlayerAttributeSet->GetMaxHealth();

@@ -5,6 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "NLAbilitySystemInitializationData.generated.h"
 
+class UBasicAttributeSet;
 class UBaseInputTriggerAbility;
 class UAttributeSet;
 class UGameplayEffect;
@@ -15,10 +16,7 @@ struct FNLAbilitySystemInitializationData
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<TSubclassOf<UAttributeSet>> AttributeSets;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TMap<FGameplayAttribute, float> AttributeBaseValues;
+	TArray<TSubclassOf<UBasicAttributeSet>> AttributeSets;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<TSubclassOf<UBaseInputTriggerAbility>> GameplayAbilities;
