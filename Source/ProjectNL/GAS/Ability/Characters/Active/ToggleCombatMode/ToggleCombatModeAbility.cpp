@@ -34,9 +34,10 @@ bool UToggleCombatModeAbility::CanActivateAbility(
 	if (const ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(
 		ActorInfo->AvatarActor.Get()))
 	{
-		if (IsValid(OwnerCharacter->AbilitySystemComponent))
+		if (IsValid(OwnerCharacter->GetAbilitySystemComponent()))
 		{
-			return FStateHelper::IsPlayerIdle(OwnerCharacter->AbilitySystemComponent);
+			return FStateHelper::IsPlayerIdle(
+				OwnerCharacter->GetAbilitySystemComponent());
 		}
 	}
 
@@ -54,7 +55,7 @@ void UToggleCombatModeAbility::ActivateAbility(
 	{
 		HandleToggleCombat();
 		if (UCombatManager::IsCharacterCombat(
-			OwnerCharacter->AbilitySystemComponent))
+			OwnerCharacter->GetAbilitySystemComponent()))
 		{
 			SetCurrentMontage(OwnerCharacter->CombatComponent->GetUnEquipAnim());
 			// 애니메이션 Notify 추가

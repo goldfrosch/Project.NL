@@ -11,9 +11,6 @@ APlayerStateBase::APlayerStateBase()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UNLAbilitySystemComponent>(
 		"Ability System Component");
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(
-		EGameplayEffectReplicationMode::Mixed);
 }
 
 UAbilitySystemComponent* APlayerStateBase::GetAbilitySystemComponent() const

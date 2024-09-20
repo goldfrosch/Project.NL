@@ -6,10 +6,8 @@
 
 void UMainHUD::NativeConstruct()
 {
-	const TObjectPtr<APlayerStateBase> PlayerState = Cast<APlayerStateBase>(
-		GetOwningPlayer()->PlayerState);
-
-	if (IsValid(PlayerState))
+	if (const TObjectPtr<APlayerStateBase> PlayerState = Cast<APlayerStateBase>(
+		GetOwningPlayer()->PlayerState))
 	{
 		if (UNLAbilitySystemComponent* AbilitySystemComponent = PlayerState->
 			AbilitySystemComponent)

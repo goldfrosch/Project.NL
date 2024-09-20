@@ -144,7 +144,7 @@ void UBaseInputTriggerAbility::OnAbilityInputPressed(
 	if (const ABaseCharacter* Owner = Cast<
 		ABaseCharacter>(ActorInfo->AvatarActor))
 	{
-		Owner->AbilitySystemComponent->AbilityLocalInputPressed(
+		Owner->GetAbilitySystemComponent()->AbilityLocalInputPressed(
 			static_cast<uint32>(InputID));
 	}
 }
@@ -155,7 +155,7 @@ void UBaseInputTriggerAbility::OnAbilityInputReleased(
 	if (const ABaseCharacter* Owner = Cast<
 		ABaseCharacter>(ActorInfo->AvatarActor))
 	{
-		Owner->AbilitySystemComponent->AbilityLocalInputReleased(
+		Owner->GetAbilitySystemComponent()->AbilityLocalInputReleased(
 			static_cast<uint32>(InputID));
 	}
 };

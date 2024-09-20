@@ -6,7 +6,6 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Components/PostProcessComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,7 +13,6 @@
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
 #include "ProjectNL/Helper/StateHelper.h"
-#include "ProjectNL/Manager/CombatManager.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Player/PlayerStateBase.h"
 
@@ -51,21 +49,6 @@ void APlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
-	{
-		AbilitySystemComponent =
-			UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PS);
-		if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
-			AbilitySystemComponent))
-		{
-			ASC->InitializeAbilitySystem(InitializeData, PS, this);
-		}
-	}
-}
-
-void APlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
 	AbilitySystemComponent =
 		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState());
 
@@ -74,8 +57,20 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	{
 		ASC->InitializeAbilitySystem(InitializeData, this, this);
 	}
+}
 
-	SetOwner(NewController);
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AbilitySystemComponent =
+		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPlayerState());
+
+	if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
+		AbilitySystemComponent))
+	{
+		ASC->InitializeAbilitySystem(InitializeData, this, this);
+	}
 }
 
 void APlayerCharacter::BeginPlay()
@@ -90,15 +85,6 @@ void APlayerCharacter::BeginPlay()
 				PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-
-	if (APlayerStateBase* PS = GetPlayerState<APlayerStateBase>())
-	{
-		if (UNLAbilitySystemComponent* ASC = Cast<UNLAbilitySystemComponent>(
-			AbilitySystemComponent))
-		{
-			ASC->InitializeAbilitySystem(InitializeData, PS, this);
 		}
 	}
 

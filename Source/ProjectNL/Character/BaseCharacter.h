@@ -55,6 +55,8 @@ protected:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent
 													, AController* EventInstigator
 													, AActor* DamageCauser) override;
+	UPROPERTY()
+	UAbilitySystemComponent* AbilitySystemComponent;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Category"
@@ -70,7 +72,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem"
 		, meta = (AllowPrivateAccess = "true"))
 	FNLAbilitySystemInitializationData InitializeData;
-
-	UPROPERTY()
-	UAbilitySystemComponent* AbilitySystemComponent;
 };

@@ -15,10 +15,6 @@ class PROJECTNL_API APlayerControllerBase : public APlayerController
 public:
 	virtual void BeginPlay() override;
 
-	virtual void OnPossess(APawn* InPawn) override;
-
-	virtual void OnRep_PlayerState() override;
-
 	void CreateMainHUD();
 
 protected:
