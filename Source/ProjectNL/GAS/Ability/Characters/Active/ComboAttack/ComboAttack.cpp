@@ -65,6 +65,13 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 			Task->ExternalCancel();
 		}
 
+		if (!IsValid(CurrentCharacter->CombatComponent))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Fail to Player Combat Component Try Again"));
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo
+								, true, true);
+		}
+
 		const TArray<TObjectPtr<UAnimMontage>> ComboAttack = CurrentCharacter->
 			CombatComponent->GetComboAttackAnim();
 		MaxCombo = ComboAttack.Num();

@@ -69,7 +69,8 @@ void UBaseInputTriggerAbility::ActivateAbility(
 					EnhancedInputComponent->BindAction(ActivationInputAction
 																						, ETriggerEvent::Triggered, this
 																						, &
-																						UBaseInputTriggerAbility::OnTriggeredInputAction);
+																						ThisClass::OnTriggeredInputAction);
+
 				TriggeredEventHandle = TriggeredEventBinding.GetHandle();
 				CommitAbility(Handle, ActorInfo, ActivationInfo);
 				return;
