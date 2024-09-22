@@ -84,11 +84,11 @@ void UBasicAttributeSet::InitBaseAttribute()
 	InitMaxMana(100);
 	InitMana(GetMaxMana());
 	InitMaxStamina(100);
-	InitStamina(GetStamina());
+	InitStamina(GetMaxStamina());
 
 	InitPhysicalDamage(10 + GetMuscularPower() * 5);
 	InitMagicalDamage(10 + GetWisdom() * 5);
-	InitMovementSpeed(300 + GetEndurance() * 0.06);
+	InitMovementSpeed(280);
 	InitDefense(10);
 	InitCriticalPercent(10 + GetConcentration() * 0.01);
 	InitCriticalPower(10 + GetSharpness() * 0.005);

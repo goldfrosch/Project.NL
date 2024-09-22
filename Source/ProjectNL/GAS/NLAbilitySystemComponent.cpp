@@ -13,22 +13,33 @@ UNLAbilitySystemComponent::UNLAbilitySystemComponent()
 void UNLAbilitySystemComponent::InitializeAbilitySystem(
 	const FNLAbilitySystemInitializationData& InitData)
 {
-	if (GetOwnerRole() != ROLE_Authority || GetIsInitialized())
+	if (GetIsInitialized())
 	{
 		return;
 	}
 
-	if (!InitData.GameplayAbilities.IsEmpty())
+	if (GetOwnerRole() == ROLE_Authority)
 	{
-		for (TSubclassOf<UBaseInputTriggerAbility> Ability : InitData.
-				GameplayAbilities)
+		if (!InitData.GameplayAbilities.IsEmpty())
 		{
-			UBaseInputTriggerAbility* InputAbility = Ability->GetDefaultObject<
-				UBaseInputTriggerAbility>();
+			for (TSubclassOf<UBaseInputTriggerAbility> Ability : InitData.
+					GameplayAbilities)
+			{
+				UBaseInputTriggerAbility* InputAbility = Ability->GetDefaultObject<
+					UBaseInputTriggerAbility>();
 
-			GiveAbility(FGameplayAbilitySpec(Ability, InputAbility->GetAbilityLevel()
-																			, static_cast<uint32>(InputAbility->
-																				GetInputID()), this));
+				GiveAbility(FGameplayAbilitySpec(
+					Ability, InputAbility->GetAbilityLevel()
+					, static_cast<uint32>(InputAbility->GetInputID()), this));
+			}
+		}
+		if (!InitData.GameplayEffects.IsEmpty())
+		{
+			for (TSubclassOf<UGameplayEffect> Effect : InitData.GameplayEffects)
+			{
+				ApplyGameplayEffectToSelf(Effect.GetDefaultObject(), 1
+																	, MakeEffectContext());
+			}
 		}
 	}
 
@@ -36,6 +47,7 @@ void UNLAbilitySystemComponent::InitializeAbilitySystem(
 	{
 		AddLooseGameplayTags(InitData.GameplayTags);
 	}
+
 
 	SetIsInitialized(true);
 }

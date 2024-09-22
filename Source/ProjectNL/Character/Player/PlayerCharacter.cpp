@@ -54,7 +54,7 @@ void APlayerCharacter::OnRep_PlayerState()
 		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
 			PS->GetAbilitySystemComponent());
 
-		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
 		PlayerAttributeSet = PS->AttributeSet;
 		PlayerAttributeSet->InitBaseAttribute();
@@ -76,7 +76,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComponent = Cast<UNLAbilitySystemComponent>(
 			PS->GetAbilitySystemComponent());
 
-		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
 		PlayerAttributeSet = PS->AttributeSet;
 		PlayerAttributeSet->InitBaseAttribute();
