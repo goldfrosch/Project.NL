@@ -8,6 +8,7 @@
 #include "ProjectNL/Manager/AnimNotifyManager.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 #include "AnimNotify/ComboAttackNotifyState.h"
+#include "ProjectNL/Helper/LogHelper.h"
 
 UComboAttack::UComboAttack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -49,6 +50,9 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 																	ActivationInfo
 																	, const FGameplayEventData* TriggerEventData)
 {
+	// TODO: OnCancel이나 OnComplete에서 N초 뒤 comboIndex를 추가하는 로직을 넣는다.
+	// 다만, N초 이내에 다시 Activate가 실행되는 경우, 그 timer를 제거한다.
+
 	if (ABaseCharacter* CurrentCharacter = Cast<ABaseCharacter>(
 		GetAvatarActorFromActorInfo()))
 	{
@@ -72,6 +76,7 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 								, true, true);
 		}
 
+		// TODO: 추후 무기 종류가 바뀌지 않는다면 계산하지 않게 캐싱 기능 추가
 		const TArray<TObjectPtr<UAnimMontage>> ComboAttack = CurrentCharacter->
 			CombatComponent->GetComboAttackAnim();
 		MaxCombo = ComboAttack.Num();
@@ -85,30 +90,34 @@ void UComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 		SetCurrentMontage(ComboAttack[ComboIndex]);
 
-		// TODO: 메인 서브 선택해서 Delegate 실행되게끔 처리
-		ComboAttackNotifyState = UAnimNotifyManager::FindNotifyStateByClass<
-			UComboAttackNotifyState>(GetCurrentMontage());
-
-		if (IsValid(ComboAttackNotifyState))
+		if (CurrentCharacter->IsLocallyControlled())
 		{
-			ComboAttackNotifyState->OnNotifiedBegin.Clear();
-			ComboAttackNotifyState->OnNotifiedBegin.AddDynamic(
-				this, &UComboAttack::HandleComboNotifyStart);
-			ComboAttackNotifyState->OnNotifiedEnd.Clear();
-			ComboAttackNotifyState->OnNotifiedEnd.AddDynamic(
-				this, &UComboAttack::HandleComboNotifyEnd);
+			// TODO: 메인 서브 선택해서 Delegate 실행되게끔 처리
+			ComboAttackNotifyState = UAnimNotifyManager::FindNotifyStateByClass<
+				UComboAttackNotifyState>(GetCurrentMontage());
+
+			if (IsValid(ComboAttackNotifyState))
+			{
+				ComboAttackNotifyState->OnNotifiedBegin.Clear();
+				ComboAttackNotifyState->OnNotifiedBegin.AddDynamic(
+					this, &UComboAttack::HandleComboNotifyStart);
+				ComboAttackNotifyState->OnNotifiedEnd.Clear();
+				ComboAttackNotifyState->OnNotifiedEnd.AddDynamic(
+					this, &UComboAttack::HandleComboNotifyEnd);
+			}
 		}
 
 		FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
 																		, NlGameplayTags::State_Player_Idle
 																		, NlGameplayTags::State_Player_Attack);
+
 		Task = UPlayMontageWithEvent::InitialEvent(this, NAME_None
 																							, GetCurrentMontage()
 																							, FGameplayTagContainer());
-		Task->OnCancelled.AddDynamic(this, &UComboAttack::OnCancelled);
-		Task->OnInterrupted.AddDynamic(this, &UComboAttack::OnCancelled);
-		Task->OnBlendOut.AddDynamic(this, &UComboAttack::OnCancelled);
-		Task->OnCompleted.AddDynamic(this, &UComboAttack::OnCompleted);
+		Task->OnCancelled.AddDynamic(this, &ThisClass::OnCancelled);
+		Task->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
+		Task->OnBlendOut.AddDynamic(this, &ThisClass::OnCancelled);
+
 		Task->ReadyForActivation();
 	}
 }
@@ -141,6 +150,7 @@ void UComboAttack::HandleComboNotifyStart(const EHandEquipStatus AttackHand)
 
 void UComboAttack::HandleComboNotifyEnd(const EHandEquipStatus AttackHand)
 {
+	ClearDelegate();
 	ComboIndex = ComboIndex == MaxCombo - 1 ? 0 : ComboIndex + 1;
 	FStateHelper::ChangePlayerState(GetAbilitySystemComponentFromActorInfo()
 																	, NlGameplayTags::State_Player_Attack
@@ -173,7 +183,6 @@ void UComboAttack::OnCompleted(FGameplayTag EventTag
 															, FGameplayEventData EventData)
 {
 	ComboIndex = 0;
-	ClearDelegate();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
 						, false);
 }
@@ -181,9 +190,8 @@ void UComboAttack::OnCompleted(FGameplayTag EventTag
 void UComboAttack::OnCancelled(FGameplayTag EventTag
 															, FGameplayEventData EventData)
 {
-	ClearDelegate();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true
-						, false);
+						, true);
 }
 
 void UComboAttack::ClearDelegate()

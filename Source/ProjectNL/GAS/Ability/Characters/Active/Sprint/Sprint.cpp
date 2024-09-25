@@ -31,9 +31,11 @@ void USprint::OnTriggeredInputAction(const FInputActionValue& Value)
 
 	if (IsValid(BuffEffect))
 	{
-		GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectToSelf(
-			BuffEffect.GetDefaultObject(), 1
-			, GetAbilitySystemComponentFromActorInfo()->MakeEffectContext());
+		if (ABaseCharacter* Character = Cast<ABaseCharacter>(
+			GetAvatarActorFromActorInfo()))
+		{
+			Character->Server_ApplyGameplayEffectToSelf(BuffEffect);
+		}
 	}
 }
 
@@ -43,8 +45,10 @@ void USprint::CancelAbility(const FGameplayAbilitySpecHandle Handle
 														, const FGameplayAbilityActivationInfo
 														ActivationInfo, bool bReplicateCancelAbility)
 {
-	GetAbilitySystemComponentFromActorInfo()->
-		RemoveActiveGameplayEffectBySourceEffect(BuffEffect
-																						, GetAbilitySystemComponentFromActorInfo());
+	if (ABaseCharacter* Character = Cast<ABaseCharacter>(
+		GetAvatarActorFromActorInfo()))
+	{
+		Character->Server_RemoveActiveGameplayEffectBySourceEffect(BuffEffect);
+	}
 	EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility, false);
 }
