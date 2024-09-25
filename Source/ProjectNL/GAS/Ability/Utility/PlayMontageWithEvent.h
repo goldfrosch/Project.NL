@@ -14,7 +14,7 @@ class PROJECTNL_API UPlayMontageWithEvent : public UAbilityTask
 	GENERATED_BODY()
 
 public:
-	UPlayMontageWithEvent(const FObjectInitializer& ObjectInitializer);
+	UPlayMontageWithEvent();
 
 	virtual void Activate() override;
 	virtual void ExternalCancel() override;

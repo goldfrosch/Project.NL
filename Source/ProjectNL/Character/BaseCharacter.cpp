@@ -1,12 +1,10 @@
 ﻿#include "BaseCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Components/WidgetComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/DamagedComponent.h"
 #include "ProjectNL/Component/WidgetsComponent.h"
 #include "ProjectNL/GAS/NLAbilitySystemComponent.h"
-#include "ProjectNL/GAS/Attribute/BasicAttributeSet.h"
 #include "ProjectNL/Helper/GameplayTagsHelper.h"
 #include "ProjectNL/Weapon/WeaponBase.h"
 
@@ -26,11 +24,6 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	InitCharacterWeapon();
-}
-
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void ABaseCharacter::Jump()
@@ -88,4 +81,42 @@ float ABaseCharacter::TakeDamage(float DamageAmount
 	DamagedComponent->HandleDamaged(DamageCauser);
 
 	return DamageAmount;
+}
+
+void ABaseCharacter::Server_ApplyGameplayEffectToSelf_Implementation(
+	TSubclassOf<UGameplayEffect> Effect, const uint32 Level)
+{
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		Server_ApplyGameplayEffectToSelf(Effect);
+		return;
+	}
+
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	AbilitySystemComponent->ApplyGameplayEffectToSelf(
+		Effect.GetDefaultObject(), Level
+		, AbilitySystemComponent->MakeEffectContext());
+}
+
+void
+ABaseCharacter::Server_RemoveActiveGameplayEffectBySourceEffect_Implementation(
+	TSubclassOf<UGameplayEffect> Effect)
+{
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		Server_ApplyGameplayEffectToSelf(Effect);
+		return;
+	}
+
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(
+		Effect, AbilitySystemComponent);
 }

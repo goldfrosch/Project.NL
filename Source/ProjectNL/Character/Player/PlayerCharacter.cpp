@@ -10,6 +10,7 @@
 #include "ProjectNL/Component/CombatComponent.h"
 #include "ProjectNL/Component/PlayerCameraComponent.h"
 #include "ProjectNL/GAS/Attribute/PlayerAttributeSet.h"
+#include "ProjectNL/Helper/LogHelper.h"
 #include "ProjectNL/Helper/StateHelper.h"
 #include "ProjectNL/Manager/MovementManager.h"
 #include "ProjectNL/Player/PlayerControllerBase.h"
@@ -55,15 +56,10 @@ void APlayerCharacter::OnRep_PlayerState()
 			PS->GetAbilitySystemComponent());
 
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+		AbilitySystemComponent->InitializeName(InitializeData);
 
 		PlayerAttributeSet = PS->AttributeSet;
 		PlayerAttributeSet->InitBaseAttribute();
-
-		if (APlayerControllerBase* PC = Cast<
-			APlayerControllerBase>(GetController()))
-		{
-			PC->CreateMainHUD();
-		}
 	}
 }
 
@@ -82,12 +78,6 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 		PlayerAttributeSet->InitBaseAttribute();
 
 		AbilitySystemComponent->InitializeAbilitySystem(InitializeData);
-
-		if (APlayerControllerBase* PC = Cast<
-			APlayerControllerBase>(GetController()))
-		{
-			PC->CreateMainHUD();
-		}
 	}
 }
 

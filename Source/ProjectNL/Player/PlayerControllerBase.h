@@ -14,6 +14,7 @@ class PROJECTNL_API APlayerControllerBase : public APlayerController
 
 public:
 	virtual void BeginPlay() override;
+	virtual void BeginPlayingState() override;
 
 	void CreateMainHUD();
 

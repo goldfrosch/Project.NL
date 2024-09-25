@@ -38,8 +38,6 @@ public:
 		, meta = (AllowPrivateAccess = "true"))
 	UDamagedComponent* DamagedComponent;
 
-	virtual void Tick(float DeltaTime) override;
-
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
 	{
 		return AbilitySystemComponent;
@@ -49,6 +47,14 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 
 	void InitCharacterWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ApplyGameplayEffectToSelf(TSubclassOf<UGameplayEffect> Effect
+																				, const uint32 Level = 1);
+
+	UFUNCTION(Server, Reliable)
+	void Server_RemoveActiveGameplayEffectBySourceEffect(
+		TSubclassOf<UGameplayEffect> Effect);
 
 protected:
 	virtual void BeginPlay() override;

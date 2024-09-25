@@ -3,15 +3,20 @@
 #include "AbilitySystemGlobals.h"
 #include "ProjectNL/Character/BaseCharacter.h"
 
-UPlayMontageWithEvent::UPlayMontageWithEvent(
-	const FObjectInitializer& ObjectInitializer)
+UPlayMontageWithEvent::UPlayMontageWithEvent()
 {
 	Rate = 1.f;
 	bStopWhenAbilityEnds = true;
+	PlayAnimMontage = nullptr;
 }
 
 void UPlayMontageWithEvent::Activate()
 {
+	if (!IsValid(PlayAnimMontage))
+	{
+		return;
+	}
+
 	// GA 없으면 진행할 Task가 없으니 그대로 중단
 	if (!IsValid(Ability))
 	{
@@ -78,16 +83,14 @@ void UPlayMontageWithEvent::Activate()
 		else
 		{
 			UE_LOG(LogTemp, Warning
-						, TEXT(
-							"UGDAbilityTask_PlayMontageAndWaitForEvent call to PlayMontage failed!"
-						));
+						, TEXT( "PlayMontageAndWaitForEvent call to PlayMontage failed!" ));
 		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning
 					, TEXT(
-						"UGDAbilityTask_PlayMontageAndWaitForEvent called on invalid AbilitySystemComponent"
+						"PlayMontageAndWaitForEvent called on invalid AbilitySystemComponent"
 					));
 	}
 
@@ -95,7 +98,7 @@ void UPlayMontageWithEvent::Activate()
 	{
 		UE_LOG(LogTemp, Warning
 					, TEXT(
-						"UGDAbilityTask_PlayMontageAndWaitForEvent called in Ability %s failed to play montage %s; Task Instance Name %s."
+						"PlayMontageAndWaitForEvent called in Ability %s failed to play montage %s; Task Instance Name %s."
 					), *Ability->GetName(), *GetNameSafe(PlayAnimMontage)
 					, *InstanceName.ToString());
 		// Anim Montage가 다 실행되지도 않았는데 아직 실행해야할 GATask Delegate 정보가 남아있으면 Cancel 관련 Delegate를 전부 실행한다.
